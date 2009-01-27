@@ -30,6 +30,8 @@
 
 package de.sciss.gui;
 
+import java.util.Comparator;
+
 /**
  *  A simple structure encompassing
  *  a string and an associated value.
@@ -40,7 +42,7 @@ package de.sciss.gui;
  *  the user on the GUI.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.13, 04-Aug-05
+ *  @version	0.14, 27-Jan-09
  *
  *  @see	de.sciss.gui.PrefComboBox#addItem( Object )
  *  @see	de.sciss.io.AudioFileDescr#getFormatItems()
@@ -49,7 +51,33 @@ public class StringItem
 {
 	private final String key;
 	private final Object value;
+	
+	public static final Comparator keyComparator = new Comparator() {
+		public int compare( Object a, Object b )
+		{
+			final StringItem sa = (StringItem) a;
+			final StringItem sb = (StringItem) b;
+			
+			return sa.key.compareTo( sb.key );
+		}
+	};
 
+	public static final Comparator valueComparator = new Comparator() {
+		public int compare( Object a, Object b )
+		{
+			final StringItem sa = (StringItem) a;
+			final StringItem sb = (StringItem) b;
+			
+			if( (sa.value instanceof Comparable) &&
+				(sb.value instanceof Comparable) ) {
+				
+				return ((Comparable) sa.value).compareTo( (Comparable) sb.value );
+			} else {
+				return sa.value.toString().compareTo( sb.value.toString() );
+			}
+		}
+	};
+	
 	/**
 	 *  Constructs a new immutable StringItem.
 	 *

@@ -68,7 +68,7 @@ import de.sciss.gui.VectorSpace;
  *  timeline.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.70, 23-Apr-08
+ *  @version	0.70, 21-Jan-09
  *
  *	@todo		FIXEDBOUNDS is ignored in logarithmic mode now
  *	@todo		new label width calculation not performed in logarithmic mode
@@ -493,7 +493,7 @@ extends JComponent
 		pixelStep   = valueStep / kPeriod * scale;
 		tickStep	= pixelStep / numTicks;
 		
-		numLabels	= (int) ((width - pixelOff + pixelStep - 1.0) / pixelStep);
+		numLabels	= Math.max( 0, (int) ((width - pixelOff + pixelStep - 1.0) / pixelStep) );
 		if( labels.length != numLabels ) labels = new String[ numLabels ];
 		if( labelPos.length != numLabels ) labelPos = new int[ numLabels ];
 
