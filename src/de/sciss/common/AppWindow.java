@@ -2,7 +2,7 @@
  *  AppWindow.java
  *  (de.sciss.common package)
  *
- *  Copyright (c) 2004-2008 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2009 Hanns Holger Rutz. All rights reserved.
  *
  *	This software is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -60,7 +60,6 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
@@ -131,7 +130,7 @@ implements AbstractWindow
 	private final Dialog					d;
 	private final JComponent				jc;
 	private final JDialog					jd;
-	protected final JFrame					jf;
+	protected final SmartJFrame				jf;
 	protected final JInternalFrame			jif;
 	
 	private final AquaWindowBar				ggTitle;
@@ -168,55 +167,51 @@ implements AbstractWindow
 		case REGULAR:
 		case SUPPORT:
 			if( wh.usesInternalFrames() ) {
-				c = jc = jif	=
-					new JInternalFrame( null, true, true, true, true );
-				w = f = jf	= null;
+				c = jc = jif	= new JInternalFrame( null, true, true, true, true );
+				w = f = jf		= null;
 				d = jd			= null;
 				wh.getDesktop().add( jif );
-				ownMenuBar				= type == REGULAR;
+				ownMenuBar		= type == REGULAR;
 
 			} else {
-				c = w = f = jf
-					= new JFrame();
-				jc = jif			= null;
+				c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );				
+				jc = jif		= null;
 				d = jd			= null;
-				ownMenuBar				= wh.usesScreenMenuBar() || (type == REGULAR);
+				ownMenuBar		= wh.usesScreenMenuBar() || (type == REGULAR);
 			}
 //			floating			= false;
-			tempFloating	= (type == SUPPORT) && wh.usesFloating();
-			floating		= tempFloating;
-			borrowMenuBar	= false;
-			ggTitle		= null;
+			tempFloating		= (type == SUPPORT) && wh.usesFloating();
+			floating			= tempFloating;
+			borrowMenuBar		= false;
+			ggTitle				= null;
 			break;
 			
 		case PALETTE:
-			floating		= wh.usesFloating();
-			tempFloating	= false;
-			ownMenuBar		= false;
+			floating			= wh.usesFloating();
+			tempFloating		= false;
+			ownMenuBar			= false;
 			
 			if( wh.usesInternalFrames() ) {
-				c = jc = jif =
-					new JInternalFrame( null, true, true, true, true );
-				w = f = jf	= null;
+				c = jc = jif	= new JInternalFrame( null, true, true, true, true );
+				w = f = jf		= null;
 				d = jd			= null;
-				borrowMenuBar			= true;
-				ggTitle				= null;
+				borrowMenuBar	= true;
+				ggTitle			= null;
 				
 				if( floating ) jif.putClientProperty( "JInternalFrame.isPalette", Boolean.TRUE );
 				wh.getDesktop().add( jif, floating ? JLayeredPane.PALETTE_LAYER : JLayeredPane.DEFAULT_LAYER );
 
 			} else {
 
-				c = w = f = jf =
-					new JFrame();
-				jc = jif			= null;
+				c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );
+				jc = jif		= null;
 				d = jd			= null;
 //				borrowMenuBar	= wh.usesScreenMenuBar();
 				
 				if( floating ) {
-					ggTitle = new AquaWindowBar( this, true );
+					ggTitle			= new AquaWindowBar( this, true );
 					ggTitle.setAlwaysOnTop( true );
-					borrowMenuBar = false;
+					borrowMenuBar	= false;
 					jf.setUndecorated( true );
 					
 					final Container cp = jf.getContentPane();
@@ -235,7 +230,7 @@ implements AbstractWindow
 //					}
 				} else {
 					borrowMenuBar	= wh.usesScreenMenuBar();
-					ggTitle		= null;
+					ggTitle			= null;
 				}
 			}
 			break;

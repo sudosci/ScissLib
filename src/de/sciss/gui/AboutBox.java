@@ -2,7 +2,7 @@
  *  AboutBox.java
  *  de.sciss.gui package
  *
- *  Copyright (c) 2004-2008 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2009 Hanns Holger Rutz. All rights reserved.
  *
  *	This software is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -31,6 +31,7 @@
 package de.sciss.gui;
 
 import java.io.File;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.Date;
 import javax.swing.ImageIcon;
@@ -46,7 +47,7 @@ import de.sciss.app.AbstractApplication;
  *  About, Copyright + Credits Frame
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.31, 02-Sep-06
+ *  @version	0.32, 29-Jan-09
  *
  *	@todo		integrate with new AbstractWindow concept
  */
@@ -77,9 +78,10 @@ implements HyperlinkListener
 
 		final StringBuffer				credits	= new StringBuffer( CREDITS_START );
 		final de.sciss.app.Application	app		= AbstractApplication.getApplication();
+		final URL						imgURL	= app.getClass().getResource( "application.png" );
 //		final char						sep		= File.separatorChar;
 
-		setApplicationIcon( new ImageIcon( app.getClass().getResource( "application.png" )));
+		if( imgURL != null ) setApplicationIcon( new ImageIcon( imgURL ));
 //		setApplicationIcon( new ImageIcon( "images" + File.separator + "application.png" ));
 		setCopyright( app.getResourceString( "copyright" ));
 		setHyperlinkListener( this );

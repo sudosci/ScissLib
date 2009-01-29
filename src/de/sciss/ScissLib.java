@@ -7,7 +7,7 @@ public class ScissLib
 	public static void main( String[] args )
 	{
 		System.err.println( "\nScissUtil v" + VERSION + "\n" +
-		    				"(C)opyright 2004-2008 by Hanns Holger Rutz. All rights reserved.\n" +
+		    				"(C)opyright 2004-2009 by Hanns Holger Rutz. All rights reserved.\n" +
 		    				"Published under the GNU General Public License.\n\n" +
 		    				"This is a library which is not meant to be executed by itself.\n\n" );
 		System.exit( 1 );

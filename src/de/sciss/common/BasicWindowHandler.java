@@ -2,7 +2,7 @@
  *  BasicWindowHandler.java
  *  (de.sciss.common package)
  *
- *  Copyright (c) 2004-2008 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2009 Hanns Holger Rutz. All rights reserved.
  *
  *	This software is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -149,7 +149,7 @@ extends AbstractWindowHandler
 		fph					= FloatingPaletteHandler.getInstance();
 
 		if( internalFrames ) {
-			masterFrame = new MasterFrame();
+			masterFrame = new MasterFrame( usesScreenMenuBar() );
 			masterFrame.setTitle( root.getName() );
 //			masterFrame.setSize( 400, 400 ); // XXX
 //			masterFrame.setVisible( true );
@@ -540,15 +540,15 @@ extends AbstractWindowHandler
 
 	// -------------------- internal classes --------------------
 	private static class MasterFrame
-	extends JFrame
+	extends SmartJFrame
 	implements AbstractWindow
 	{
 		private JMenuBar bar = null;
 		
-		protected MasterFrame()
+		protected MasterFrame( boolean screenMenuBar )
 		{
-			super();
-			
+			super( screenMenuBar );
+//			System.out.println( "screenMenuBar = " + screenMenuBar );
 			setBounds( GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds() );
 		}
 		
