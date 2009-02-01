@@ -38,7 +38,7 @@ import javax.swing.JRootPane;
 
 /**
  *  @author		Hanns Holger Rutz
- *  @version	0.73, 29-Jan-09
+ *  @version	0.73, 01-Feb-09
  */
 public class SmartJFrame
 extends JFrame
@@ -78,25 +78,33 @@ extends JFrame
 			return;
 		}
 		
-		if( barListener == null ) {
-			barListener = new ContainerListener() {
-				public void componentAdded( ContainerEvent e )
-				{
-					checkMenuBar( e );
-				}
+		if( m != null ) {
+			if( barListener == null ) {
+				barListener = new ContainerListener() {
+					public void componentAdded( ContainerEvent e )
+					{
+						checkMenuBar( e );
+					}
+				
+					public void componentRemoved( ContainerEvent e )
+					{
+						checkMenuBar( e );
+					}
+				};
+			} else if( savedBar != null ) {
+				savedBar.removeContainerListener( barListener );
+			}
+			savedBar = m;
+			if( m.getMenuCount() > 0 ) super.setJMenuBar( m );
+			m.addContainerListener( barListener );
 			
-				public void componentRemoved( ContainerEvent e )
-				{
-					checkMenuBar( e );
-				}
-			};
-		} else if( savedBar != null ) {
-			savedBar.removeContainerListener( barListener );
+		} else {
+			if( savedBar != null ) {
+				savedBar.removeContainerListener( barListener );
+				savedBar = null;
+			}
+			super.setJMenuBar( null );
 		}
-		savedBar = m;
-		
-		if( m.getMenuCount() > 0 ) super.setJMenuBar( m );
-		m.addContainerListener( barListener );
 	}
 
 	protected void checkMenuBar( ContainerEvent e )
