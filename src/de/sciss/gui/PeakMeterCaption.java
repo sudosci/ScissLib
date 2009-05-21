@@ -57,7 +57,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 /**
- *	@version	0.11, 21-Dec-07
+ *	@version	0.12, 21-May-09
  *	@author		Hanns Holger Rutz
  */
 
@@ -166,7 +166,8 @@ implements SwingConstants, PropertyChangeListener
 			descent	= 0;
 		}
 		
-		d = new Dimension( labW + 5 + insets.left + insets.right, ticks <= 0 ? getPreferredSize().height : (ticks * 2 - 1 + insets.top + insets.bottom) );
+		d = new Dimension( labW + (hAlign == CENTER ? 12 : 5) + insets.left + insets.right,
+		                   ticks <= 0 ? getPreferredSize().height : (ticks * 2 - 1 + insets.top + insets.bottom) );
 		setPreferredSize( d );
 		setMinimumSize( new Dimension( d.width, 2 + insets.top + insets.bottom ));
 		setMaximumSize( new Dimension( d.width, getMaximumSize().height ));
@@ -186,8 +187,9 @@ implements SwingConstants, PropertyChangeListener
 		}
 
 		hAlign			= alignment;
-System.out.println( "align : " + hAlign );
+//System.out.println( "align : " + hAlign );
 		recentHeight	= -1;
+		recalcPrefSize();
 		repaint();
 	}
 	
@@ -228,8 +230,11 @@ recalc:	if( (w != recentWidth) || (h != recentHeight) ) {
 			
 			switch( hAlign ) {
 			case LEFT:
-			case CENTER:
 				xw		= 0f;
+				labX	= (int) (MAJOR_W + 3);
+				break;
+			case CENTER:
+				xw		= 0.5f;
 				labX	= (int) (MAJOR_W + 3);
 				break;
 			case RIGHT:
@@ -252,18 +257,23 @@ recalc:	if( (w != recentWidth) || (h != recentHeight) ) {
 			final int				him		= hi - 1;
 			final GeneralPath		gpMajT	= new GeneralPath();
 			final GeneralPath		gpMinT	= new GeneralPath();
-			final float				minX	= (MAJOR_W - MINOR_W) * xw;
-			at.translate( (wi - MAJOR_W) * xw + insets.left, insets.top + ascent );
+			at.translate( insets.left, insets.top + ascent );
 //			System.out.println( "h " + h + ", top " + insets.top + ", bottom " + insets.bottom + " hi " + hi );
 //			at.scale( majW, hi - 1 );
-			for( int i = 0; i < MAJOR_TICKS.length; i++ ) {
-				gpMajT.moveTo(   0f, (1f - MAJOR_TICKS[ i ]) * him );
-				gpMajT.lineTo( MAJOR_W, (1f - MAJOR_TICKS[ i ]) * him );
-			}
-			for( int i = 0; i < 20; i++ ) {
-				if( (i % 5) == 0 ) continue;
-				gpMinT.moveTo( minX, i * 0.025f * him);
-				gpMinT.lineTo( minX + MINOR_W, i * 0.025f * him );
+			
+			for( int j = 0; j < (hAlign == CENTER ? 2 : 1); j++ ) {
+				final float xwEff = (hAlign == CENTER ? (j == 0 ? 0f : 1f) : xw);
+				final float offX1 = (wi - MAJOR_W) * xwEff; 
+				final float offX2 = (wi - MINOR_W) * xwEff;
+				for( int i = 0; i < MAJOR_TICKS.length; i++ ) {
+					gpMajT.moveTo( offX1,           (1f - MAJOR_TICKS[ i ]) * him );
+					gpMajT.lineTo( offX1 + MAJOR_W, (1f - MAJOR_TICKS[ i ]) * him );
+				}
+				for( int i = 0; i < 20; i++ ) {
+					if( (i % 5) == 0 ) continue;
+					gpMinT.moveTo( offX2,           i * 0.025f * him);
+					gpMinT.lineTo( offX2 + MINOR_W, i * 0.025f * him );
+				}
 			}
 			shpMajorTicks	= at.createTransformedShape( gpMajT );
 			shpMinorTicks	= at.createTransformedShape( gpMinT );
