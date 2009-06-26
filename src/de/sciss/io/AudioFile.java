@@ -105,7 +105,7 @@ import java.util.Map;
  *	of streaming files, not just audio files.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.37, 10-Sep-08
+ *  @version	0.38, 26-Jun-09
  *
  *  @see		AudioFileDescr
  *
@@ -2576,7 +2576,7 @@ len	= raf.length() - 8;
 			}
 			if( lenM8 >= dataLengthOffset ) {
 				raf.seek( dataLengthOffset );
-				writeLittleLong( (int) (len - (dataLengthOffset - 16)) );	// data Chunk len
+				writeLittleLong( len - (dataLengthOffset - 16) );	// data Chunk len
 			}
 			raf.seek( oldPos );
 			lastUpdateLength = len;
