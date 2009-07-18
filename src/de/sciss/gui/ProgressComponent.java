@@ -68,8 +68,6 @@ public interface ProgressComponent
 	/**
 	 *  Asks the component to indicate that the
 	 *  progression is finished.
-	 *
-	 *  @param  success		whether the process was successful or not
 	 */
 	public void finishProgression( int result );
 	/**

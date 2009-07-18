@@ -99,7 +99,7 @@ implements DynamicListening, PreferenceChangeListener, PreferenceNodeSync,
 	 *						if startListening() is called, all values are checked, therefore
 	 *						all preference values which are not null will be initially forwarded
 	 *						to the LIM-Listener.
-	 *  @param  limClient   usually the calling instance. laterInvocation() is called whenever
+	 *  @param  client   	usually the calling instance. laterInvocation() is called whenever
 	 *						the dynamic listening is active and preference changes occur which
 	 *						really alter the preference values. The object passed to
 	 *						laterInvocation is a PreferenceChangeEvent.

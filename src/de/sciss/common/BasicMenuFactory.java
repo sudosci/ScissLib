@@ -82,8 +82,6 @@ import de.sciss.util.Flag;
  *
  *  @author		Hanns Holger Rutz
  *  @version	0.71, 26-Aug-08
- *
- *  @see	de.sciss.eisenkraut.Main#menuFactory
  */
 public abstract class BasicMenuFactory
 extends MenuRoot

@@ -215,10 +215,6 @@ extends JProgressBar
 	 *  custom text strings, clears indeterminate
 	 *  state and sets the bars colour depending
 	 *  on the success.
-	 *
-	 *	@param	success	<code>true</code> for success,
-	 *					or <code>false</code> upon failure; the
-	 *					corresponding bar colours are green and red.
 	 */
 	public void finish( int result )
 	{

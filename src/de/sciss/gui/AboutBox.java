@@ -57,8 +57,6 @@ implements HyperlinkListener
 {
 	/**
 	 *  Value for add/getComponent(): the about box
-	 *
-	 *  @see	#getComponent( Object )
 	 */
 	public static final Object					COMP_ABOUTBOX	= AboutBox.class.getName();
 

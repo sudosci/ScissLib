@@ -41,7 +41,6 @@ import de.sciss.app.AbstractCompoundEdit;
  *
  *  @author			Hanns Holger Rutz
  *  @version		0.70, 01-May-06
- *  @see			de.sciss.util.LockManager
  */
 public class BasicCompoundEdit
 extends AbstractCompoundEdit
@@ -49,11 +48,7 @@ extends AbstractCompoundEdit
 	private boolean	significant	= true;
 
 	/**
-	 *  Creates a <code>CompountEdit</code> object, whose Undo/Redo
-	 *  actions are synchronized.
-	 *
-	 *  @param  lm		the <code>LockManager</code> to use in synchronization
-	 *  @param  doors   the doors to lock exclusively using the provided <code>LockManager</code>
+	 *  Creates a <code>CompountEdit</code> object
 	 */
 	public BasicCompoundEdit()
 	{
@@ -61,11 +56,8 @@ extends AbstractCompoundEdit
 	}
 
 	/**
-	 *  Creates a <code>CompountEdit</code> object with a given name, whose Undo/Redo
-	 *  actions are synchronized.
-	 *
-	 *  @param  lm					the <code>LockManager</code> to use in synchronization
-	 *  @param  doors				the doors to lock exclusively using the provided <code>LockManager</code>
+	 *  Creates a <code>CompountEdit</code> object with a given name
+	 * 
 	 *	@param	presentationName	text describing the compound edit
 	 */
 	public BasicCompoundEdit( String presentationName )

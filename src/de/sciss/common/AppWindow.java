@@ -525,10 +525,6 @@ implements AbstractWindow
 	 *  Then this method will attach a copy of the main menu
 	 *  from <code>root.menuFactory</code> and
 	 *  restore bounds from preferences.
-	 *
-	 *  @param  root	application root
-	 *
-	 *  @see	MenuFactory#gimmeSomethingReal( AppWindow )
 	 */
 	public void init()
 	{

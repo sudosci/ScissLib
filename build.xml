@@ -6,23 +6,26 @@
 <project name="ScissLib" default="main">
 	<property name="src.dir"		value="src"/>
 	<property name="build.dir"		value="build"/>
+	<property name="dist.dir"		value="dist"/>
 	<property name="classes.dir"	value="${build.dir}/classes"/>
 	<property name="jar.dir"		value="${build.dir}"/>
 	<property name="resources.dir"	value="resources"/>
     <property name="main-class"		value="de.sciss.ScissLib"/>
 	<property name="lib.dir"		value="libraries"/>
+	<property name="doc.dir"		value="doc"/>
 	<property name="libraries"		value="${lib.dir}/MRJAdapter.jar"/>
-    <property name="version"		value="0.11"/>
+    <property name="version"		value="0.12"/>
     <property name="debug"			value="true"/>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
 	<target name="clean">
 		<delete dir="${build.dir}" />
-<!--		<delete dir="${dist.dir}" /> -->
-<!-- <delete includeemptydirs="true">
+		<delete dir="${dist.dir}" />
+		<delete includeemptydirs="true">
 			<fileset dir="${lib.dir}" excludes="*.jar"/>
-		</delete> -->
+		</delete>
+		<delete dir="${doc.dir}" />
 	</target>
 	<target name="compile">
 		<mkdir dir="${classes.dir}" />
@@ -51,6 +54,15 @@
         <java jar="${jar.dir}/${ant.project.name}.jar" fork="true">
     	</java>
     </target> -->
+	<target name="doc">
+		<javadoc packagenames="de.sciss.*" sourcepath="${src.dir}" destdir="${doc.dir}/api"
+		  classpath="${libraries}" version="true" author="true" use="true" source="1.4"
+		  linksource="false">
+			<tag name="synchronization" />
+			<tag name="todo" />
+			<tag name="warning" />
+		</javadoc>
+	</target>
 	<target name="main" depends="clean,jar" />
 <!--	<target name="dist" depends="clean,jar">
 		<dirname property="parent.dir" file="${basedir}"/>
@@ -58,4 +70,11 @@
 		<mkdir dir="${dist.dir}"/>
 		<zip destfile="${dist.dir}/${ant.project.name}-${version}.zip" basedir="${parent.dir}" includes="${folder.name}/**" excludes="${folder.name}/${classes.dir}/**, ${folder.name}/${dist.dir}, **/.DS_Store"/>
 	</target> -->
+	<target name="dist" depends="clean,jar">
+		<!-- sucky zip task don't create separate folder -->
+		<dirname property="parent.dir" file="${basedir}"/>
+		<basename property="folder.name" file="${basedir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<zip destfile="${dist.dir}/${ant.project.name}-${version}.zip" basedir="${parent.dir}" includes="${folder.name}/**" excludes="${folder.name}/${classes.dir}/**, ${folder.name}/${dist.dir}, **/.DS_Store"/>
+	</target>
 </project>

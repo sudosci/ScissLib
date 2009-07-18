@@ -194,7 +194,6 @@ public class GUIUtil
 	 *					default font is used
 	 *
 	 *  @see	java.awt.Component#setFont( Font )
-	 *	@see	de.sciss.app.WindowHandler#getDefaultFont()
 	 */
 	public static void setDeepFont( Container c, Font fnt )
 	{

@@ -57,11 +57,7 @@ implements PerformableEdit
 	private List collToPerform = null;
 
 	/**
-	 *  Creates a <code>CompountEdit</code> object, whose Undo/Redo
-	 *  actions are synchronized.
-	 *
-	 *  @param  lm		the <code>LockManager</code> to use in synchronization
-	 *  @param  doors   the doors to lock exclusively using the provided <code>LockManager</code>
+	 *  Creates a <code>CompountEdit</code> object
 	 */
 	protected AbstractCompoundEdit()
 	{
@@ -69,11 +65,8 @@ implements PerformableEdit
 	}
 
 	/**
-	 *  Creates a <code>CompountEdit</code> object with a given name, whose Undo/Redo
-	 *  actions are synchronized.
-	 *
-	 *  @param  lm					the <code>LockManager</code> to use in synchronization
-	 *  @param  doors				the doors to lock exclusively using the provided <code>LockManager</code>
+	 *  Creates a <code>CompountEdit</code> object with a given name
+	 *  
 	 *	@param	presentationName	text describing the compound edit
 	 */
 	protected AbstractCompoundEdit( String presentationName )
@@ -83,10 +76,7 @@ implements PerformableEdit
 	}
 	
 	/**
-	 *  Performs undo on all compound sub edits within
-	 *  a synchronization block.
-	 *
-	 *  @synchronization	waitExclusive on the given LockManager and doors
+	 *  Performs undo on all compound sub edits
 	 */
 	public void undo()
 	{
@@ -95,10 +85,7 @@ implements PerformableEdit
 	}
 
 	/**
-	 *  Performs redo on all compound sub edits within
-	 *  a synchronization block.
-	 *
-	 *  @synchronization	waitExclusive on the given LockManager and doors
+	 *  Performs redo on all compound sub edits
 	 */
 	public void redo()
 	{
@@ -109,13 +96,6 @@ implements PerformableEdit
 	/**
 	 *  Cancels the compound edit and undos all sub edits
 	 *  made so far.
-	 *
-	 *  @synchronization	waitExclusive on the given LockManager and doors.
-	 *						<strong>however, the caller must
-	 *						block all <code>addEdit</code>
-	 *						and the <code>end</code> or <code>cancel</code> call
-	 *						into a sync block itself to prevent confusion
-	 *						by intermitting calls to the locked objects.</strong>
 	 */
 	public void cancel()
 	{

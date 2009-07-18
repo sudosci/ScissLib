@@ -138,7 +138,6 @@ public class VectorSpace
 	 *	@param	hunit
 	 *	@param	vlabel
 	 *	@param	vunit
-	 *	@return
 	 */
 	public static VectorSpace createLinLogSpace( double hmin, double hmax, double vmin, double vmax, double vcenter,
 												 String hlabel, String hunit, String vlabel, String vunit )

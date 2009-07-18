@@ -96,15 +96,6 @@ implements Runnable, EventManager.Processor, ActionListener, Disposable	// , Pro
 	 *							inside the new thread when it's started.
 	 *  @param  pc				Component responsible for displaying progress bar etc.
 	 *  @param  procName		Name for the thread and the process monitoring
-	 *  @param  clientArg		anything the Client might need. This object
-	 *							is just passed to the client.processRun() method
-	 *  @param  requiredDoors   when client.processRun() is invoked, it's guaranteed that it's
-	 *							Thread holds exclusively locks for these doors in doc.bird
-	 *							it's crucial that the calling thread has *no* lock on any
-	 *							of doors, because this constructor returns only after
-	 *							the new thread has gained access to all doors!
-	 *							Event dispatching for the related classes, e.g. doc.timeline
-	 *							will be paused during processing.
 	 *  @synchronization		must be called in the event thread
 	 */
 //	public ProcessingThread( String procName, final Client client, final Object clientArg,
@@ -362,15 +353,8 @@ implements Runnable, EventManager.Processor, ActionListener, Disposable	// , Pro
 	}
 	
 	/**
-	 *  The is the main method of a thread and will
-	 *  lock the requested doors; it pauses the
-	 *  appropriate dispatchers (receiverCollection,
-	 *  transmitterCollection, timeline), invokes
-	 *  the client's processRun method. when this returns, dispatchers
-	 *  are restarted and doors are unlocked.
-	 *
-	 *  @synchronization	waitExclusive on the doors specified
-	 *						in the constructor
+	 *  The is the main method of a thread; it invokes
+	 *  the client's processRun method.
 	 */
 	public void run()
 	{
@@ -543,7 +527,6 @@ implements Runnable, EventManager.Processor, ActionListener, Disposable	// , Pro
 		 *
 		 *  @param  context		the corresponding thread. call <code>context.setProgression()</code>
 		 *						to update visual progress feedback.
-		 *  @param  argument	passed directly from context's constructor.
 		 *  @return				return code, which is either of <code>DONE</code> on success,
 		 *						<code>FAILED</code> on failure, or <code>CANCELLED</code> if cancelled.
 		 *						The implementing class may which to call the context's
@@ -565,7 +548,6 @@ implements Runnable, EventManager.Processor, ActionListener, Disposable	// , Pro
 		 *
 		 *  @param  context		the corresponding thread. in case of failure
 		 *						can be used to query the exception.
-		 *  @param  argument	passed directly from context's constructor.
 		 *
 		 *  @synchronization	this is called in the event thread
 		 */
@@ -579,7 +561,6 @@ implements Runnable, EventManager.Processor, ActionListener, Disposable	// , Pro
 		 *
 		 *  @param  context		the corresponding thread. in case of failure
 		 *						can be used to query the exception.
-		 *  @param  argument	passed directly from context's constructor.
 		 *
 		 *  @synchronization	this is called in the event thread
 		 */
