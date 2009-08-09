@@ -42,13 +42,13 @@ import de.sciss.app.AbstractWindow;
 
 /**
  *  @author		Hanns Holger Rutz
- *  @version	0.71, 19-Jun-08
+ *  @version	0.71, 09-Aug-09
  */
 public class MenuGroup
 extends MenuItem // implements MenuNode
 {
-	protected final List	collElements	= new ArrayList();
-	protected final Map		mapElements		= new HashMap();	// key = (String) id, value = (MenuNode) element
+	protected final Map			proxies			= new HashMap();
+	protected final NodeProxy	defaultProxy	= new NodeProxy( null );
 	
 	public MenuGroup( String id, Action a )
 	{
@@ -62,25 +62,57 @@ extends MenuItem // implements MenuNode
 	
 	public MenuNode get( String id )
 	{
-		final int i	= id.indexOf( '.' );
-		
-		if( i == -1 ) {
-			return (MenuNode) mapElements.get( id );
-		} else {
-			final MenuGroup mg = (MenuGroup) mapElements.get( id.substring( 0, i ));
-			if( mg == null ) throw new NullPointerException( id );
-			return mg.get( id.substring( i + 1 ));
+		return get( defaultProxy, id );
+	}
+	
+	public MenuNode get( AbstractWindow w, String id )
+	{
+		return get( getProxy( w, false ), id );
+	}
+	
+	private NodeProxy getProxy( AbstractWindow w, boolean create )
+	{
+		if( w == null ) return defaultProxy;
+		NodeProxy p = (NodeProxy) proxies.get( w );
+		if( p == null && create ) {
+			p = new NodeProxy( w );
+			proxies.put( w, p );
 		}
+		return p;
 	}
 
-	public int indexOf( String id )
+	private MenuNode get( NodeProxy p, String id )
 	{
 		final int i	= id.indexOf( '.' );
 		
 		if( i == -1 ) {
-			return collElements.indexOf( mapElements.get( id ));
+			return (MenuNode) p.mapElements.get( id );
 		} else {
-			final MenuGroup mg = (MenuGroup) mapElements.get( id.substring( 0, i ));
+			final MenuGroup mg = (MenuGroup) p.mapElements.get( id.substring( 0, i ));
+			if( mg == null ) throw new NullPointerException( id );
+			return mg.get( p.w, id.substring( i + 1 ));
+		}
+	}
+
+	
+	public int indexOf( String id )
+	{
+		return indexOf( defaultProxy, id );
+	}
+	
+	public int indexOf( AbstractWindow w, String id )
+	{
+		return indexOf( getProxy( w, false ), id );
+	}
+	
+	private int indexOf( NodeProxy p, String id )
+	{
+		final int i	= id.indexOf( '.' );
+		
+		if( i == -1 ) {
+			return p.collElements.indexOf( p.mapElements.get( id ));
+		} else {
+			final MenuGroup mg = (MenuGroup) p.mapElements.get( id.substring( 0, i ));
 			if( mg == null ) throw new NullPointerException( id );
 			return mg.indexOf( id.substring( i + 1 ));
 		}
@@ -88,9 +120,19 @@ extends MenuItem // implements MenuNode
 	
 	public MenuNode getByAction( Action a )
 	{
+		return getByAction( defaultProxy, a );
+	}
+
+	public MenuNode getByAction( AbstractWindow w, Action a )
+	{
+		return getByAction( getProxy( w, false ), a );
+	}
+
+	private MenuNode getByAction( NodeProxy p, Action a )
+	{
 		MenuNode n;
 		
-		for( Iterator iter = collElements.iterator(); iter.hasNext(); ) {
+		for( Iterator iter = p.collElements.iterator(); iter.hasNext(); ) {
 			n = (MenuNode) iter.next();
 			if( n.getAction() == a ) return n;
 		}
@@ -98,68 +140,137 @@ extends MenuItem // implements MenuNode
 		return null;
 	}
 
+	// adds window specific action to the tail
+	public void add( AbstractWindow w, MenuNode n )
+	{
+		add( getProxy( w, true ), n );
+	}
+	
 	// adds to the tail
 	public void add( MenuNode n )
 	{
-		add( n, collElements.size() );
+		add( defaultProxy, n );
 	}
 
 	// inserts at given index
 	public void add( MenuNode n, int index )
 	{
-		if( mapElements.put( n.getID(), n ) != null ) throw new IllegalArgumentException( "Element already added : " + n );
+		add( defaultProxy, n, index );
+	}
+	
+	// inserts at given index
+	public void add( AbstractWindow w, MenuNode n, int index )
+	{
+		add( getProxy( w, true ), n, index );
+	}
+	
+	// inserts at given index
+	private void add( NodeProxy p, MenuNode n )
+	{
+		add( p, n, p.collElements.size() );
+	}
+	
+	// inserts at given index
+	private void add( NodeProxy p, MenuNode n, int index )
+	{
+		if( p.mapElements.put( n.getID(), n ) != null ) throw new IllegalArgumentException( "Element already added : " + n );
 		
 		Realized r;
+		final boolean isDefault = p.w == null;
 		
-		collElements.add( index, n );
+		p.collElements.add( index, n );
 		
 		for( Iterator iter = mapRealized.values().iterator(); iter.hasNext(); ) {
 			r = (Realized) iter.next();
-			r.c.add( n.create( r.w ), index );
+			if( isDefault || (p.w == r.w) ) {
+				r.c.add( n.create( r.w ), index + (isDefault ? 0 : defaultProxy.size()) );
+			}
 		}
+	}
+	
+//	private Component createInvis()
+//	{
+//		final Component invis = new JMenuItem();
+//		invis.setVisible( false );
+//		return invis;
+//	}
+	
+	public void addSeparator( AbstractWindow w )
+	{
+		add( w, new MenuSeparator() );
 	}
 	
 	public void addSeparator()
 	{
-		add( new MenuSeparator() );
+		addSeparator( null );
 	}
-	
+
 	public void remove( int index )
 	{
-		final MenuNode	mn = (MenuNode) collElements.remove( index );
+		remove( defaultProxy, index );
+	}
+	
+	public void remove( AbstractWindow w, int index )
+	{
+		remove( getProxy( w, false ), index );
+	}
+
+	private void remove( NodeProxy p, int index )
+	{
+		final MenuNode	n = (MenuNode) p.collElements.remove( index );
 		Realized		r;
 		
-		mapElements.remove( mn.getID() );
+		p.mapElements.remove( n.getID() );
+		final boolean isDefault = p.w == null;
 
 		for( Iterator iter = mapRealized.values().iterator(); iter.hasNext(); ) {
 			r = (Realized) iter.next();
-			r.c.remove( index );
-			mn.destroy( r.w );
+			if( isDefault || (p.w == r.w) ) {
+				r.c.remove( index + (isDefault ? 0 : defaultProxy.size()) );
+				n.destroy( r.w );
+			}
 		}
 	}
 	
 	public void remove( MenuNode n )
 	{
-		remove( collElements.indexOf( n ));
+		remove( defaultProxy, n );
+	}
+
+	public void remove( AbstractWindow w, MenuNode n )
+	{
+		remove( getProxy( w, false ), n );
+	}
+	
+	private void remove( NodeProxy p, MenuNode n )
+	{
+		for( int idx = 0; idx < p.collElements.size(); idx++ ) {
+			if( (MenuNode) p.collElements.get( idx ) == n ) {
+				remove( p, idx );
+				return;
+			}
+		}
 	}
 
 	public JComponent create( AbstractWindow w )
 	{
 		final JComponent c = super.create( w );
-	
-		for( Iterator iter = collElements.iterator(); iter.hasNext(); ) {
-			c.add( ((MenuNode) iter.next()).create( w ));
-		}
-	
+		defaultProxy.create( c, w );
+		final NodeProxy p = getProxy( w, false );
+		if( p != null ) p.create( c, w );
 		return c;
 	}
-
+	
 	public void destroy( AbstractWindow w )
 	{
 		super.destroy( w );
-	
-		for( Iterator iter = collElements.iterator(); iter.hasNext(); ) {
-			((MenuNode) iter.next()).destroy( w );
+		defaultProxy.destroy( w );
+		final NodeProxy p = getProxy( w, false );
+		if( p != null ) {
+			p.destroy( w );
+			if( p.isEmpty() ) {
+				proxies.remove( w );
+			}
 		}
 	}
 	
@@ -195,10 +306,50 @@ extends MenuItem // implements MenuNode
 		dst.putValue(  key, srcVal );
 	}
 
-	public void put( String id, AbstractWindow w, Action a )
+//	public void put( String id, AbstractWindow w, Action a )
+//	{
+//		final MenuItem mi = (MenuItem) get( id );
+//		if( mi == null ) throw new NullPointerException( id );
+//		mi.put( w, a );
+//	}
+	
+	private static class NodeProxy
 	{
-		final MenuItem mi = (MenuItem) get( id );
-		if( mi == null ) throw new NullPointerException( id );
-		mi.put( w, a );
+		protected final AbstractWindow	w;
+		protected final List	collElements	= new ArrayList();
+		protected final Map		mapElements		= new HashMap();	// key = (String) id, value = (NodeProxy) element
+
+		protected NodeProxy( AbstractWindow w )
+		{
+			this.w	= w;
+		}
+		
+		protected int size()
+		{
+			return collElements.size();
+		}
+		
+		protected boolean isEmpty()
+		{
+			return collElements.isEmpty();
+		}
+		
+		protected void create( JComponent c, AbstractWindow w2 )
+		{
+			if( (w != null) && (w != w2) ) throw new IllegalArgumentException();
+			
+			for( Iterator iter = collElements.iterator(); iter.hasNext(); ) {
+				c.add( ((MenuNode) iter.next()).create( w2 ));
+			}
+		}
+		
+		protected void destroy( AbstractWindow w2 )
+		{
+			if( (w != null) && (w != w2) ) throw new IllegalArgumentException();
+			
+			for( Iterator iter = collElements.iterator(); iter.hasNext(); ) {
+				((MenuNode) iter.next()).destroy( w2 );
+			}
+		}
 	}
 }

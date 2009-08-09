@@ -236,10 +236,10 @@ extends JButton
 			this( shape, type, size, colr[ type ]);
 		}
 
-		public ModificationIcon( int shape, int type )
-		{
-			this( shape, type, DEFAULT_SIZE );
-		}
+//		public ModificationIcon( int shape, int type )
+//		{
+//			this( shape, type, DEFAULT_SIZE );
+//		}
 
 		public int getIconWidth()
 		{

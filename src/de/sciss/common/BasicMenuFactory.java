@@ -36,7 +36,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -45,14 +44,12 @@ import javax.swing.KeyStroke;
 import net.roydesign.app.AboutJMenuItem;
 import net.roydesign.app.PreferencesJMenuItem;
 import net.roydesign.app.QuitJMenuItem;
-import net.roydesign.mac.MRJAdapter;
 
 import de.sciss.app.AbstractWindow;
 import de.sciss.app.DocumentEvent;
 import de.sciss.app.DocumentHandler;
 import de.sciss.app.DocumentListener;
 import de.sciss.gui.AboutBox;
-import de.sciss.gui.HelpFrame;
 import de.sciss.gui.MenuAction;
 import de.sciss.gui.MenuGroup;
 import de.sciss.gui.MenuItem;
@@ -291,10 +288,10 @@ implements DocumentListener
 		// this is pretty weird, but it works at least on german keyboards: command+questionmark is defaut help shortcut
 		// on mac os x. KeyEvent.VK_QUESTION_MARK doesn't exist, plus apple's vm ignore german keyboard layout, therefore the
 		// the question mark becomes a minus. however it's wrongly displayed in the menu...
-		mg.add( new MenuItem( "manual", new ActionURLViewer( getResourceString( "menuHelpManual" ), KeyStroke.getKeyStroke( KeyEvent.VK_MINUS, MENU_SHORTCUT + InputEvent.SHIFT_MASK ), "index", false )));
-		mg.add( new MenuItem( "shortcuts", new ActionURLViewer( getResourceString( "menuHelpShortcuts" ), null, "Shortcuts", false )));
+		mg.add( new MenuItem( "manual", new URLViewerAction( getResourceString( "menuHelpManual" ), KeyStroke.getKeyStroke( KeyEvent.VK_MINUS, MENU_SHORTCUT + InputEvent.SHIFT_MASK ), "index", false )));
+		mg.add( new MenuItem( "shortcuts", new URLViewerAction( getResourceString( "menuHelpShortcuts" ), null, "Shortcuts", false )));
 		mg.addSeparator();
-		mg.add( new MenuItem( "website", new ActionURLViewer( getResourceString( "menuHelpWebsite" ), null, getResourceString( "appURL" ), true )));
+		mg.add( new MenuItem( "website", new URLViewerAction( getResourceString( "menuHelpWebsite" ), null, getResourceString( "appURL" ), true )));
 		a = new ActionAbout( getResourceString( "menuAbout" ), null );
 		if( AboutJMenuItem.isAutomaticallyPresent() ) {
 			root.getAboutJMenuItem().setAction( a );
@@ -574,51 +571,6 @@ implements DocumentListener
 			if( w != null ) {
 				w.setVisible( true );
 				w.toFront();
-			}
-		}
-	}
-
-	// generic action for bringing up
-	// a html document either in the
-	// help viewer or the default web browser
-	private class ActionURLViewer extends MenuAction
-	{
-		private final String	theURL;
-		private final boolean	openWebBrowser;
-	
-		// @param	theURL			what file to open ; when using the
-		//							help viewer, that's the relative help file name
-		//							without .html extension. when using web browser,
-		//							that's the complete URL!
-		// @param   openWebBrowser	if true, use the default web browser,
-		//							if false use internal help viewer
-		protected ActionURLViewer( String text, KeyStroke shortcut, String theURL, boolean openWebBrowser )
-		{
-			super( text, shortcut );
-			
-			this.theURL			= theURL;
-			this.openWebBrowser	= openWebBrowser;
-		}
-
-		/**
-		 *  Tries to find the component using
-		 *  the <code>Main</code> class' <code>getComponent</code>
-		 *  method. It does not instantiate a
-		 *  new object if the component is not found.
-		 *  If the window is already open, this
-		 *  method will bring it to the front.
-		 */
-		public void actionPerformed( ActionEvent e )
-		{
-			if( openWebBrowser ) {
-				try {
-					MRJAdapter.openURL( theURL );
-				}
-				catch( IOException e1 ) {
-					BasicWindowHandler.showErrorDialog( null, e1, NAME );
-				}
-			} else {
-				HelpFrame.openViewerAndLoadHelpFile( theURL );
 			}
 		}
 	}

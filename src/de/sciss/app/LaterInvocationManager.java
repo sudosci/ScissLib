@@ -29,7 +29,7 @@
 
 package de.sciss.app;
 
-import java.util.prefs.PreferenceChangeEvent;
+//import java.util.prefs.PreferenceChangeEvent;
 
 /**
  *  The LaterInvocationManager is a utility
@@ -85,13 +85,13 @@ implements EventManager.Processor
 	public void queue( Object o )
 	{
 		dispatchEvent( new LaterInvocationManager.Event( o ));
-		if( EventManager.DEBUG_EVENTS && o instanceof PreferenceChangeEvent ) {
-			PreferenceChangeEvent e = (PreferenceChangeEvent) o;
-			// because addListener in the constructor may be
-			// postponed, it's possible that we don't find our client here
-			System.err.println( "queue "+(countListeners() == 0 ? "[client pending]: " :
-				"[client "+getListener(0).getClass().getName()+"]: ")+e.getKey()+" = "+e.getNewValue() );
-		}
+//		if( EventManager.DEBUG_EVENTS && o instanceof PreferenceChangeEvent ) {
+//			PreferenceChangeEvent e = (PreferenceChangeEvent) o;
+//			// because addListener in the constructor may be
+//			// postponed, it's possible that we don't find our client here
+//			System.err.println( "queue "+(countListeners() == 0 ? "[client pending]: " :
+//				"[client "+getListener(0).getClass().getName()+"]: ")+e.getKey()+" = "+e.getNewValue() );
+//		}
 	}
 
 	/**
