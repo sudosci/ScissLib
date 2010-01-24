@@ -66,6 +66,7 @@ import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 import javax.swing.RootPaneContainer;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 
 import de.sciss.app.AbstractApplication;
 import de.sciss.app.AbstractWindow;
@@ -86,7 +87,7 @@ import de.sciss.gui.WindowListenerWrapper;
  *  will get a copy of the main menubar as well.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.71, 01-Aug-08
+ *  @version	0.72, 24-Jan-10
  *
  *  @todo   tempFloatingTimer could maybe be eliminated
  *  		in favour of a simple EventQueue.invokeLater
@@ -209,15 +210,19 @@ implements AbstractWindow
 //				borrowMenuBar	= wh.usesScreenMenuBar();
 				
 				if( floating ) {
-					ggTitle			= new AquaWindowBar( this, true );
-					ggTitle.setAlwaysOnTop( true );
+					final String vs = System.getProperty( "java.version" );
+					if( (UIManager.getLookAndFeel().getName().indexOf( "Mac OS X" ) >= 0) &&
+						(Float.valueOf( vs.substring( 0, vs.indexOf( '.', vs.indexOf( '.' ) + 1 ))).floatValue() >= 1.5f) ) {
+						jf.getRootPane().putClientProperty( "Window.style", "small" );
+						ggTitle	= null;
+					} else {
+						ggTitle			= new AquaWindowBar( this, true );
+						ggTitle.setAlwaysOnTop( true );
+						jf.setUndecorated( true );
+						final Container cp = jf.getContentPane();
+						cp.add( ggTitle, BorderLayout.NORTH );
+					}
 					borrowMenuBar	= false;
-					jf.setUndecorated( true );
-					
-					final Container cp = jf.getContentPane();
-					
-//					cp.add( ggTitle, orient == HORIZONTAL ? BorderLayout.NORTH : BorderLayout.WEST );
-					cp.add( ggTitle, BorderLayout.NORTH );
 					
 //					if( resizable ) {
 //						final JPanel p = new JPanel( new BorderLayout() );
