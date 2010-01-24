@@ -31,8 +31,6 @@
 package de.sciss.gui;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -48,31 +46,20 @@ import java.awt.TexturePaint;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import javax.swing.Box;
 import javax.swing.ButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.text.JTextComponent;
 
 import de.sciss.app.AbstractWindow;
 import de.sciss.gui.GUIUtil;
@@ -156,7 +143,7 @@ implements Disposable, SwingConstants, WindowConstants
 
 	protected final boolean	isMac;
 	
-	private TempFocusTracker	tft					= null;
+	private TemporaryFocusTracker	tft					= null;
 				
 	public AquaWindowBar( AbstractWindow w, String title, boolean small )
 	{
@@ -465,7 +452,7 @@ implements Disposable, SwingConstants, WindowConstants
 				final JFrame jf = (JFrame) w.getWindow();
 				jf.setFocusableWindowState( false );
 				// now track components that need to be focussed
-				tft = new TempFocusTracker( jf );
+				tft = new TemporaryFocusTracker( jf );
 				repaint();
 			}
 		}
@@ -572,150 +559,5 @@ implements Disposable, SwingConstants, WindowConstants
 			icn.paintIcon( this, g, 0, 0 );
 //System.err.println( "GAGA" );
 		}
-	}
-	
-	private static class TempFocusTracker
-	implements Disposable, ContainerListener, MouseListener, FocusListener, AncestorListener
-	{
-		private static final boolean	DEBUG	= false;
-		
-		private final JFrame	jf;
-		private Component		currentFocus	= null;
-		
-		protected TempFocusTracker( JFrame jf )
-		{
-			this.jf	= jf;
-//			addContainer( jf.getContentPane() );
-			jf.getRootPane().addAncestorListener( this );
-		}
-		
-		public void dispose()
-		{
-			removeContainer( jf.getContentPane() );
-			jf.getRootPane().removeAncestorListener( this );
-		}
-		
-		private void addContainer( Container c )
-		{
-			for( int i = 0; i < c.getComponentCount(); i++ ) {
-				addComponent( c.getComponent( i ));
-			}
-			c.addContainerListener( this );
-			if( DEBUG ) System.err.println( "addContainerListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-		}
-
-		private void removeContainer( Container c )
-		{
-			c.removeContainerListener( this );
-			if( DEBUG ) System.err.println( "removeContainerListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-			for( int i = c.getComponentCount() - 1; i >= 0; i-- ) {
-				removeComponent( c.getComponent( i ));
-			}
-		}
-		
-		private void addComponent( Component comp ) 
-		{
-			if( comp instanceof JTextComponent ) {
-				addTextComponent( (JTextComponent) comp );
-			} else if( (comp instanceof JPanel) || (comp instanceof Box) || (comp instanceof JTabbedPane) ) {
-				addContainer( (Container) comp );
-			} else if( comp instanceof JScrollPane ) {
-				addScrollPane( (JScrollPane) comp );
-			}
-		}
-
-		private void removeComponent( Component comp )
-		{
-			if( comp instanceof JTextComponent ) {
-				removeTextComponent( (JTextComponent) comp );
-			} else if( (comp instanceof JPanel) || (comp instanceof Box) || (comp instanceof JTabbedPane) ) {
-				removeContainer( (Container) comp );
-			} else if( comp instanceof JScrollPane ) {
-				removeScrollPane( (JScrollPane) comp );
-			}
-		}
-		
-		private void addTextComponent( JTextComponent c )
-		{
-			c.addMouseListener( this );
-			c.addFocusListener( this );
-			if( DEBUG ) System.err.println( "addFocus/MouseListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-		}
-
-		private void removeTextComponent( JTextComponent c )
-		{
-			c.removeMouseListener( this );
-			c.removeFocusListener( this );
-			if( DEBUG ) System.err.println( "removeFocus/MouseListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-		}
-
-		private void addScrollPane( JScrollPane p )
-		{
-			final Component c = p.getViewport().getView();
-			c.addMouseListener( this );
-			c.addFocusListener( this );
-			if( DEBUG ) System.err.println( "addFocus/MouseListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-		}
-
-		private void removeScrollPane( JScrollPane p )
-		{
-			final Component c = p.getViewport().getView();
-			c.removeMouseListener( this );
-			c.removeFocusListener( this );
-			if( DEBUG ) System.err.println( "removeFocus/MouseListener " + c.getClass().getName() + "(" + c.hashCode() + ")" );
-		}
-
-		public void componentAdded( ContainerEvent e )
-		{
-			if( DEBUG ) System.out.println( "componentAdded to " +e.getContainer().getClass().getName() + "(" + e.getContainer().hashCode() + ") : " + e.getChild().getClass().getName() + "(" + e.getChild().hashCode() + ") ");
-			addComponent( e.getChild() );
-		}
-
-		public void componentRemoved( ContainerEvent e )
-		{
-			if( DEBUG ) System.out.println( "componentRemoved from " +e.getContainer().getClass().getName() + "(" + e.getContainer().hashCode() + ") : " + e.getChild().getClass().getName() + "(" + e.getChild().hashCode() + ") ");
-			removeComponent( e.getChild() );
-		}
-		
-		public void mousePressed( MouseEvent e )
-		{
-			final Component c = e.getComponent();
-			
-			jf.setFocusableWindowState( true );
-			c.requestFocus();
-			currentFocus = c;
-		}
-		
-		public void mouseClicked( MouseEvent e ) { /* ignored */ }
-		public void mouseEntered( MouseEvent e ) { /* ignored */ }
-		public void mouseExited( MouseEvent e ) { /* ignored */ }
-		public void mouseReleased( MouseEvent e ) { /* ignored */ }
-
-		public void focusLost( FocusEvent e )
-		{
-			if( e.getComponent() == currentFocus ) {
-				currentFocus = null;
-				jf.setFocusableWindowState( false );
-			}
-		}
-
-		public void focusGained( FocusEvent e )
-		{
-			currentFocus = e.getComponent();
-		}
-		
-		public void ancestorAdded( AncestorEvent e )
-		{
-			if( DEBUG ) System.out.println( "ancestorAdded " + e.getAncestor().getClass().getName() + "(" + + e.getAncestor().hashCode() + ")" );
-			addContainer( jf.getContentPane() );
-		}
-		
-		public void ancestorRemoved( AncestorEvent e )
-		{
-			if( DEBUG ) System.out.println( "ancestorRemoved " + e.getAncestor().getClass().getName() + "(" + + e.getAncestor().hashCode() + ")" );
-			removeContainer( jf.getContentPane() );
-		}
-		
-		public void ancestorMoved( AncestorEvent e ) { /* ignored */ }
 	}
 }

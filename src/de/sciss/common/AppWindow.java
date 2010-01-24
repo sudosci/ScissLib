@@ -78,6 +78,7 @@ import de.sciss.gui.EmptyInternalFrameUI;
 import de.sciss.gui.FloatingPaletteHandler;
 import de.sciss.gui.GUIUtil;
 import de.sciss.gui.InternalFrameListenerWrapper;
+import de.sciss.gui.TemporaryFocusTracker;
 import de.sciss.gui.WindowListenerWrapper;
 
 /**
@@ -214,6 +215,11 @@ implements AbstractWindow
 					if( (UIManager.getLookAndFeel().getName().indexOf( "Mac OS X" ) >= 0) &&
 						(Float.valueOf( vs.substring( 0, vs.indexOf( '.', vs.indexOf( '.' ) + 1 ))).floatValue() >= 1.5f) ) {
 						jf.getRootPane().putClientProperty( "Window.style", "small" );
+						if( GUIUtil.setAlwaysOnTop( jf, true )) {
+							jf.setFocusableWindowState( false );
+							// now track components that need to be focussed
+							new TemporaryFocusTracker( jf );
+						}
 						ggTitle	= null;
 					} else {
 						ggTitle			= new AquaWindowBar( this, true );
