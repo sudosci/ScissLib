@@ -1708,6 +1708,7 @@ commentLp:			for( i = 0; !comment && (i < i1); i++ ) {
 				raf.writeInt( 4 + strBuf.length );
 				raf.write( descr.appCode.getBytes(), 0, 4 );
 				raf.write( strBuf );
+				if( strBuf.length % 2 == 1 ) raf.write( 0 ); // pad
 			}
 			
 			// SSND Chunk (Header)
