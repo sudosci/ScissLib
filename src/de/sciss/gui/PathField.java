@@ -28,6 +28,7 @@
  *		08-Sep-05	write-protected icon
  *		24-Sep-05	changed META shortcuts to work on PC (= Ctrl+Shift)
  *		06-Nov-05	extends SpringPanel ; improved checkExists method ; escape key similar to numberfield
+ *		07-Feb-10	adding filter functionality, increasing visibility
  */
 
 package de.sciss.gui;
@@ -43,6 +44,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -67,7 +69,7 @@ import de.sciss.app.EventManager;
  *  to a different file.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.33, 28-Jun-08
+ *  @version	0.34, 07-Feb-10
  */
 public class PathField
 extends SpringPanel
@@ -103,8 +105,8 @@ implements ActionListener, PathListener, EventManager.Processor
 //	private static final int	DEFAULT_COLUMN_NUM  = 32;		// constants for IOTextField
 
 	protected final IOTextField	ggPath;
-	private final PathButton	ggChoose;
-	private final JLabel		lbWarn;
+	protected final PathButton	ggChoose;
+	protected final JLabel		lbWarn;
 	protected ColouredTextField	ggFormat	= null;
 	
 	private static final Color  COLOR_ERR   = new Color( 0xFF, 0x00, 0x00, 0x2F );
@@ -325,7 +327,28 @@ implements ActionListener, PathListener, EventManager.Processor
 	{
 		return type;
 	}
+
+	/**
+	 * 	Sets the filter to use for enabling or disabling items
+	 * 	in the file dialog.
+	 * 
+	 * 	@param	filter	the new filter or null to remove an existing filter
+	 */
+	public void setFilter( FilenameFilter filter )
+	{
+		ggChoose.setFilter( filter );
+	}
 	
+	/**
+	 * 	Queries the current item filter for the file dialog.
+	 * 
+	 * 	@return	the current filter or null if no filter is installed
+	 */
+	public FilenameFilter getFilter()
+	{
+		return ggChoose.getFilter();
+	}
+
 	/**
 	 *	Selects the file name portion of the text contents.
 	 *
@@ -738,7 +761,7 @@ implements ActionListener, PathListener, EventManager.Processor
 
 // -------- internal IOTextfeld class --------
 
-	private class IOTextField
+	protected class IOTextField
 	extends ColouredTextField
 	{
 		protected IOTextField()

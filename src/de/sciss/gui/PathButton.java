@@ -28,6 +28,7 @@
  *		29-May-05	supports drag export
  *		03-Aug-05	extends ModificationButton
  *		15-Aug-05	getTransferData checks for file being null
+ *		07-Feb-10	added filter functionality
  */
 
 package de.sciss.gui;
@@ -41,6 +42,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +67,7 @@ import net.roydesign.ui.FolderDialog;
  *  path.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.17, 26-Mar-07
+ *  @version	0.18, 07-Feb-10
  *
  *  @see		java.awt.FileDialog
  *  @see		net.roydesign.ui.FolderDialog
@@ -74,10 +76,11 @@ public class PathButton
 extends ModificationButton
 implements EventManager.Processor
 {
-	private File						path	= null;
-	private final int					type;
-	private String						dlgTxt;
+	private File				path	= null;
+	private final int			type;
+	private String				dlgTxt;
 	private final EventManager	elm		= new EventManager( this );
+	private FilenameFilter		filter	= null;
 
 	protected static final DataFlavor[] supportedFlavors = {
 		DataFlavor.javaFileListFlavor, DataFlavor.stringFlavor
@@ -186,6 +189,27 @@ implements EventManager.Processor
 		return path;
 	}
 	
+	/**
+	 * 	Sets the filter to use for enabling or disabling items
+	 * 	in the file dialog.
+	 * 
+	 * 	@param	filter	the new filter or null to remove an existing filter
+	 */
+	public void setFilter( FilenameFilter filter )
+	{
+		this.filter = filter;
+	}
+	
+	/**
+	 * 	Queries the current item filter for the file dialog.
+	 * 
+	 * 	@return	the current filter or null if no filter is installed
+	 */
+	public FilenameFilter getFilter()
+	{
+		return filter;
+	}
+	
 	// --- listener registration ---
 	
 	/**
@@ -268,6 +292,9 @@ implements EventManager.Processor
 		if( p != null ) {
 			fDlg.setFile( p.getName() );
 			fDlg.setDirectory( p.getParent() );
+		}
+		if( filter != null ) {
+			fDlg.setFilenameFilter( filter );
 		}
 		showDialog( fDlg );
 		fDir	= fDlg.getDirectory();
