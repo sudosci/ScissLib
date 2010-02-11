@@ -63,6 +63,7 @@ extends JTextField
 	public ColouredTextField()
 	{
 		super();
+		init();
 	}
 	
 	/**
@@ -73,6 +74,12 @@ extends JTextField
 	public ColouredTextField( int columns )
 	{
 		super( columns );
+		init();
+	}
+	
+	private void init()
+	{
+		// nothing
 	}
 
 	/**

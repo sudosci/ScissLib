@@ -303,6 +303,7 @@ implements DocumentListener
 		add( mg );
 		
 		addMenuItems();
+//		GUIUtil.removeMenuModifierBindings( new JTextField(), this );
 	}
 	
 	protected abstract void addMenuItems();

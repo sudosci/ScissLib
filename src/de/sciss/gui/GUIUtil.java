@@ -44,18 +44,23 @@ import java.awt.GraphicsEnvironment;
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JViewport;
@@ -75,11 +80,11 @@ import de.sciss.app.PreferenceEntrySync;
  *  for common Swing / GUI operations
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.39, 03-Jul-08
+ *  @version	0.40, 11-Feb-10
  */
 public class GUIUtil
 {
-	private static final double VERSION	= 0.39;
+	private static final double VERSION	= 0.40;
 	private static final ResourceBundle resBundle = ResourceBundle.getBundle( "GUIUtilStrings" );
 	private static final Preferences prefs = Preferences.userNodeForPackage( GUIUtil.class );
 
@@ -699,5 +704,55 @@ public class GUIUtil
     {
     	final Point p = convertPoint( source, new Point( r.x, r.y ), destination );
         return new Rectangle( p.x, p.y, r.width, r.height );
+    }
+    
+    /**
+     * 	Removes from a component's inputmap all bindings which may conflict
+     * 	with menu accelerators, that is those whose modifiers are equal to
+     * 	the secondary menu modifier, defined as control on mac and control+alt
+     * 	on windows and linux.
+     * 
+     *	@param c	the component to inspect
+     */
+    public static void removeMenuModifierBindings( JComponent c, MenuGroup mg )
+    {
+    	final int primary	= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(); 
+//    	final int secondary = InputEvent.CTRL_MASK |
+//			(primary == InputEvent.CTRL_MASK ? InputEvent.ALT_MASK : 0);
+    	
+    	final Set keySet = new HashSet();
+    	gatherAccelerators( keySet, mg );
+    	removeMenuModifierBindings( c.getInputMap(), primary, keySet );
+    }
+
+    private static void gatherAccelerators( Set keySet, MenuItem mi )
+    {
+    	final Action a = mi.getAction();
+    	if( a != null ) {
+    		final KeyStroke strk = (KeyStroke) a.getValue( Action.ACCELERATOR_KEY );
+    		if( strk != null ) keySet.add( strk );
+    	}
+    	if( mi instanceof MenuGroup ) {
+    		final MenuGroup mg = (MenuGroup) mi;
+    		for( int i = 0; i < mg.size(); i++ ) {
+    			final MenuNode mn = mg.get( i );
+    			if( mn instanceof MenuItem ) gatherAccelerators( keySet, (MenuItem) mn );
+    		}
+    	}
+    }
+    
+    private static void removeMenuModifierBindings( InputMap imap, int primary, Set keySet )
+    {
+    	if( imap == null ) return;
+    	final KeyStroke[] keys = imap.keys();
+    	if( keys != null ) {
+    		for( int i = 0; i < keys.length; i++ ) {
+    			final KeyStroke k = keys[ i ];
+    			if( (k.getModifiers() != primary) && keySet.contains( k )) {
+    				imap.remove( k );
+    			}
+    		}
+    	}
+    	removeMenuModifierBindings( imap.getParent(), primary, keySet );
     }
 }

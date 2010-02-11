@@ -170,6 +170,16 @@ extends MenuItem // implements MenuNode
 		add( p, n, p.collElements.size() );
 	}
 	
+	public int size()
+	{
+		return defaultProxy.size();
+	}
+	
+	public MenuNode get( int idx )
+	{
+		return (MenuNode) defaultProxy.collElements.get( idx );
+	}
+	
 	// inserts at given index
 	private void add( NodeProxy p, MenuNode n, int index )
 	{
