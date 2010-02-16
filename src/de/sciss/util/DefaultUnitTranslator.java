@@ -153,6 +153,7 @@ implements ParamSpace.Translator
 	public void setLengthAndRate( long frames, double rate )
 	{
 		setCoefficient( ParamSpace.TIME | ParamSpace.SECS, ParamSpace.TIME | ParamSpace.SMPS, rate );
+		setCoefficient( ParamSpace.TIME | ParamSpace.SECS | ParamSpace.OFF, ParamSpace.TIME | ParamSpace.SMPS | ParamSpace.OFF, rate );
 		setCoefficient( ParamSpace.TIME | ParamSpace.REL, ParamSpace.TIME | ParamSpace.SECS, frames / rate );
 	}
 	

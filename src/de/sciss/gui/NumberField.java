@@ -142,20 +142,21 @@ implements EventManager.Processor //, PropertyChangeListener
 		setFormatterFactory( factory );
 		setHorizontalAlignment( RIGHT );
 
-		this.addActionListener( new ActionListener() {
+		addActionListener( new ActionListener() {
 			public void actionPerformed( ActionEvent e )
 			{
-				final Number newVal = (Number) getValue();
+				try { commitEdit(); } catch( ParseException e1 ) { /* ignored */ }
+//				final Number newVal = (Number) getValue();
 //System.out.println( "[1] old = " + value + "; new = " + newVal );
-				if( !newVal.equals( value )) {
-					value = newVal;
+//				if( !newVal.equals( value )) {
+//					value = newVal;
 //System.out.println( "[1] --> BANG" );
-					fireNumberChanged();
-				}
+//					fireNumberChanged();
+//				}
 			}
 		});
 
-		this.addPropertyChangeListener( "value", new PropertyChangeListener() {
+		addPropertyChangeListener( "value", new PropertyChangeListener() {
 			public void propertyChange( PropertyChangeEvent e )
 			{
 				final Number newVal = (Number) getValue();

@@ -1,5 +1,9 @@
 package de.sciss;
 
+//import de.sciss.util.DefaultUnitTranslator;
+//import de.sciss.util.Param;
+//import de.sciss.util.ParamSpace;
+
 //import java.io.File;
 //import java.io.IOException;
 //import de.sciss.io.AudioFile;
@@ -16,6 +20,7 @@ public class ScissLib
 		    				"This is a library which is not meant to be executed by itself.\n\n" );
 		
 //		testAIFF();
+//		testParam();
 		System.exit( 1 );
 	}
 
@@ -37,5 +42,14 @@ public class ScissLib
 //		catch( IOException e1 ) {
 //			e1.printStackTrace();
 //		}
+//	}
+	
+//	private static void testParam()
+//	{
+//		final Param p1 = new Param( 441, ParamSpace.spcTimeSmpsD.unit );
+//		final DefaultUnitTranslator dtu = new DefaultUnitTranslator();
+//		dtu.setLengthAndRate( 1234, 44100 );
+//		final Param p2 = dtu.translate( p1, ParamSpace.spcTimeMillisD );
+//		System.out.println( p2 );
 //	}
 }
