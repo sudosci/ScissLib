@@ -46,6 +46,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.InputEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -717,26 +718,28 @@ public class GUIUtil
     public static void removeMenuModifierBindings( JComponent c, MenuGroup mg )
     {
     	final int primary	= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(); 
-//    	final int secondary = InputEvent.CTRL_MASK |
-//			(primary == InputEvent.CTRL_MASK ? InputEvent.ALT_MASK : 0);
+    	final int secondary = InputEvent.CTRL_MASK |
+			(primary == InputEvent.CTRL_MASK ? InputEvent.ALT_MASK : 0);
     	
     	final Set keySet = new HashSet();
-    	gatherAccelerators( keySet, mg );
+    	gatherAccelerators( keySet, mg, secondary );
     	removeMenuModifierBindings( c.getInputMap(), primary, keySet );
     }
 
-    private static void gatherAccelerators( Set keySet, MenuItem mi )
+    private static void gatherAccelerators( Set keySet, MenuItem mi, int mod )
     {
     	final Action a = mi.getAction();
     	if( a != null ) {
     		final KeyStroke strk = (KeyStroke) a.getValue( Action.ACCELERATOR_KEY );
-    		if( strk != null ) keySet.add( strk );
+    		if( (strk != null) && ((strk.getModifiers() & mod) == mod) )
+    			keySet.add( strk );
     	}
     	if( mi instanceof MenuGroup ) {
     		final MenuGroup mg = (MenuGroup) mi;
     		for( int i = 0; i < mg.size(); i++ ) {
     			final MenuNode mn = mg.get( i );
-    			if( mn instanceof MenuItem ) gatherAccelerators( keySet, (MenuItem) mn );
+    			if( mn instanceof MenuItem )
+    				gatherAccelerators( keySet, (MenuItem) mn, mod );
     		}
     	}
     }
