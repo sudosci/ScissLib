@@ -46,6 +46,7 @@ import javax.swing.JToolBar;
 
 import de.sciss.app.PreferenceNodeSync;
 import de.sciss.gui.ComboBoxEditorBorder;
+import de.sciss.gui.GUIUtil;
 import de.sciss.gui.PathField;
 import de.sciss.gui.PrefCheckBox;
 import de.sciss.gui.PrefComboBox;
@@ -177,7 +178,8 @@ implements ItemListener, PreferenceNodeSync
 	
 	private List				ggPaths		= null;		// lazy; set with automaticFileSuffix method
 	
-	private int					flags		= 0;
+	private int					flags			= 0;
+	private int					gainTypeWidth	= 0;
 	
 	private SpringPanel			pEnc		= null;
 	private SpringPanel			pGain		= null;
@@ -353,6 +355,12 @@ ggRate.setBorder( new ComboBoxEditorBorder() );
 				ggGain.setValue( DEFAULT_GAIN );
 				pGain.gridAdd( ggGain, 0, 0 );
 				lbGainType  = new JLabel();
+				setGainLabel( true );
+				final int w1 = lbGainType.getPreferredSize().width;
+				setGainLabel( false );
+				final int w2 = lbGainType.getPreferredSize().width;
+				gainTypeWidth = Math.max( w1, w2 );
+				GUIUtil.constrainWidth( lbGainType, gainTypeWidth );
 				pGain.gridAdd( lbGainType, 1, 0 );
 			}
 			if( (flagsAdded & NORMALIZE) != 0 ) {
@@ -544,9 +552,13 @@ ggRate.setBorder( new ComboBoxEditorBorder() );
 	// update the gain's label when the normalize checkbox is toggled
 	private void setGainLabel()
 	{
-		boolean normalize   = (ggNormalize != null) && ggNormalize.isSelected();
-		
-		lbGainType.setText( getResourceString( normalize ? "labelDBHeadroom" : "labelDBGain" ));
+		setGainLabel( (ggNormalize != null) && ggNormalize.isSelected() );
+		GUIUtil.constrainWidth( lbGainType, gainTypeWidth );
+	}
+	
+	private void setGainLabel( boolean normalize )
+	{
+		lbGainType.setText( getResourceString( normalize ? "labelPeak" : "labelGain" ));
 	}
 	
 	// sync's a path field's path extension
