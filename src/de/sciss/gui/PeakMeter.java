@@ -30,6 +30,7 @@
 package de.sciss.gui;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -245,9 +246,11 @@ implements PeakMeterView, Disposable, SwingConstants
 		rmsNorm			= -1.0f;
 		holdNorm		= -1.0f;
 		holdEnd			= System.currentTimeMillis();
-		holdPixPos		= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
-		peakPixPos		= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
-		rmsPixPos		= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 4 );
+
+		holdPixPos		= (int) (holdNorm * rlen1) & ~1;
+		peakPixPos		= (int) (peakNorm * rlen1) & ~1;
+		rmsPixPos		= Math.min( (int) (rmsNorm  * rlen1) & ~1, peakPixPos - 4 );
+
 		if( refreshParent ) {
 			getParent().repaint( insets.left + getX(), insets.top + getY(), w1, h1 );
 		} else {
@@ -392,7 +395,7 @@ implements PeakMeterView, Disposable, SwingConstants
 		if( !EventQueue.isDispatchThread() ) throw new IllegalMonitorStateException();
 		
 		final boolean	result;
-		final int		len1, rlen1;
+		final int		len1, rlen1, w1, h1;
 
 		newPeak		= (float) (Math.log( newPeak ) * logPeakCorr);
 		if( newPeak >= peak ) {
@@ -434,65 +437,68 @@ implements PeakMeterView, Disposable, SwingConstants
 		}
 
 		lastUpdate		= time;
-		if( vertical ) {
-			len1		= getHeight() - insets.top - insets.bottom;
-		} else {
-			len1		= getWidth() - insets.left - insets.right;
-		}
+		w1				= getWidth() - insets.left - insets.right;
+		h1				= getHeight() - insets.top - insets.bottom;
+		len1			= vertical ? h1 : w1;
 		rlen1			= (len1 - 1) & ~1;
 		recentLength	= rlen1 + 1;
 		
-		holdPixPos	= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
-		peakPixPos	= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
-		rmsPixPos	= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 2 );
+		holdPixPos		= (int) (holdNorm * rlen1) & ~1;
+		peakPixPos		= (int) (peakNorm * rlen1) & ~1;
+		rmsPixPos		= Math.min( (int) (rmsNorm  * rlen1) & ~1, peakPixPos - 4 );
 
 		// repaint only if pixel coords changed
-		if( (peakPixPos != peakPixPosP) || (rmsPixPos != rmsPixPosP) || (holdPixPos != holdPixPosP) ) {
-			final int minPixPos, maxPixPos;
+		final boolean peakPixChanged = peakPixPos != peakPixPosP;
+		final boolean rmsPixChanged  = rmsPixPos  != rmsPixPosP;
+		final boolean holdPixChanged = holdPixPos != holdPixPosP;
+		
+		if( peakPixChanged || rmsPixChanged || holdPixChanged ) {
+			int minPixPos, maxPixPos;
 			
 			// calculate dirty span
-			if( holdPainted ) {
-				minPixPos = Math.min( holdPixPos, holdPixPosP );
-				if( rmsPainted ) {
-					maxPixPos = Math.max( Math.max( peakPixPos, peakPixPosP ), Math.max( rmsPixPos, rmsPixPosP )) + 3;
-				} else {
-					maxPixPos = Math.max( peakPixPos, peakPixPosP ) + 1;
-				}
+			if( peakPixPos < peakPixPosP ) {
+				minPixPos = peakPixPos; 
+				maxPixPos = peakPixPosP; 
 			} else {
-				if( rmsPainted ) {
-					minPixPos = Math.min( Math.min( peakPixPos, peakPixPosP ), Math.min( rmsPixPos, rmsPixPosP ));
-					maxPixPos = Math.max( Math.max( peakPixPos, peakPixPosP ), Math.max( rmsPixPos, rmsPixPosP )) + 3;
+				minPixPos = peakPixPosP; 
+				maxPixPos = peakPixPos; 
+			}
+			if( holdPainted ) {
+				if( holdPixPos < holdPixPosP ) {
+					if( holdPixPos < minPixPos )  minPixPos = holdPixPos; 
+					if( holdPixPosP > maxPixPos ) maxPixPos = holdPixPosP; 
 				} else {
-					minPixPos = Math.min( peakPixPos, rmsPixPosP );
-					maxPixPos = Math.max( peakPixPos, rmsPixPosP ) + 1;
+					if( holdPixPosP < minPixPos ) minPixPos = holdPixPosP; 
+					if( holdPixPos > maxPixPos )  maxPixPos = holdPixPos; 
 				}
+			}
+			if( rmsPainted ) {
+				if( rmsPixPos < rmsPixPosP ) {
+					if( rmsPixPos < minPixPos )  minPixPos = rmsPixPos; 
+					if( rmsPixPosP > maxPixPos ) maxPixPos = rmsPixPosP; 
+				} else {
+					if( rmsPixPosP < minPixPos ) minPixPos = rmsPixPosP; 
+					if( rmsPixPos > maxPixPos )  maxPixPos = rmsPixPos; 
+				}
+			}
+			
+			final Container c;
+			final int offX, offY;
+			if( refreshParent ) {
+				c		= getParent();
+				offX	= insets.left + getX();
+				offY	= insets.top + getY();
+			} else {
+				c 		= this;
+				offX	= insets.left;
+				offY	= insets.top;
 			}
 
 			// trigger repaint
 			if( vertical ) {
-				if( refreshParent ) {
-					getParent().repaint( insets.left + getX(),
-					                     insets.top + (recentLength - len1) + minPixPos + getY(),
-					                     getWidth() - insets.left - insets.right,
-					                     maxPixPos - minPixPos );
-				} else {
-					repaint( insets.left,
-					         insets.top + (recentLength - len1) + minPixPos,
-					         getWidth() - insets.left - insets.right,
-					         maxPixPos - minPixPos );
-				}
+				c.repaint( offX, offY + rlen1 - maxPixPos, w1, maxPixPos - minPixPos + 2 );
 			} else {
-				if( refreshParent ) {
-					getParent().repaint( insets.left + (recentLength - len1) + minPixPos + getX(),
-					                     insets.top + getY(),
-					                     maxPixPos - minPixPos,
-					                     getHeight() - insets.top - insets.bottom );
-				} else {
-					repaint( insets.left + (recentLength - len1) + minPixPos,
-					         insets.top,
-					         maxPixPos - minPixPos,
-					         getWidth() - insets.left - insets.right );
-				}
+				c.repaint( offX + minPixPos, offY, maxPixPos - minPixPos + 2, h1 );
 			}
 		} else {
 			peakToPaint		= -160f;
@@ -622,7 +628,7 @@ implements PeakMeterView, Disposable, SwingConstants
 				
 		int dstOff = 0;
 		int y = 0;
-		for( ; y < minBrdthH; y++ ) {
+		for( ; y < minBrdthH; y++ ) { // HHH
 			for( int x = 0, srcOff = y; x < len; x++, dstOff++, srcOff += srcBrdth ) {
 				dst[ dstOff ] = src[ srcOff ];
 			}
@@ -678,9 +684,9 @@ implements PeakMeterView, Disposable, SwingConstants
 				for( int pixPos = 0, off = i * len; pixPos < len; pixPos += 2 ) {
 					w2	= pixPos * w3;
 					w1	= 1.0f - w2;
-					rgb	= Color.HSBtoRGB( hsbTop[0] * w1 + hsbBot[0] * w2,
-										  hsbTop[1] * w1 + hsbBot[1] * w2,
-										  hsbTop[2] * w1 + hsbBot[2] * w2 );
+					rgb	= Color.HSBtoRGB( hsbTop[0] * w2 + hsbBot[0] * w1,
+										  hsbTop[1] * w2 + hsbBot[1] * w1,
+										  hsbTop[2] * w2 + hsbBot[2] * w1 );
 					pix[ off++ ] = rgb | 0xFF000000;
 					pix[ off++ ] = 0xFF000000;
 				}
@@ -717,14 +723,15 @@ implements PeakMeterView, Disposable, SwingConstants
 		if( len <= 0 ) return;
 		
 		if( len != recentLength ) {
-			// HHH
-			holdPixPos		= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
-			peakPixPos		= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
-			rmsPixPos		= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 4 );
-			recentLength= len;
+//			holdPixPos		= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
+//			peakPixPos		= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
+//			rmsPixPos		= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 4 );
+			holdPixPos		= (int) (holdNorm * rlen1) & ~1;
+			peakPixPos		= (int) (peakNorm * rlen1) & ~1;
+			rmsPixPos		= Math.min( (int) (rmsNorm  * rlen1) & ~1, peakPixPos - 4 );
+			recentLength	= len;
 		}
 		if( (calcedLength != recentLength) || (calcedBreadth != recentBreadth) ) {
-			recentLength = len;
 			recalcPaint();
 		}
 		
@@ -734,48 +741,65 @@ implements PeakMeterView, Disposable, SwingConstants
 		if( vertical ) {	// ---- vertical ----
 			g2.translate( insets.left, insets.top + (len1 - len) );
 			g2.setPaint( pntBg );
+			final int holdPixPosI = rlen1 - holdPixPos;
+			final int peakPixPosI = rlen1 - peakPixPos;
 			if( rmsPainted ) {
-				g2.fillRect( 0, 0, recentBreadth, rmsPixPos + 1 );
-				if( holdPainted ) {
-					g2.drawImage( imgPeak, 0, holdPixPos, recentBreadth, holdPixPos + 1,
-					                       0, holdPixPos, recentBreadth, holdPixPos + 1, this );
+				final int rmsPixPosI  = rlen1 - rmsPixPos;
+				g2.fillRect( 0, 0, recentBreadth, Math.min( len, rmsPixPosI ));
+				if( holdPainted && (holdPixPos >= 0) /* && (holdPixPos <= rlen1)*/ ) {
+					g2.drawImage( imgPeak, 0, holdPixPosI, recentBreadth, holdPixPosI + 1,
+					                       0, holdPixPosI, recentBreadth, holdPixPosI + 1, this );
 				}
-				final int lenClip = Math.min( len, rmsPixPos );
-				g2.drawImage( imgPeak, 0, peakPixPos, recentBreadth, lenClip,
-				                       0, peakPixPos, recentBreadth, lenClip, this );
-				g2.drawImage( imgRMS,  0, rmsPixPos + 2, recentBreadth, len,
-				                       0, rmsPixPos + 2, recentBreadth, len, this );
+				if( peakPixPos >= 0 ) {
+					final int lenClip = Math.min( len, rmsPixPosI - 2 );
+					g2.drawImage( imgPeak, 0, peakPixPosI, recentBreadth, lenClip,
+					              		   0, peakPixPosI, recentBreadth, lenClip, this );
+				}
+				if( rmsPixPos >= 0 ) {
+					g2.drawImage( imgRMS,  0, rmsPixPosI, recentBreadth, len,
+					              		   0, rmsPixPosI, recentBreadth, len, this );
+				}
 			} else {
-				g2.fillRect( 0, 0, recentBreadth, peakPixPos );
-				if( holdPainted ) {
-					g2.drawImage( imgPeak, 0, holdPixPos, recentBreadth, holdPixPos + 1,
-					                       0, holdPixPos, recentBreadth, holdPixPos + 1, this );
+				g2.fillRect( 0, 0, recentBreadth, peakPixPosI );
+				if( holdPainted && (holdPixPos >= 0) /* && (holdPixPos <= rlen1)*/ ) {
+					g2.drawImage( imgPeak, 0, holdPixPosI, recentBreadth, holdPixPosI + 1,
+					                       0, holdPixPosI, recentBreadth, holdPixPosI + 1, this );
 				}
-				g2.drawImage( imgPeak, 0, peakPixPos, recentBreadth, len,
-				              		   0, peakPixPos, recentBreadth, len, this );
+				if( peakPixPos >= 0 ) {
+					g2.drawImage( imgPeak, 0, peakPixPosI, recentBreadth, len,
+					              		   0, peakPixPosI, recentBreadth, len, this );
+				}
 			}
 		} else {	// ---- horizontal ----
-			g2.translate( insets.left + (len1 - len), insets.top );
+			g2.translate( insets.left, insets.top );
 			g2.setPaint( pntBg );
 			if( rmsPainted ) {
-				g2.fillRect( 0, 0, rmsPixPos + 1, recentBreadth );
-				if( holdPainted ) {
+				final int rmsPixPosC = Math.max( 0, rmsPixPos );
+				g2.fillRect( rmsPixPosC, 0, len - rmsPixPosC, recentBreadth );
+				if( holdPainted && (holdPixPos >= 0) /* && (holdPixPos <= rlen1)*/ ) {
 					g2.drawImage( imgPeak, holdPixPos, 0, holdPixPos + 1, recentBreadth,
 					              		   holdPixPos, 0, holdPixPos + 1, recentBreadth, this );
 				}
-				final int lenClip = Math.min( len, rmsPixPos );
-				g2.drawImage( imgPeak, peakPixPos, 0, lenClip, recentBreadth,
-				              		   peakPixPos, 0, lenClip, recentBreadth, this );
-				g2.drawImage( imgRMS,  rmsPixPos + 2, 0, len, recentBreadth,
-				              		   rmsPixPos + 2, 0, len, recentBreadth, this );
+				if( peakPixPos >= 0 ) {
+					final int offClip = Math.max( 0, rmsPixPos + 3 );
+					g2.drawImage( imgPeak, offClip, 0, peakPixPos + 1, recentBreadth,
+					              		   offClip, 0, peakPixPos + 1, recentBreadth, this );
+				}
+				if( rmsPixPos >= 0 ) {
+					g2.drawImage( imgRMS,  0, 0, rmsPixPos + 1, recentBreadth,
+					              		   0, 0, rmsPixPos + 1, recentBreadth, this );
+				}
 			} else {
-				g2.fillRect( 0, 0, peakPixPos, recentBreadth );
-				if( holdPainted ) {
+				final int peakPixPosC = Math.max( 0, peakPixPos );
+				g2.fillRect( peakPixPosC, 0, len - peakPixPosC, recentBreadth );
+				if( holdPainted && (holdPixPos >= 0) /* && (holdPixPos <= rlen1)*/ ) {
 					g2.drawImage( imgPeak, holdPixPos, 0, holdPixPos + 1, recentBreadth,
 					                       holdPixPos, 0, holdPixPos + 1, recentBreadth, this );
 				}
-				g2.drawImage( imgPeak, peakPixPos, 0, len, recentBreadth,
-				              		   peakPixPos, 0, len, recentBreadth, this );
+				if( peakPixPos >= 0 ) {
+					g2.drawImage( imgPeak, 0, 0, peakPixPos + 1, recentBreadth,
+					              		   0, 0, peakPixPos + 1, recentBreadth, this );
+				}
 			}
 		}
 			

@@ -64,6 +64,7 @@ implements PeakMeterView, SwingConstants
 	private boolean				holdPainted		= true;
 
 	private int					orient			= VERTICAL;
+	private boolean				vertical		= true;
 
 	public PeakMeterPanel()
 	{
@@ -89,14 +90,16 @@ implements PeakMeterView, SwingConstants
 	{
 		if( o != orient ) {
 			if( o != HORIZONTAL && o != VERTICAL ) throw new IllegalArgumentException( String.valueOf( o ));
-			orient = o;
+			orient		= o;
+			vertical	= orient == VERTICAL;
 			if( caption != null ) caption.setOrientation( orient );
 			for( int ch = 0; ch < meters.length; ch++ ) {
 				meters[ ch ].setOrientation( orient );
 			}
 //System.out.println( "orient == VERTICAL -> " + (orient == VERTICAL) );
-			setLayout( new BoxLayout( this, (orient == VERTICAL) ?
+			setLayout( new BoxLayout( this, vertical ?
 				BoxLayout.X_AXIS : BoxLayout.Y_AXIS ));
+			updateBorders();
 			revalidate();
 //			repaint();
 		}
@@ -253,7 +256,7 @@ implements PeakMeterView, SwingConstants
 		
 		final PeakMeter[]	newMeters;
 		final Border		b1		= caption == null ? null : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 1 );
-		final Border		b2		= caption == null ? BorderFactory.createEmptyBorder( 1, 1, 1, 0 ) : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 0 );
+		final Border		b2		= caption == null ? BorderFactory.createEmptyBorder( 1, 1, vertical ? 1 : 0, vertical ? 0 : 1 ) : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 0 );
 		final int			schnuck1, schnuck2;
 		
 		schnuck1 = (!border || (captionVisible && (captionPosition == RIGHT))) ? numChannels - 1 : -1;
@@ -296,7 +299,7 @@ implements PeakMeterView, SwingConstants
 	private void updateBorders()
 	{
 		final Border		b1		= caption == null ? BorderFactory.createEmptyBorder( 1, 1, 1, 1 ) : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 1 );
-		final Border		b2		= caption == null ? BorderFactory.createEmptyBorder( 1, 1, 1, 0 ) : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 0 );
+		final Border		b2		= caption == null ? BorderFactory.createEmptyBorder( 1, 1, vertical ? 1 : 0, vertical ? 0 : 1 ) : BorderFactory.createEmptyBorder( caption.getAscent(), 1, caption.getDescent(), 0 );
 		final int			schnuck1, schnuck2;
 		
 		schnuck1 = (!border || (captionVisible && (captionPosition == RIGHT))) ? (numChannels - 1) : -1;
