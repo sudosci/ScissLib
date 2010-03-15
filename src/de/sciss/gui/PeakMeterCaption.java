@@ -85,6 +85,8 @@ implements SwingConstants, PropertyChangeListener
 	private int						ascent, descent, labW;
 	
 	private int						ticks			= 0;
+	
+	private boolean					vertical;
 
 	//	static {
 //		SHP_MAJOR_TICKS = new GeneralPath();
@@ -102,7 +104,18 @@ implements SwingConstants, PropertyChangeListener
 	
 	public PeakMeterCaption()
 	{
+		this( VERTICAL );
+	}
+	
+	public PeakMeterCaption( int orient )
+	{
 		super();
+		
+		if( orient != HORIZONTAL && orient != VERTICAL ) {
+			throw new IllegalArgumentException( String.valueOf( orient ));
+		}
+		vertical = orient == VERTICAL;
+		
 		setPreferredSize( new Dimension( 20, 20 ));
 //		setForeground( DEFAULT_FG );
 		setOpaque( true );
@@ -113,6 +126,18 @@ implements SwingConstants, PropertyChangeListener
 		addPropertyChangeListener( "font", this );
 	}
 	
+	public void setOrientation( int orient )
+	{
+		if( orient != HORIZONTAL && orient != VERTICAL ) {
+			throw new IllegalArgumentException( String.valueOf( orient ));
+		}
+		final boolean newVertical = orient == VERTICAL;
+		if( newVertical != vertical ) {
+			vertical = newVertical;
+			// XXX
+		}
+	}
+
 	public void setTicks( int ticks )
 	{
 		this.ticks = ticks;

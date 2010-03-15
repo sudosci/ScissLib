@@ -31,7 +31,7 @@
 package de.sciss.gui;
 
 /**
- *	@version	0.59, 03-Jul-08
+ *	@version	0.59, 14-Mar-10
  *	@author		Hanns Holger Rutz
  */
 public class PeakMeterGroup

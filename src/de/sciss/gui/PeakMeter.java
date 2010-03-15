@@ -44,6 +44,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.SwingConstants;
 
 import de.sciss.util.Disposable;
 
@@ -57,14 +58,14 @@ import de.sciss.util.Disposable;
  *	for a smooth look.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.70, 03-Jul-08
+ *  @version	0.70, 14-Mar-10
  *
  *	@todo	allow linear display (now it's hard coded logarithmic)
  *	@todo	add optional horizontal orientation
  */
 public class PeakMeter
 extends JComponent
-implements PeakMeterView, Disposable
+implements PeakMeterView, Disposable, SwingConstants
 {
 	public static final int		DEFAULT_HOLD_DUR = 2500;
 
@@ -80,10 +81,10 @@ implements PeakMeterView, Disposable
 	private float				rmsNorm;
 	private float				holdNorm;
 	
-	private int					recentHeight	= 0;
-	private int					recentWidth		= 0;
-	private int					calcedHeight	= -1;			// recentHeight snapshot in recalcPaint()
-	private int					calcedWidth		= -1;			// recentWidth snapshot in recalcPaint()
+	private int					recentLength	= 0;
+	private int					recentBreadth	= 0;
+	private int					calcedLength	= -1;			// recentHeight snapshot in recalcPaint()
+	private int					calcedBreadth	= -1;			// recentWidth snapshot in recalcPaint()
 	private long				lastUpdate		= System.currentTimeMillis();
 	private long				holdEnd;
 	
@@ -119,27 +120,37 @@ implements PeakMeterView, Disposable
 	
 	private Insets				insets;
 
-	private int					yHold, yPeak, yRMS;
+	private int					holdPixPos, peakPixPos, rmsPixPos;
 	
-	private int					yPeakPainted	= 0;
-	private int					yRMSPainted		= 0;
-	private int					yHoldPainted	= 0;
+	private int					peakPixPosP	= 0;
+	private int					rmsPixPosP	= 0;
+	private int					holdPixPosP	= 0;
 	
-	private boolean				refreshParent	= false;
+	private boolean				refreshParent		= false;
 	
-	private int					ticks			= 0;
+	private int					ticks				= 0;
+	private boolean				vertical; 			// false for horizontal layout
 
+	public PeakMeter()
+	{
+		this( VERTICAL );
+	}
+	
 	/**
 	 *	Creates a new level meter with default
 	 *	ballistics and bounds.
 	 */
-	public PeakMeter()
+	public PeakMeter( int orient )
 	{
 		super();
 
 		setOpaque( true );
-		
 		setBorder( BorderFactory.createEmptyBorder( 1, 1, 1, 1 ));
+
+		if( orient != HORIZONTAL && orient != VERTICAL ) {
+			throw new IllegalArgumentException( String.valueOf( orient ));
+		}
+		vertical = orient == VERTICAL;
 		
 		recalcPrefSize();
 		
@@ -153,6 +164,20 @@ implements PeakMeterView, Disposable
 		clearMeter();
 	}
 	
+	public void setOrientation( int orient )
+	{
+		if( orient != HORIZONTAL && orient != VERTICAL ) {
+			throw new IllegalArgumentException( String.valueOf( orient ));
+		}
+		final boolean newVertical = orient == VERTICAL;
+		if( newVertical != vertical ) {
+			vertical = newVertical;
+			disposeImages();
+			recalcPrefSize();
+			clearMeter();
+		}
+	}
+
 	// ------------- PeakMeterView interface -------------
 	
 	public int getNumChannels() { return 1; }
@@ -203,23 +228,26 @@ implements PeakMeterView, Disposable
 	 */
 	public void clearMeter()
 	{
-		final int	w1		= getWidth() - (insets.left + insets.right);
-		final int	h1		= getHeight() - (insets.top + insets.bottom);
-		final int	rh1		= (h1 - 1) & ~1;
+		final int w1, h1, len1, rlen1;	
+		
+		w1		= getWidth()  - (insets.left + insets.right);
+		h1		= getHeight() - (insets.top + insets.bottom);
+		len1	= vertical ? h1 : w1;
+		rlen1	= (len1 - 1) & ~1;
 
-		peak		= -160f;
-		rms			= -160f;
-		hold		= -160f;
-		peakToPaint	= -160f;
-		rmsToPaint	= -160f;
-		holdToPaint	= -160f;
-		peakNorm	= -1.0f;
-		rmsNorm		= -1.0f;
-		holdNorm	= -1.0f;
-		holdEnd		= System.currentTimeMillis();
-		yHold		= (rh1 - (int) (holdNorm * rh1) + 1) & ~1;
-		yPeak		= (rh1 - (int) (peakNorm * rh1) + 1) & ~1;
-		yRMS		= Math.max( (rh1 - (int) (rmsNorm  * rh1) + 1) & ~1, yPeak + 4 );
+		peak			= -160f;
+		rms				= -160f;
+		hold			= -160f;
+		peakToPaint		= -160f;
+		rmsToPaint		= -160f;
+		holdToPaint		= -160f;
+		peakNorm		= -1.0f;
+		rmsNorm			= -1.0f;
+		holdNorm		= -1.0f;
+		holdEnd			= System.currentTimeMillis();
+		holdPixPos		= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
+		peakPixPos		= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
+		rmsPixPos		= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 4 );
 		if( refreshParent ) {
 			getParent().repaint( insets.left + getX(), insets.top + getY(), w1, h1 );
 		} else {
@@ -238,43 +266,6 @@ implements PeakMeterView, Disposable
 	public void setRefreshParent( boolean onOff ) {
 		refreshParent = onOff;
 	}
-	
-//	public void setSync( Object sync ) {
-//		synchronized( this.sync ) {
-//			this.sync = sync;
-//		}
-//	}
-	
-//	// doesn't work XXX
-//	public void setToolTipEnabled( boolean onOff )
-//	{
-//		if( onOff ) {
-//			if( ma == null ) {
-//				ma = new MouseAdapter() {
-//					public void mouseEntered( MouseEvent e )
-//					{
-//						ttPeak = Float.NEGATIVE_INFINITY;
-//						ttUpdate = true;
-//						setToolTipText( String.valueOf( ttPeak ));
-//					}
-//					
-//					public void mouseExited( MouseEvent e )
-//					{
-//						ttUpdate = false;
-//						setToolTipText( null );
-//					}
-//				};
-//			}
-////			ttEnabled = true;
-//		} else {
-//			if( ma != null ) {
-//				removeMouseListener( ma );
-//				ma = null;
-//			}
-////			ttEnabled = false;
-//			ttUpdate = false;
-//		}
-//	}
 	
 	/**
 	 *	Sets the peak indicator hold time. Defaults to 1800 milliseconds.
@@ -305,61 +296,22 @@ implements PeakMeterView, Disposable
 			holdNorm	= 0.0f;
 //		}
 	}
-	
-//	/**
-//	 *	Adjusts the speed of the peak and RMS bar falling down.
-//	 *	Defaults to 50 decibels per second. At the moment,
-//	 *	rise (attack) speed is infinite.
-//	 *
-//	 *	@param	decibelsPerSecond	the amount of decibels by which the bars
-//	 *								falls in one second
-//	 */
-//	public void setFallSpeed( float decibelsPerSecond )
-//	{
-//		synchronized( sync ) {
-//			fallSpeed = decibelsPerSecond / 1000;
-//		}
-//	}
-
-//	/**
-//	 *	Adjusts the speed of the peak hold indicator falling down.
-//	 *	Defaults to 15 decibels per second.
-//	 *
-//	 *	@param	decibelsPerSecond	the amount of decibels by which the peak indicator
-//	 *								falls in one second
-//	 */
-//	public void setHoldFallSpeed( float decibelsPerSecond )
-//	{
-//		synchronized( sync ) {
-//			holdFallSpeed = decibelsPerSecond / 1000;
-//		}
-//	}
-
-//	/**
-//	 *	Adjusts the minimum displayed amplitude, that is the
-//	 *	amplitude corresponding to the bottom of the bar.
-//	 *	Defaults to -40 decibels. At the moment, the maximum
-//	 *	amplitude is fixed to 0 decibels (1.0 linear).
-//	 *
-//	 *	@param	decibels	the amplitude corresponding to the
-//	 *						minimum bar extent
-//	 */
-//	public void setMinAmplitude( float decibels )
-//	{
-//		synchronized( sync ) {
-//			floorWeight = -1.0f / decibels;
-//			setPeakAndRMS( this.peak, this.rms );
-//		}
-//	}
 
 	protected void recalcPrefSize()
 	{
+		final Dimension minDim, prefDim;
 		insets = getInsets();
-		final int w = 10 + insets.left + insets.right;
-		setMinimumSize(   new Dimension( 4, 2 + insets.top + insets.bottom ));
-//		setPreferredSize( new Dimension( w, ticks <= 0 ? getPreferredSize().height : (ticks * 2 + insets.top + insets.bottom) ));
-		setPreferredSize( new Dimension( w, ticks <= 0 ? getPreferredSize().height : (ticks * 2 - 1 + insets.top + insets.bottom) ));
-//		setMaximumSize(   new Dimension( w, getMaximumSize().height ));
+		if( vertical ) {
+			final int w = 10 + insets.left + insets.right;
+			minDim  = new Dimension( 4, 2 + insets.top + insets.bottom );
+			prefDim = new Dimension( w, ticks <= 0 ? getPreferredSize().height : (ticks * 2 - 1 + insets.top + insets.bottom) );
+		} else {
+			final int h = 10 + insets.top + insets.bottom;
+			minDim  = new Dimension( 2 + insets.left + insets.right, 4 );
+			prefDim = new Dimension( ticks <= 0 ? getPreferredSize().width : (ticks * 2 - 1 + insets.left + insets.right), h );
+		}
+		setMinimumSize( minDim );
+		setPreferredSize( prefDim );
 	}
 	
 	public float getPeakDecibels()
@@ -435,97 +387,120 @@ implements PeakMeterView, Disposable
 		} else return -1f;
 	}
 	
-	public boolean setPeakAndRMS( float peak, float rms, long time )
+	public boolean setPeakAndRMS( float newPeak, float newRMS, long time )
 	{
 		if( !EventQueue.isDispatchThread() ) throw new IllegalMonitorStateException();
 		
 		final boolean	result;
-		final int		h1;
+		final int		len1, rlen1;
 
-//		if( logarithmic ) {
-			peak		= (float) (Math.log( peak ) * logPeakCorr);
-			if( peak >= this.peak ) {
-				this.peak	= peak;
+		newPeak		= (float) (Math.log( newPeak ) * logPeakCorr);
+		if( newPeak >= peak ) {
+			peak	= newPeak;
+		} else {
+			// 20 dB in 1500 ms bzw. 40 dB in 2500 ms
+			peak = Math.max( newPeak, peak - (time - lastUpdate) * (peak > -20f ? 0.013333333333333f : 0.016f ));
+		}
+		peakToPaint	= Math.max( peakToPaint, peak );
+		peakNorm 	= paintToNorm( peakToPaint );
+
+		if( rmsPainted ) {
+			newRMS			= (float) (Math.log( newRMS ) * logRMSCorr);
+			if( newRMS > rms ) {
+				rms	= newRMS;
 			} else {
-				// 20 dB in 1500 ms bzw. 40 dB in 2500 ms
-				this.peak = Math.max( peak, this.peak - (time - lastUpdate) * (this.peak > -20f ? 0.013333333333333f : 0.016f ));
+				rms = Math.max( newRMS, rms - (time - lastUpdate) * (rms > -20f ? 0.013333333333333f : 0.016f ));
 			}
-			peakToPaint	= Math.max( peakToPaint, this.peak );
-			peakNorm 	= paintToNorm( peakToPaint );
-
-			if( rmsPainted ) {
-				rms			= (float) (Math.log( rms ) * logRMSCorr);
-				if( rms > this.rms ) {
-					this.rms	= rms;
+			rmsToPaint	= Math.max( rmsToPaint, rms );
+			rmsNorm		= paintToNorm( rmsToPaint );
+		}
+	
+		if( holdPainted ) {
+			if( peak >= hold ) {
+				hold	= peak;
+				holdEnd	= time + holdDuration;
+			} else if( time > holdEnd ) {
+				if( peak > hold ) {
+					hold	= peak;
 				} else {
-					this.rms = Math.max( rms, this.rms - (time - lastUpdate) * (this.rms > -20f ? 0.013333333333333f : 0.016f ));
+					hold   += (hold > -20f ? 0.013333333333333f : 0.016f ) * (lastUpdate - time);
 				}
-				rmsToPaint	= Math.max( rmsToPaint, this.rms );
-				rmsNorm		= paintToNorm( rmsToPaint );
 			}
+			holdToPaint	= Math.max( holdToPaint, hold );
+			holdNorm	= paintToNorm( holdToPaint );
+			result		= holdNorm >= 0f;
+		} else {
+			result		= peakNorm >= 0f;
+		}
+
+		lastUpdate		= time;
+		if( vertical ) {
+			len1		= getHeight() - insets.top - insets.bottom;
+		} else {
+			len1		= getWidth() - insets.left - insets.right;
+		}
+		rlen1			= (len1 - 1) & ~1;
+		recentLength	= rlen1 + 1;
 		
+		holdPixPos	= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
+		peakPixPos	= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
+		rmsPixPos	= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 2 );
+
+		// repaint only if pixel coords changed
+		if( (peakPixPos != peakPixPosP) || (rmsPixPos != rmsPixPosP) || (holdPixPos != holdPixPosP) ) {
+			final int minPixPos, maxPixPos;
+			
+			// calculate dirty span
 			if( holdPainted ) {
-				if( this.peak >= hold ) {
-					hold	= this.peak;
-					holdEnd	= time + holdDuration;
-				} else if( time > holdEnd ) {
-					if( this.peak > hold ) {
-						hold	= this.peak;
-					} else {
-						hold   += (this.hold > -20f ? 0.013333333333333f : 0.016f ) * (lastUpdate - time);
-					}
+				minPixPos = Math.min( holdPixPos, holdPixPosP );
+				if( rmsPainted ) {
+					maxPixPos = Math.max( Math.max( peakPixPos, peakPixPosP ), Math.max( rmsPixPos, rmsPixPosP )) + 3;
+				} else {
+					maxPixPos = Math.max( peakPixPos, peakPixPosP ) + 1;
 				}
-				holdToPaint	= Math.max( holdToPaint, hold );
-				holdNorm	= paintToNorm( holdToPaint );
-				result		= holdNorm >= 0f;
 			} else {
-				result		= peakNorm >= 0f;
+				if( rmsPainted ) {
+					minPixPos = Math.min( Math.min( peakPixPos, peakPixPosP ), Math.min( rmsPixPos, rmsPixPosP ));
+					maxPixPos = Math.max( Math.max( peakPixPos, peakPixPosP ), Math.max( rmsPixPos, rmsPixPosP )) + 3;
+				} else {
+					minPixPos = Math.min( peakPixPos, rmsPixPosP );
+					maxPixPos = Math.max( peakPixPos, rmsPixPosP ) + 1;
+				}
 			}
 
-			lastUpdate		= time;
-			h1				= getHeight() - insets.top - insets.bottom;
-			final int rh1	= (h1 - 1) & ~1;
-			recentHeight	= rh1 + 1;
-			
-			yHold	= (rh1 - (int) (holdNorm * rh1) + 1) & ~1;
-			yPeak	= (rh1 - (int) (peakNorm * rh1) + 1) & ~1;
-			yRMS	= Math.max( (rh1 - (int) (rmsNorm  * rh1) + 1) & ~1, yPeak + 2 );
-
-			if( (yPeak != yPeakPainted) || (yRMS != yRMSPainted) || (yHold != yHoldPainted) ) {
-				final int minY, maxY;
-				
-				if( holdPainted ) {
-					minY = Math.min( yHold, yHoldPainted );
-					if( rmsPainted ) {
-						maxY = Math.max( Math.max( yPeak, yPeakPainted ), Math.max( yRMS, yRMSPainted )) + 3;
-					} else {
-						maxY = Math.max( yPeak, yPeakPainted ) + 1;
-					}
-				} else {
-					if( rmsPainted ) {
-						minY = Math.min( Math.min( yPeak, yPeakPainted ), Math.min( yRMS, yRMSPainted ));
-						maxY = Math.max( Math.max( yPeak, yPeakPainted ), Math.max( yRMS, yRMSPainted )) + 3;
-					} else {
-						minY = Math.min( yPeak, yRMSPainted );
-						maxY = Math.max( yPeak, yRMSPainted ) + 1;
-					}
-				}
-
+			// trigger repaint
+			if( vertical ) {
 				if( refreshParent ) {
-					getParent().repaint( insets.left + getX(), insets.top + (recentHeight - h1) + minY + getY(), getWidth() - insets.left - insets.right,
-										 maxY - minY );
+					getParent().repaint( insets.left + getX(),
+					                     insets.top + (recentLength - len1) + minPixPos + getY(),
+					                     getWidth() - insets.left - insets.right,
+					                     maxPixPos - minPixPos );
 				} else {
-					repaint( insets.left, insets.top + (recentHeight - h1) + minY, getWidth() - insets.left - insets.right,
-							 maxY - minY );
+					repaint( insets.left,
+					         insets.top + (recentLength - len1) + minPixPos,
+					         getWidth() - insets.left - insets.right,
+					         maxPixPos - minPixPos );
 				}
 			} else {
-				peakToPaint		= -160f;
-				rmsToPaint		= -160f;
-				holdToPaint		= -160f;
+				if( refreshParent ) {
+					getParent().repaint( insets.left + (recentLength - len1) + minPixPos + getX(),
+					                     insets.top + getY(),
+					                     maxPixPos - minPixPos,
+					                     getHeight() - insets.top - insets.bottom );
+				} else {
+					repaint( insets.left + (recentLength - len1) + minPixPos,
+					         insets.top,
+					         maxPixPos - minPixPos,
+					         getWidth() - insets.left - insets.right );
+				}
 			}
-			
-			return result;
-//		}
+		} else {
+			peakToPaint		= -160f;
+			rmsToPaint		= -160f;
+			holdToPaint		= -160f;
+		}
+		
+		return result;
 	}
 	
 	/**
@@ -535,21 +510,22 @@ implements PeakMeterView, Disposable
 	 *	not changed, so this method is appropriate when having RMS
 	 *	painting turned off.
 	 *
-	 *	@param	peak	peak amplitude (linear) between zero and one.
+	 *	@param	newPeak	peak amplitude (linear) between zero and one.
 	 *
 	 *	@synchronization	this method is thread safe
 	 */
-	public boolean setPeak( float peak )
+	public boolean setPeak( float newPeak )
 	{
 //		synchronized( sync ) {
-			return setPeakAndRMS( peak, this.rms );
+			return setPeakAndRMS( newPeak, rms );
 //		}
 	}
 	
 	private void recalcPaint()
 	{
-		final int		picH		= (recentHeight + 1) & ~1;
-		final int		picW		= recentWidth;
+		final int		imgLen		= (recentLength + 1) & ~1;
+		final int		imgBrdth	= recentBreadth;
+		final int		imgW, imgH;
 		int[]			pix;
 	
 		if( imgPeak != null ) {
@@ -560,55 +536,72 @@ implements PeakMeterView, Disposable
 			imgRMS.flush();
 			imgRMS = null;
 		}
-		if( (imgBg == null) || (imgBg.getWidth() != picW) ) {
-			if( imgBg != null ) {
-				imgBg.flush();
-				imgBg = null;
-			}
-			if( picW == 10 ) {
-				pix	= bgPixels;
-			} else {
-				pix	= widenPix( bgPixels, 10, picW, 2 );
-			}
-			imgBg = new BufferedImage( picW, 2, BufferedImage.TYPE_INT_ARGB );
-			imgBg.setRGB( 0, 0, picW, 2, pix, 0, picW );
-			pntBg = new TexturePaint( imgBg, new Rectangle( 0, 0, picW, 2 ));
-		}
 		
-		pix	= hsbFade( picW, picH, rmsTopColor, rmsBotColor );
-		imgRMS = new BufferedImage( picW, picH, BufferedImage.TYPE_INT_ARGB );
-		imgRMS.setRGB( 0, 0, picW, picH, pix, 0, picW );
-//		pntRMS = new TexturePaint( imgRMS, new Rectangle( 0, 0, 10, recentHeight ));
+		if( vertical ) {	// ---- vertical ----
+			if( (imgBg == null) || (imgBg.getWidth() != imgBrdth) ) {
+				if( imgBg != null ) {
+					imgBg.flush();
+					imgBg = null;
+				}
+				if( imgBrdth == 10 ) {
+					pix	= bgPixels;
+				} else {
+					pix	= widenPixV( bgPixels, 10, imgBrdth, 2 );
+				}
+				imgBg = new BufferedImage( imgBrdth, 2, BufferedImage.TYPE_INT_ARGB );
+				imgBg.setRGB( 0, 0, imgBrdth, 2, pix, 0, imgBrdth );
+				pntBg = new TexturePaint( imgBg, new Rectangle( 0, 0, imgBrdth, 2 ));
+			}
+			imgW = imgBrdth;
+			imgH = imgLen;
+			
+		} else {	// ---- horizontal ----
+			if( (imgBg == null) || (imgBg.getHeight() != imgBrdth) ) {
+				if( imgBg != null ) {
+					imgBg.flush();
+					imgBg = null;
+				}
+				pix	= widenPixH( bgPixels, 10, imgBrdth, 2 );
+				imgBg = new BufferedImage( 2, imgBrdth, BufferedImage.TYPE_INT_ARGB );
+				imgBg.setRGB( 0, 0, 2, imgBrdth, pix, 0, 2 );
+				pntBg = new TexturePaint( imgBg, new Rectangle( 0, 0, 2, imgBrdth ));
+			}
+			imgW = imgLen;
+			imgH = imgBrdth;
+		}
+		pix	= hsbFade( imgBrdth, imgLen, rmsTopColor, rmsBotColor, vertical );
+		imgRMS = new BufferedImage( imgW, imgH, BufferedImage.TYPE_INT_ARGB );
+		imgRMS.setRGB( 0, 0, imgW, imgH, pix, 0, imgW );
 
-		pix	= hsbFade( picW, picH, peakTopColor, peakBotColor );
-		imgPeak = new BufferedImage( picW, picH, BufferedImage.TYPE_INT_ARGB );
-		imgPeak.setRGB( 0, 0, picW, picH, pix, 0, picW );
-//		pntRMS = new TexturePaint( imgRMS, new Rectangle( 0, 0, 10, recentHeight ));
+		pix	= hsbFade( imgBrdth, imgLen, peakTopColor, peakBotColor, vertical );
+		imgPeak = new BufferedImage( imgW, imgH, BufferedImage.TYPE_INT_ARGB );
+		imgPeak.setRGB( 0, 0, imgW, imgH, pix, 0, imgW );
 
-		calcedHeight	= recentHeight;
-		calcedWidth		= recentWidth;
+		calcedLength	= recentLength;
+		calcedBreadth	= recentBreadth;
 	}
 	
-	private int[] widenPix( int[] src, int srcW, int dstW, int h )
+	private static int[] widenPixV( int[] src, int srcBrdth, int dstBrdth, int len )
 	{
-		final int	minW		= Math.min( srcW, dstW );
-		final int	minWH		= minW >> 1;
-		final int	minWH1		= minW - minWH;
-		final int 	numWiden	= dstW - srcW;
-		final int[]	dst			= new int[ dstW * h ];
-		
-//System.out.println( "srcW " + srcW + "; dstW " + dstW + "; minW " + minW + "; numWiden " + numWiden );
-		
-		for( int y = 0, srcOffL = 0, srcOffR = srcW - minWH1, dstOffL = 0, dstOffR = dstW - minWH1;
-			 y < h;
-			 y++, srcOffL += srcW, srcOffR += srcW, dstOffL += dstW, dstOffR += dstW ) {
+		final int	minBrdth	= Math.min( srcBrdth, dstBrdth );
+		final int	minBrdthH	= minBrdth >> 1;
+		final int	minBrdthH1	= minBrdth - minBrdthH;
+		final int 	numWiden	= dstBrdth - srcBrdth;
+		final int[]	dst			= new int[ dstBrdth * len ];
+				
+		for( int y = 0, srcOffL = 0, srcOffR = srcBrdth - minBrdthH1,
+				 dstOffL = 0, dstOffR = dstBrdth - minBrdthH1;
+			 y < len;
+			 y++, srcOffL += srcBrdth, srcOffR += srcBrdth,
+			 	dstOffL += dstBrdth, dstOffR += dstBrdth ) {
 
-			System.arraycopy( src, srcOffL, dst, dstOffL, minWH );
-			System.arraycopy( src, srcOffR, dst, dstOffR, minWH1 );
+			System.arraycopy( src, srcOffL, dst, dstOffL, minBrdthH );
+			System.arraycopy( src, srcOffR, dst, dstOffR, minBrdthH1 );
 		}
 		if( numWiden > 0 ) {
 			int p;
-			for( int y = 0, srcOff = minWH, dstOff = minWH; y < h; y++, srcOff += srcW, dstOff += srcW ) {
+			for( int y = 0, srcOff = minBrdthH, dstOff = minBrdthH; y < len;
+					y++, srcOff += srcBrdth, dstOff += srcBrdth ) {
 				p = src[ srcOff ];
 				for( int stop = dstOff + numWiden; dstOff < stop; dstOff++ ) {
 					dst[ dstOff ] = p;
@@ -617,38 +610,80 @@ implements PeakMeterView, Disposable
 		}
 		return dst;
 	}
-	
-	private int[] hsbFade( int picW, int picH, int[] topColr, int[] botColr )
+
+	private static int[] widenPixH( int[] src, int srcBrdth, int dstBrdth, int len )
 	{
-		final int[] 	pix 		= new int[ picW * picH ];
+		final int	minBrdth	= Math.min( srcBrdth, dstBrdth );
+		final int	minBrdthH	= minBrdth >> 1;
+		final int	minBrdthH1	= minBrdth - minBrdthH;
+		final int	brdthDOff	= dstBrdth - minBrdthH1;
+		final int	brdthSOff	= srcBrdth - minBrdthH1;
+		final int[]	dst			= new int[ dstBrdth * len ];
+				
+		int dstOff = 0;
+		int y = 0;
+		for( ; y < minBrdthH; y++ ) {
+			for( int x = 0, srcOff = y; x < len; x++, dstOff++, srcOff += srcBrdth ) {
+				dst[ dstOff ] = src[ srcOff ];
+			}
+		}
+		for( ; y < brdthDOff; y++ ) {
+			for( int x = 0, srcOff = minBrdthH; x < len; x++, dstOff++, srcOff += srcBrdth ) {
+				dst[ dstOff ] = src[ srcOff ];
+			}
+		}
+		for( int srcOffS = brdthSOff; y < dstBrdth; y++, srcOffS++ ) {
+			for( int x = 0, srcOff = srcOffS; x < len; x++, dstOff++, srcOff += srcBrdth ) {
+				dst[ dstOff ] = src[ srcOff ];
+			}
+		}
+		return dst;
+	}
+
+	private static int[] hsbFade( int brdth, int len, int[] topColr, int[] botColr, boolean vertical )
+	{
+//System.out.println( "brdth = " + brdth + "; len = " + len );
+		final int[] 	pix 		= new int[ brdth * len ];
 		final int[] 	sTopColr, sBotColr;
 		final float[]	hsbTop		= new float[ 3 ];
 		final float[]	hsbBot		= new float[ 3 ];
-		final float		w3			= 1.0f / (picH - 2);
+		final float		w3			= 1.0f / (len - 2);
 		int				rgb;
 		float			w1, w2;
 		
-		if( picW == 10 ) {
+		if( brdth == 10 ) {
 			sTopColr	= topColr;
 			sBotColr	= botColr;
 		} else {
-			sTopColr	= widenPix( topColr, 10, picW, 1 );
-			sBotColr	= widenPix( botColr, 10, picW, 1 );
+			sTopColr	= widenPixV( topColr, 10, brdth, 1 );
+			sBotColr	= widenPixV( botColr, 10, brdth, 1 );
 		}
 		
-		for( int x = 0; x < picW; x++ ) {
-			rgb = sTopColr[ x ];
+		for( int i = 0; i < brdth; i++ ) {
+			rgb = sTopColr[ i ];
 			Color.RGBtoHSB( (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, hsbTop );
-			rgb = sBotColr[ x ];
+			rgb = sBotColr[ i ];
 			Color.RGBtoHSB( (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, hsbBot );
-			for( int y = 0, off = x; y < picH; y += 2, off += (picW << 1) ) {
-				w2				= y * w3;
-				w1				= 1.0f - w2;
-				rgb				= Color.HSBtoRGB( hsbTop[0] * w1 + hsbBot[0] * w2,
-												  hsbTop[1] * w1 + hsbBot[1] * w2,
-												  hsbTop[2] * w1 + hsbBot[2] * w2 );
-				pix[ off ]		= rgb | 0xFF000000;
-				pix[ off+picW ]	= 0xFF000000;
+			if( vertical ) {
+				for( int pixPos = 0, off = i; pixPos < len; pixPos += 2, off += (brdth << 1) ) {
+					w2	= pixPos * w3;
+					w1	= 1.0f - w2;
+					rgb	= Color.HSBtoRGB( hsbTop[0] * w1 + hsbBot[0] * w2,
+										  hsbTop[1] * w1 + hsbBot[1] * w2,
+										  hsbTop[2] * w1 + hsbBot[2] * w2 );
+					pix[ off ] = rgb | 0xFF000000;
+					pix[ off+brdth ] = 0xFF000000;
+				}
+			} else {
+				for( int pixPos = 0, off = i * len; pixPos < len; pixPos += 2 ) {
+					w2	= pixPos * w3;
+					w1	= 1.0f - w2;
+					rgb	= Color.HSBtoRGB( hsbTop[0] * w1 + hsbBot[0] * w2,
+										  hsbTop[1] * w1 + hsbBot[1] * w2,
+										  hsbTop[2] * w1 + hsbBot[2] * w2 );
+					pix[ off++ ] = rgb | 0xFF000000;
+					pix[ off++ ] = 0xFF000000;
+				}
 			}
 		}
 		
@@ -660,86 +695,122 @@ implements PeakMeterView, Disposable
 		super.paintComponent( g );
 		final Graphics2D		g2;
 		final AffineTransform	atOrig;
-		final int				h1		= getHeight() - (insets.top + insets.bottom);
-//		final int				h		= (getHeight() - insets.top - insets.bottom + 1) & ~1;
-//		final int				h		= (getHeight() - insets.top - insets.bottom) & ~1;
-		final int				rh1		= (h1 - 1) & ~1;
-		final int				h		= rh1 + 1;
+		final int				len1, rlen1, len, w, h, w1, h1;
 		
-		recentWidth = getWidth() - (insets.left + insets.right);
+		w	= getWidth();
+		h	= getHeight();
+		w1	= w - (insets.left + insets.right);
+		h1	= h - (insets.top + insets.bottom);
+		
+		if( vertical ) {
+			len1			= h1;
+			recentBreadth	= w1;
+		} else {
+			len1			= w1;
+			recentBreadth	= h1;
+		}
+		rlen1		= (len1 - 1) & ~1;
+		len			= rlen1 + 1;
 		
 		g.setColor( Color.black );
-		g.fillRect( 0, 0, getWidth(), getHeight() );
-		if( h > 0 ) {
-//			synchronized( sync ) {	
-				if( h != recentHeight ) {
-//					yPeak		= ((int) ((1.0f - peakNorm) * h) + 1) & ~1;
-//					yRMS		= ((int) ((1.0f - rmsNorm)  * h) + 1) & ~1;
-//					yHold		= ((int) ((1.0f - holdNorm) * h) + 1) & ~1;
-					yHold		= (rh1 - (int) (holdNorm * rh1) + 1) & ~1;
-					yPeak		= (rh1 - (int) (peakNorm * rh1) + 1) & ~1;
-					yRMS		= Math.max( (rh1 - (int) (rmsNorm  * rh1) + 1) & ~1, yPeak + 4 );
-					recentHeight= h;
-				}
-				if( (calcedHeight != recentHeight) || (calcedWidth != recentWidth) ) {
-					recentHeight = h;
-//					System.out.println( "recalc h " + getHeight() + "; top " + insets.top + "; bottom " + insets.bottom + "; recentHeight " + recentHeight + "; h1 " + h1 );
-					recalcPaint();
-				}
-				
-				g2		= (Graphics2D) g;
-				atOrig	= g2.getTransform();
-				g2.translate( insets.left, insets.top + (h1 - h) );
-	
-				g2.setPaint( pntBg );
-//g2.setPaint( gaga ? Color.black : Color.white ); gaga = !gaga;
-		//		g2.fillRect( 1, 0, 10, yPeak );
-				if( rmsPainted ) {
-//					g2.fillRect( 0, 0, 10, yRMS + 1 );
-					g2.fillRect( 0, 0, recentWidth, yRMS + 1 );
-					if( holdPainted ) g2.drawImage( imgPeak, 0, yHold, recentWidth, yHold + 1, 0, yHold, recentWidth, yHold + 1, this );
-					final int yClipped = Math.min( h, yRMS );
-					g2.drawImage( imgPeak, 0, yPeak, recentWidth, yClipped, 0, yPeak, recentWidth, yClipped, this );
-					g2.drawImage( imgRMS, 0, yRMS + 2, recentWidth, h, 0, yRMS + 2, recentWidth, h, this );
-				} else {
-					g2.fillRect( 0, 0, recentWidth, yPeak );
-					if( holdPainted ) g2.drawImage( imgPeak, 0, yHold, recentWidth, yHold + 1, 0, yHold, recentWidth, yHold + 1, this );
-					g2.drawImage( imgPeak, 0, yPeak, recentWidth, h, 0, yPeak, recentWidth, h, this );
-				}
-				
-//System.err.println( "__ " + this.hashCode() + " : " + yPeak + ", " + yRMS + ", " + yHold + " ;; " + lastUpdate );
-// System.err.println( "__ " + yPeak + ", " + yRMS + ", " + yHold + " ;; " + this.peak + ", " + peakToPaint + ", " + peakNorm );
-				peakToPaint		= -160f;
-				rmsToPaint		= -160f;
-				holdToPaint		= -160f;
-				yPeakPainted	= yPeak;
-				yRMSPainted		= yRMS;
-				yHoldPainted	= yHold;
-				
-				g2.setTransform( atOrig );
-//			}
+		g.fillRect( 0, 0, w, h );
+		if( len <= 0 ) return;
+		
+		if( len != recentLength ) {
+			// HHH
+			holdPixPos		= (rlen1 - (int) (holdNorm * rlen1) + 1) & ~1;
+			peakPixPos		= (rlen1 - (int) (peakNorm * rlen1) + 1) & ~1;
+			rmsPixPos		= Math.max( (rlen1 - (int) (rmsNorm  * rlen1) + 1) & ~1, peakPixPos + 4 );
+			recentLength= len;
 		}
+		if( (calcedLength != recentLength) || (calcedBreadth != recentBreadth) ) {
+			recentLength = len;
+			recalcPaint();
+		}
+		
+		g2		= (Graphics2D) g;
+		atOrig	= g2.getTransform();
+
+		if( vertical ) {	// ---- vertical ----
+			g2.translate( insets.left, insets.top + (len1 - len) );
+			g2.setPaint( pntBg );
+			if( rmsPainted ) {
+				g2.fillRect( 0, 0, recentBreadth, rmsPixPos + 1 );
+				if( holdPainted ) {
+					g2.drawImage( imgPeak, 0, holdPixPos, recentBreadth, holdPixPos + 1,
+					                       0, holdPixPos, recentBreadth, holdPixPos + 1, this );
+				}
+				final int lenClip = Math.min( len, rmsPixPos );
+				g2.drawImage( imgPeak, 0, peakPixPos, recentBreadth, lenClip,
+				                       0, peakPixPos, recentBreadth, lenClip, this );
+				g2.drawImage( imgRMS,  0, rmsPixPos + 2, recentBreadth, len,
+				                       0, rmsPixPos + 2, recentBreadth, len, this );
+			} else {
+				g2.fillRect( 0, 0, recentBreadth, peakPixPos );
+				if( holdPainted ) {
+					g2.drawImage( imgPeak, 0, holdPixPos, recentBreadth, holdPixPos + 1,
+					                       0, holdPixPos, recentBreadth, holdPixPos + 1, this );
+				}
+				g2.drawImage( imgPeak, 0, peakPixPos, recentBreadth, len,
+				              		   0, peakPixPos, recentBreadth, len, this );
+			}
+		} else {	// ---- horizontal ----
+			g2.translate( insets.left + (len1 - len), insets.top );
+			g2.setPaint( pntBg );
+			if( rmsPainted ) {
+				g2.fillRect( 0, 0, rmsPixPos + 1, recentBreadth );
+				if( holdPainted ) {
+					g2.drawImage( imgPeak, holdPixPos, 0, holdPixPos + 1, recentBreadth,
+					              		   holdPixPos, 0, holdPixPos + 1, recentBreadth, this );
+				}
+				final int lenClip = Math.min( len, rmsPixPos );
+				g2.drawImage( imgPeak, peakPixPos, 0, lenClip, recentBreadth,
+				              		   peakPixPos, 0, lenClip, recentBreadth, this );
+				g2.drawImage( imgRMS,  rmsPixPos + 2, 0, len, recentBreadth,
+				              		   rmsPixPos + 2, 0, len, recentBreadth, this );
+			} else {
+				g2.fillRect( 0, 0, peakPixPos, recentBreadth );
+				if( holdPainted ) {
+					g2.drawImage( imgPeak, holdPixPos, 0, holdPixPos + 1, recentBreadth,
+					                       holdPixPos, 0, holdPixPos + 1, recentBreadth, this );
+				}
+				g2.drawImage( imgPeak, peakPixPos, 0, len, recentBreadth,
+				              		   peakPixPos, 0, len, recentBreadth, this );
+			}
+		}
+			
+		peakToPaint	= -160f;
+		rmsToPaint	= -160f;
+		holdToPaint	= -160f;
+		peakPixPosP	= peakPixPos;
+		rmsPixPosP	= rmsPixPos;
+		holdPixPosP	= holdPixPos;
+		
+		g2.setTransform( atOrig );
 	}
 	
 	// --------------- Disposable interface ---------------
 	
+	private void disposeImages()
+	{
+		if( imgPeak != null ) {
+			imgPeak.flush();
+			imgPeak = null;
+		}
+		if( imgRMS != null ) {
+			imgRMS.flush();
+			imgRMS = null;
+		}
+		if( imgBg != null ) {
+			imgBg.flush();
+			imgBg	= null;
+			pntBg	= null;
+		}
+		calcedLength = -1;
+	}
+	
 	public void dispose()
 	{
-//		synchronized( sync ) {
-			if( imgPeak != null ) {
-				imgPeak.flush();
-				imgPeak = null;
-			}
-			if( imgRMS != null ) {
-				imgRMS.flush();
-				imgRMS = null;
-			}
-			if( imgBg != null ) {
-				imgBg.flush();
-				imgBg	= null;
-				pntBg	= null;
-			}
-			calcedHeight = -1;
-//		}
+		disposeImages();
 	}
 }

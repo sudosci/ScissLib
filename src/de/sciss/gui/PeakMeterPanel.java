@@ -44,7 +44,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 /**
- *	@version	0.59, 03-Jul-08
+ *	@version	0.59, 14-Mar-10
  *	@author		Hanns Holger Rutz
  */
 public class PeakMeterPanel
@@ -62,7 +62,9 @@ implements PeakMeterView, SwingConstants
 	
 	private boolean				rmsPainted		= true;
 	private boolean				holdPainted		= true;
-	
+
+	private int					orient			= VERTICAL;
+
 	public PeakMeterPanel()
 	{
 		super();
@@ -82,7 +84,24 @@ implements PeakMeterView, SwingConstants
 			}
 		});
 	}
-
+	
+	public void setOrientation( int o )
+	{
+		if( o != orient ) {
+			if( o != HORIZONTAL && o != VERTICAL ) throw new IllegalArgumentException( String.valueOf( o ));
+			orient = o;
+			if( caption != null ) caption.setOrientation( orient );
+			for( int ch = 0; ch < meters.length; ch++ ) {
+				meters[ ch ].setOrientation( orient );
+			}
+//System.out.println( "orient == VERTICAL -> " + (orient == VERTICAL) );
+			setLayout( new BoxLayout( this, (orient == VERTICAL) ?
+				BoxLayout.X_AXIS : BoxLayout.Y_AXIS ));
+			revalidate();
+//			repaint();
+		}
+	}
+	
 	// --------------- PeakMeterView interface ---------------
 	
 	public void setRMSPainted( boolean onOff )
@@ -144,7 +163,7 @@ implements PeakMeterView, SwingConstants
 		if( onOff == (caption != null) ) return;
 		
 		if( onOff ) {
-			caption	= new PeakMeterCaption();
+			caption	= new PeakMeterCaption( orient );
 			caption.setFont( getFont() );
 			caption.setVisible( captionVisible );
 			caption.setHorizontalAlignment( captionAlign );
@@ -242,7 +261,7 @@ implements PeakMeterView, SwingConstants
 		
 		newMeters	= new PeakMeter[ numChannels ];
 		for( int ch = 0; ch < numChannels; ch++ ) {
-			newMeters[ ch ] = new PeakMeter();
+			newMeters[ ch ] = new PeakMeter( orient );
 			newMeters[ ch ].setRefreshParent( true );
 			newMeters[ ch ].setRMSPainted( rmsPainted );
 			newMeters[ ch ].setHoldPainted( holdPainted );
