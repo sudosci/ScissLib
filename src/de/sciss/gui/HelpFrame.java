@@ -66,7 +66,7 @@ import de.sciss.app.WindowHandler;
  *  pages.
  *
  *  @author		Hanns Holger Rutz
- *  @version	0.19, 28-Jun-08
+ *  @version	0.19, 02-Nov-10
  */
 public class HelpFrame
 implements HyperlinkListener, PropertyChangeListener
@@ -261,7 +261,7 @@ implements HyperlinkListener, PropertyChangeListener
     public void loadHelpFile( String fileName )
     {
         try {
-            URL url = new File( "help", fileName + ".html" ).toURL();
+            URL url = new File( "help", fileName + ".html" ).toURI().toURL();
             addAndLoadURL( url );
         }
         catch( IOException e1 ) {

@@ -10,7 +10,7 @@ package de.sciss;
 
 public class ScissLib
 {
-	private static final double VERSION	= 0.12;
+	private static final double VERSION	= 0.13;
 	
 	public static void main( String[] args )
 	{

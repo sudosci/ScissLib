@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.lang.reflect.Method;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -263,6 +264,16 @@ implements DocumentListener
 		mg.add( new MenuItem( "selectAll", getResourceString( "menuSelectAll" ), KeyStroke.getKeyStroke( KeyEvent.VK_A, MENU_SHORTCUT )));
 		a	= new ActionPreferences( getResourceString( "menuPreferences" ), KeyStroke.getKeyStroke( KeyEvent.VK_COMMA, MENU_SHORTCUT ));
 		if( PreferencesJMenuItem.isAutomaticallyPresent() ) {
+			// WORKING AROUND BUG WITH LATEST FUCKING APPLE JAVA
+			// see https://mrjadapter.dev.java.net/issues/show_bug.cgi?id=3
+			try {
+				final Class appClazz 	= Class.forName( "com.apple.eawt.Application" );
+				final Method getAppM 	= appClazz.getMethod( "getApplication", null );
+				final Object appleApp 	= getAppM.invoke( null, null );
+				final Method addPrefsM	= appleApp.getClass().getMethod( "addPreferencesMenuItem", null );
+				addPrefsM.invoke( appleApp, null );
+			} catch( Throwable t ) {} // screw you
+//			com.apple.eawt.Application.getApplication().addPreferencesMenuItem();
 			root.getPreferencesJMenuItem().setAction( a );
 		} else {
 			mg.addSeparator();
