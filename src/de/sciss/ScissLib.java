@@ -10,12 +10,12 @@ package de.sciss;
 
 public class ScissLib
 {
-	private static final double VERSION	= 0.13;
+	private static final double VERSION	= 0.14;
 	
 	public static void main( String[] args )
 	{
 		System.err.println( "\nScissUtil v" + VERSION + "\n" +
-		    				"(C)opyright 2004-2010 by Hanns Holger Rutz. All rights reserved.\n" +
+		    				"(C)opyright 2004-2011 by Hanns Holger Rutz. All rights reserved.\n" +
 		    				"Published under the GNU General Public License.\n\n" +
 		    				"This is a library which is not meant to be executed by itself.\n\n" );
 		

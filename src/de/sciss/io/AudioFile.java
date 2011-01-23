@@ -2,7 +2,7 @@
  *  AudioFile.java
  *  de.sciss.io package
  *
- *  Copyright (c) 2004-2010 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2011 Hanns Holger Rutz. All rights reserved.
  *
  *	This software is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU General Public License
@@ -45,6 +45,7 @@
 
 package de.sciss.io;
 
+import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -376,9 +377,14 @@ implements InterleavedStreamFile
 			type = AudioFileDescr.TYPE_SND;
 			break;
 
-		case IRCAMHeader.IRCAM_VAXBE_MAGIC:			// -------- IRCAM sound --------
+		case IRCAMHeader.IRCAM_VAXLE_MAGIC:			// -------- IRCAM sound --------
+		case IRCAMHeader.IRCAM_VAXBE_MAGIC:
 		case IRCAMHeader.IRCAM_SUNBE_MAGIC:
+		case IRCAMHeader.IRCAM_SUNLE_MAGIC:
+		case IRCAMHeader.IRCAM_MIPSLE_MAGIC:
 		case IRCAMHeader.IRCAM_MIPSBE_MAGIC:
+		case IRCAMHeader.IRCAM_NEXTBE_MAGIC:
+
 			type = AudioFileDescr.TYPE_IRCAM;
 			break;
 			
@@ -710,7 +716,7 @@ implements InterleavedStreamFile
 	}
 	
 // -------- BufferHandler Klassen --------
-
+	
 	private abstract class BufferHandler
 	{
 		protected BufferHandler() { /* empty */ }
@@ -1279,6 +1285,13 @@ implements InterleavedStreamFile
 			return( ((i >> 24) & 0xFF) | ((i >> 8) & 0xFF00) | ((i << 8) & 0xFF0000) | (i << 24) );
 		}
 
+		protected final float readLittleFloat()
+		throws IOException
+		{
+			final int i = raf.readInt();
+			return( Float.intBitsToFloat( ((i >> 24) & 0xFF) | ((i >> 8) & 0xFF00) | ((i << 8) & 0xFF0000) | (i << 24) ));
+		}
+
 		protected final long readLittleLong()
 		throws IOException
 		{
@@ -1330,6 +1343,35 @@ implements InterleavedStreamFile
 				b	= raf.readByte();
 			}
 			return buf.toString();
+		}
+	
+		protected abstract class DataInputReader {
+			protected final DataInput din;
+			
+			protected DataInputReader( DataInput din ) {
+				this.din = din;
+			}
+			
+			public abstract int readInt() throws IOException;
+			public abstract float readFloat() throws IOException;
+		}
+		
+		protected class LittleDataInputReader extends DataInputReader {
+			public LittleDataInputReader( DataInput din ) {
+				super( din );
+			}
+
+			public int readInt() throws IOException { return readLittleInt(); }
+			public float readFloat() throws IOException { return readLittleFloat(); }
+		}
+
+		protected class BigDataInputReader extends DataInputReader {
+			public BigDataInputReader( DataInput din ) {
+				super( din );
+			}
+
+			public int readInt() throws IOException { return din.readInt(); }
+			public float readFloat() throws IOException { return din.readFloat(); }
 		}
 	}
 	
@@ -2813,10 +2855,14 @@ len	= raf.length() - 8;
 	{
 		// http://www.tsp.ece.mcgill.ca/MMSP/Documents/AudioFormats/IRCAM/IRCAM.html
 		// for details about the different magic cookies
-		private static final int IRCAM_VAXBE_MAGIC		= 0x0001A364;
-		private static final int IRCAM_SUNBE_MAGIC		= 0x64A30200;
-		private static final int IRCAM_MIPSBE_MAGIC		= 0x0003A364;
-
+		private static final int IRCAM_VAXLE_MAGIC	   = 0x64A30100;
+		private static final int IRCAM_VAXBE_MAGIC	   = 0x0001A364;
+		private static final int IRCAM_SUNBE_MAGIC	   = 0x64A30200;
+		private static final int IRCAM_SUNLE_MAGIC	   = 0x0002A364;
+		private static final int IRCAM_MIPSLE_MAGIC    = 0x64A30300;
+		private static final int IRCAM_MIPSBE_MAGIC    = 0x0003A364;
+		private static final int IRCAM_NEXTBE_MAGIC    = 0x64A30400;
+		
 		private static final short BICSF_END			= 0;
 //		private static final short BICSF_MAXAMP			= 1;
 		private static final short BICSF_COMMENT		= 2;
@@ -2824,6 +2870,8 @@ len	= raf.length() - 8;
 		private static final short BICSF_VIRTUALCODE	= 4;
 		private static final short BICSF_CUECODE		= 8;
 //		private static final short BICSF_PARENTCODE		= 11;
+		
+		private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
 		private long sampleDataOffset;
 
@@ -2838,10 +2886,19 @@ len	= raf.length() - 8;
 			byte[]			strBuf2;
 			List			regions		= new ArrayList();
 		
-			raf.readInt();		// IRCAM magic
-			descr.rate		= raf.readFloat();
-			descr.channels	= raf.readInt();
-			i1				= raf.readInt();
+			final int magic = raf.readInt();		// IRCAM magic
+			final DataInputReader rd;
+			if( magic == IRCAM_VAXLE_MAGIC || magic == IRCAM_SUNLE_MAGIC || magic == IRCAM_MIPSLE_MAGIC ) {
+				byteOrder = ByteOrder.LITTLE_ENDIAN;
+				rd = new LittleDataInputReader( raf );
+			} else {
+//				byteOrder = ByteOrder.BIG_ENDIAN;
+				rd = new BigDataInputReader( raf );
+			}
+			
+			descr.rate		= rd.readFloat();
+			descr.channels	= rd.readInt();
+			i1				= rd.readInt();
 
 			switch( i1 ) {
 			case 1:	// 8 bit linear
@@ -2873,7 +2930,7 @@ len	= raf.length() - 8;
 			}
 
 			do {
-				i1   = raf.readInt();
+				i1   = rd.readInt();
 				i2	 = i1 & 0xFFFF;		// last short = block size
 				i1 >>= 16;				// first short = code
 // System.err.println( "next tag: code "+i1+"; len "+i2 );
@@ -2886,8 +2943,8 @@ len	= raf.length() - 8;
 					for( i3 = 0; i3 < 64; i3++ ) {
 						if( strBuf[ i3 ] == 0 ) break;
 					}
-					i1	= raf.readInt();					// begin smp
-					i2	= raf.readInt();					// end smp
+					i1	= rd.readInt();					// begin smp
+					i2	= rd.readInt();					// end smp
 					regions.add( new Region( new Span( i1, i2 ), new String( strBuf, 0, i3 )));
 					break;
 					
@@ -2914,7 +2971,7 @@ len	= raf.length() - 8;
 			l1				= raf.getFilePointer();
 			sampleDataOffset= (l1 + 1023L) & ~1023L;			// aufgerundet auf ganze kilobyte
 			l1				= raf.length() - sampleDataOffset;  // dataLen in bytes
-			descr.length		= l1 / (((descr.bitsPerSample + 7) >> 3) * descr.channels);
+			descr.length	= l1 / (((descr.bitsPerSample + 7) >> 3) * descr.channels);
 		}
 		
 		protected void writeHeader( AudioFileDescr descr )
@@ -2986,7 +3043,7 @@ len	= raf.length() - 8;
 
 		protected ByteOrder getByteOrder()
 		{
-			return ByteOrder.BIG_ENDIAN;	// XXX at the moment only big endian is supported
+			return byteOrder; // ByteOrder.BIG_ENDIAN;
 		}
 	} // class IRCAMHeader
 
