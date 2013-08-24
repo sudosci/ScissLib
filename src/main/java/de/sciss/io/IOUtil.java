@@ -1,40 +1,26 @@
 /*
  *  IOUtil.java
- *  de.sciss.io package
+ *  (ScissLib)
  *
- *  Copyright (c) 2004-2012 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
  *
- *	This software is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU General Public License
- *	as published by the Free Software Foundation; either
- *	version 2, june 1991 of the License, or (at your option) any later version.
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
  *
- *	This software is distributed in the hope that it will be useful,
+ *	This library is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *	General Public License for more details.
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
  *
- *	You should have received a copy of the GNU General Public
- *	License (gpl.txt) along with this software; if not, write to the Free Software
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
  *	For further information, please contact Hanns Holger Rutz at
  *	contact@sciss.de
- *
- *
- *  Changelog:
- *		03-Aug-04   commented. mkdir() in createEmptyDirectory was
- *					replaced by mkdirs() (the recursive version).
- *		04-Feb-05	bugfix in deleteAll()
- *		21-Apr-05	removed getBuildFolder()
- *		26-May-05	now de.sciss.io package, 'main' class, getResourceString()
- *		22-Jul-05	fixed bug in createTempFile (null pointer exception)
- *		08-Sep-05	setFileExtension() added
- *		15-Oct-05	nonExistentFileVariant() added
- *		06-Nov-05	getNoWriteIcon() added
- *		10-Mar-06	moved getNoWriteIcon() into GUI package because
- *					we don't want GUI package objects have dependencies on the de.sciss.io package!
  */
 
 package de.sciss.io;

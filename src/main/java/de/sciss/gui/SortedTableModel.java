@@ -1,26 +1,26 @@
 /*
- *	SortedTableModel.java
- *	Inertia
+ *  SortedTableModel.java
+ *  (ScissLib)
  *
- *	This is a wrapper table model mainly taken from sun's swing demos
- *	(original class name TableSorter). see the class commentary below
- *	for details and authors. The class has been modified in some ways:
- *	<ul>
- *	<li>once, a column is sorted, it's not possible to switch back to unsorted
- *	mode for all columns (unsorting is only possible by choosing a different
- *	column to sort)</li>
- *	<li>multi-column sorting is not supported</li>
- *	<li>shift+mouseclick and ctrl+mouseclick have been disabled</li>
- *	<li>columns can be exempt from sorting</li>
- *	<li>default string comparator is case insensitive</li>
- *	<li>the triangle icon (ArrayIcon) has been exchanged with aqua look and feel</li>
- *	<li>tooltip has been removed</li>
- *	<li>code has been reformatted for my personal style</li>
- *	</ul>
+ *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
  *
- *	Changelog:
- *		02-Dec-05	created from TableSorter class by milne et al.
- *		03-Apr-08	removed synthetic accessor method creations
+ *	This library is free software; you can redistribute it and/or
+ *	modify it under the terms of the GNU Lesser General Public
+ *	License as published by the Free Software Foundation; either
+ *	version 2.1 of the License, or (at your option) any later version.
+ *
+ *	This library is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *	Lesser General Public License for more details.
+ *
+ *	You should have received a copy of the GNU Lesser General Public
+ *	License along with this library; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
+ *	For further information, please contact Hanns Holger Rutz at
+ *	contact@sciss.de
  */
 
 package de.sciss.gui;
