@@ -1,6 +1,6 @@
 name := "ScissLib"
 
-version := "1.0.0"
+version := "1.0.1-SNAPSHOT"
 
 organization := "de.sciss"
 
@@ -10,13 +10,13 @@ homepage <<= name { n => Some(url("https://github.com/Sciss/" + n)) }
 
 licenses := Seq("LGPL v2.1+" -> url("http://www.gnu.org/licenses/lgpl-2.1.txt"))
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.4"
 
 crossPaths       := false  // this is just a Java project
 
 autoScalaLibrary := false  // this is just a Java project
 
-retrieveManaged  := true
+// retrieveManaged  := true
 
 // ---- publishing ----
 
