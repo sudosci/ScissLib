@@ -1,10 +1,14 @@
 # ScissLib
 
+[![Flattr this](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=sciss&url=https%3A%2F%2Fgithub.com%2FSciss%2FScissLib&title=ScissLib&language=Scala&tags=github&category=software)
+[![Build Status](https://travis-ci.org/Sciss/ScissLib.svg?branch=master)](https://travis-ci.org/Sciss/ScissLib)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.sciss/scisslib/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.sciss/scisslib)
+
 ## statement
 
 ScissLib is a Java library that contains different functionality such as GUI building, application framework, audio file I/O, etc. It is a core library used by other projects such as Eisenkraut, FScape, or SwingOSC.
 
-ScissLib is (C)opyright 2004–2013 by Hanns Holger Rutz. All rights reserved. It is released under the [GNU Lesser General Public License](https://raw.github.com/Sciss/ScissLib/master/licenses/ScissLib-License.txt) and comes with absolutely no warranties. Note that versions prior to v1.0.0 used the GPL and not the LGPL.
+ScissLib is (C)opyright 2004–2016 by Hanns Holger Rutz. All rights reserved. It is released under the [GNU Lesser General Public License](https://raw.github.com/Sciss/ScissLib/master/licenses/ScissLib-License.txt) and comes with absolutely no warranties. Note that versions prior to v1.0.0 used the GPL and not the LGPL.
 
 For project status and current version, visit [github.com/Sciss/ScissLib](https://github.com/Sciss/ScissLib). To contact the author, send an email to `contact at sciss.de`
 
@@ -21,6 +25,10 @@ To use this library in your project, you can link to the following [Maven](http:
     GroupId: de.sciss
     ArtifactId: scisslib
     Version: 1.0.0
+
+## contributing
+
+Please see the file [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## source code
 
