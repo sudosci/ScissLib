@@ -2,7 +2,7 @@
  *  AboutBox.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -43,80 +43,78 @@ import de.sciss.app.AbstractApplication;
  *
  *  @author		Hanns Holger Rutz
  *  @version	0.32, 29-Jan-09
- *
- *	@todo		integrate with new AbstractWindow concept
  */
 public class AboutBox
 extends StandardMacAboutFrame
 implements HyperlinkListener
 {
-	/**
-	 *  Value for add/getComponent(): the about box
-	 */
-	public static final Object					COMP_ABOUTBOX	= AboutBox.class.getName();
+    /**
+     *  Value for add/getComponent(): the about box
+     */
+    public static final Object					COMP_ABOUTBOX	= AboutBox.class.getName();
 
-	private static final String CREDITS_START   =
-		"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "+
-		"\"http://www.w3.org/TR/REC-html40/loose.dtd\">"+
-		"<html><head><style type=\"text/css\"><!--\n"+
-		"p { font-family:\"Lucida Grande\" Helvetica sans-serif;font-size:"+
-		"10pt;padding:2pt 0 2pt 0;margin:0; }\n"+
-		"--></style></head><body>";
-	private static final String CREDITS_END		= "</body></html>";
+    private static final String CREDITS_START   =
+        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" "+
+        "\"http://www.w3.org/TR/REC-html40/loose.dtd\">"+
+        "<html><head><style type=\"text/css\"><!--\n"+
+        "p { font-family:\"Lucida Grande\" Helvetica sans-serif;font-size:"+
+        "10pt;padding:2pt 0 2pt 0;margin:0; }\n"+
+        "--></style></head><body>";
+    private static final String CREDITS_END		= "</body></html>";
 
     public AboutBox()
-	{
+    {
         super( AbstractApplication.getApplication().getName(),
-			   String.valueOf( AbstractApplication.getApplication().getVersion() ));
+               String.valueOf( AbstractApplication.getApplication().getVersion() ));
 
-		final StringBuffer				credits	= new StringBuffer( CREDITS_START );
-		final de.sciss.app.Application	app		= AbstractApplication.getApplication();
-		final URL						imgURL	= app.getClass().getResource( "application.png" );
+        final StringBuffer				credits	= new StringBuffer( CREDITS_START );
+        final de.sciss.app.Application	app		= AbstractApplication.getApplication();
+        final URL						imgURL	= app.getClass().getResource( "application.png" );
 //		final char						sep		= File.separatorChar;
 
-		if( imgURL != null ) setApplicationIcon( new ImageIcon( imgURL ));
+        if( imgURL != null ) setApplicationIcon( new ImageIcon( imgURL ));
 //		setApplicationIcon( new ImageIcon( "images" + File.separator + "application.png" ));
-		setCopyright( app.getResourceString( "copyright" ));
-		setHyperlinkListener( this );
-		credits.append( app.getResourceString( "credits" ));
-		credits.append( "<P>Java " );
-		credits.append( System.getProperty( "java.version" ));
-		credits.append( "</P>" );
-		credits.append( CREDITS_END );
-		setCredits( credits.toString(), "text/html" );
+        setCopyright( app.getResourceString( "copyright" ));
+        setHyperlinkListener( this );
+        credits.append( app.getResourceString( "credits" ));
+        credits.append( "<P>Java " );
+        credits.append( System.getProperty( "java.version" ));
+        credits.append( "</P>" );
+        credits.append( CREDITS_END );
+        setCredits( credits.toString(), "text/html" );
 //System.err.println( credits.toString() );
 
 //		pack();
 
-		app.addComponent( COMP_ABOUTBOX, this );
-	}
-	
-	public void dispose()
-	{
-		AbstractApplication.getApplication().removeComponent( COMP_ABOUTBOX );
-		super.dispose();
-	}
-	
-	public void setBuildVersion( File f )
-	{
-		final long build   = f.lastModified();
+        app.addComponent( COMP_ABOUTBOX, this );
+    }
 
-		if( build != 0L ) {
-			setBuildVersion( DateFormat.getDateInstance( DateFormat.SHORT ).format( new Date( build )));
-		}
-	}
+    public void dispose()
+    {
+        AbstractApplication.getApplication().removeComponent( COMP_ABOUTBOX );
+        super.dispose();
+    }
 
-	// --------- HyperlinkListener interface ---------
+    public void setBuildVersion( File f )
+    {
+        final long build   = f.lastModified();
 
-	public void hyperlinkUpdate( HyperlinkEvent e )
-	{
-		if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
-			try {
-				MRJAdapter.openURL( e.getURL().toString() );
-			}
-			catch( Exception e1 ) {
-				GUIUtil.displayError( this, e1, this.getTitle() );
-			}
-		}
-	}
+        if( build != 0L ) {
+            setBuildVersion( DateFormat.getDateInstance( DateFormat.SHORT ).format( new Date( build )));
+        }
+    }
+
+    // --------- HyperlinkListener interface ---------
+
+    public void hyperlinkUpdate( HyperlinkEvent e )
+    {
+        if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
+            try {
+                MRJAdapter.openURL( e.getURL().toString() );
+            }
+            catch( Exception e1 ) {
+                GUIUtil.displayError( this, e1, this.getTitle() );
+            }
+        }
+    }
 }

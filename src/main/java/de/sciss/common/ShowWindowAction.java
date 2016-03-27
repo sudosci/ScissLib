@@ -2,7 +2,7 @@
  *  ShowWindowAction.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -41,33 +41,33 @@ public class ShowWindowAction
 extends MenuAction
 implements Disposable
 {
-	private final AbstractWindow			w;
-	private final AbstractWindow.Listener	l;
-	protected boolean						disposed	= false;
+    private final AbstractWindow			w;
+    private final AbstractWindow.Listener	l;
+    protected boolean						disposed	= false;
 
-	public ShowWindowAction( AbstractWindow w )
-	{
-		super( null, null );
-		this.w	= w;
-		
-		l = new AbstractWindow.Adapter() {
-			public void windowActivated( AbstractWindow.Event e )
-			{
-				if( !disposed ) ((BasicApplication) AbstractApplication.getApplication()).getMenuFactory().setSelectedWindow( ShowWindowAction.this );
-			}
-		};
-		w.addListener( l );
-	}
+    public ShowWindowAction( AbstractWindow w )
+    {
+        super( null, null );
+        this.w	= w;
 
-	public void actionPerformed( ActionEvent e )
-	{
-		w.setVisible( true );
-		w.toFront();
-	}
-	
-	public void dispose()
-	{
-		disposed = true;	// the listener might still be called!
-		w.removeListener( l );
-	}
+        l = new AbstractWindow.Adapter() {
+            public void windowActivated( AbstractWindow.Event e )
+            {
+                if( !disposed ) ((BasicApplication) AbstractApplication.getApplication()).getMenuFactory().setSelectedWindow( ShowWindowAction.this );
+            }
+        };
+        w.addListener( l );
+    }
+
+    public void actionPerformed( ActionEvent e )
+    {
+        w.setVisible( true );
+        w.toFront();
+    }
+
+    public void dispose()
+    {
+        disposed = true;	// the listener might still be called!
+        w.removeListener( l );
+    }
 }

@@ -2,7 +2,7 @@
  *  NoFocusTraversalPolicy.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -46,51 +46,51 @@ import java.awt.Window;
 public class NoFocusTraversalPolicy
 extends FocusTraversalPolicy
 {
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getComponentAfter( Container focusCycleRoot, Component aComponent )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getComponentAfter( Container focusCycleRoot, Component aComponent )
+    {
+        return null;
+    }
 
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getComponentBefore( Container focusCycleRoot, Component aComponent )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getComponentBefore( Container focusCycleRoot, Component aComponent )
+    {
+        return null;
+    }
 
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getFirstComponent( Container focusCycleRoot )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getFirstComponent( Container focusCycleRoot )
+    {
+        return null;
+    }
 
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getLastComponent( Container focusCycleRoot )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getLastComponent( Container focusCycleRoot )
+    {
+        return null;
+    }
 
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getDefaultComponent( Container focusCycleRoot )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getDefaultComponent( Container focusCycleRoot )
+    {
+        return null;
+    }
 
-	/**
-	 *  @return <code>null</code>, in order to block traversal
-	 */
-	public Component getInitialComponent( Window window )
-	{
-		return null;
-	}
+    /**
+     *  @return <code>null</code>, in order to block traversal
+     */
+    public Component getInitialComponent( Window window )
+    {
+        return null;
+    }
 }

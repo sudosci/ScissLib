@@ -14,7 +14,8 @@ For project status and current version, visit [github.com/Sciss/ScissLib](https:
 
 ## requirements / building
 
-ScissLib requires Java 1.4 and builds with [sbt](http://www.scala-sbt.org/) 0.12. For simplicity, a shell script named `sbt` is included which can be used instead of downloading and installing sbt.
+ScissLib requires Java 1.4 and builds with [sbt](http://www.scala-sbt.org/) 0.12. For simplicity, a shell script named `sbt` is included 
+(BSD-style license) which can be used instead of downloading and installing sbt.
 
 The compile use `sbt compile`, to package up the jar use `sbt package`. For the javadocs, use `sbt doc`. The result is found in `target/api/index.html`.
 
@@ -24,7 +25,7 @@ To use this library in your project, you can link to the following [Maven](http:
 
     GroupId: de.sciss
     ArtifactId: scisslib
-    Version: 1.0.0
+    Version: 1.0.1
 
 ## contributing
 

@@ -2,7 +2,7 @@
  *  KeyedAction.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -51,45 +51,45 @@ import javax.swing.text.JTextComponent;
 public abstract class KeyedAction
 extends AbstractAction
 {
-	private boolean ignoreFocus;
-	
+    private boolean ignoreFocus;
+
 //	private static final int[] IF_CODES = { KeyEvent.VK_ACCEPT, KeyEvent.VK_CANCEL, KeyEvent.VK_ESCAPE };
 
-	public KeyedAction( KeyStroke stroke )
-	{
-		super();
-		putValue( ACCELERATOR_KEY, stroke );
-		
-		ignoreFocus = (stroke == null) ||
-					  ((stroke.getModifiers() & (InputEvent.META_DOWN_MASK | InputEvent.CTRL_DOWN_MASK)) != 0);
+    public KeyedAction( KeyStroke stroke )
+    {
+        super();
+        putValue( ACCELERATOR_KEY, stroke );
+
+        ignoreFocus = (stroke == null) ||
+                      ((stroke.getModifiers() & (InputEvent.META_DOWN_MASK | InputEvent.CTRL_DOWN_MASK)) != 0);
 //		if( !ignoreFocus ) {
 //			
 //		}
-	}
-	
-	public void setIgnoreFocus( boolean ignore )
-	{
-		ignoreFocus	= ignore;
-	}
-	
-	public boolean getIgnoreFocus()
-	{
-		return ignoreFocus;
-	}
-	
-	public KeyStroke getStroke()
-	{
-		return( (KeyStroke) getValue( ACCELERATOR_KEY ));
-	}
-	
-	public final void actionPerformed( ActionEvent e )
-	{
-		if( !ignoreFocus ) {
-			final Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-			if( (c != null) && (c instanceof JTextComponent) && ((JTextComponent) c).isEditable() ) return;
-		}
-		validActionPerformed( e );
-	}
-	
-	protected abstract void validActionPerformed( ActionEvent e );
+    }
+
+    public void setIgnoreFocus( boolean ignore )
+    {
+        ignoreFocus	= ignore;
+    }
+
+    public boolean getIgnoreFocus()
+    {
+        return ignoreFocus;
+    }
+
+    public KeyStroke getStroke()
+    {
+        return( (KeyStroke) getValue( ACCELERATOR_KEY ));
+    }
+
+    public final void actionPerformed( ActionEvent e )
+    {
+        if( !ignoreFocus ) {
+            final Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+            if( (c != null) && (c instanceof JTextComponent) && ((JTextComponent) c).isEditable() ) return;
+        }
+        validActionPerformed( e );
+    }
+
+    protected abstract void validActionPerformed( ActionEvent e );
 }

@@ -2,7 +2,7 @@
  *  BasicWindowHandler.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -74,162 +74,162 @@ import de.sciss.gui.WindowListenerWrapper;
 public class BasicWindowHandler
 extends AbstractWindowHandler
 {
-	/**
-	 *  Value: Boolean stating whether internal frames within one
+    /**
+     *  Value: Boolean stating whether internal frames within one
      *  big app frame are used. Has default value: no!<br>
-	 *  Node: root
-	 */
-	public static final String KEY_INTERNALFRAMES = "internalframes";
+     *  Node: root
+     */
+    public static final String KEY_INTERNALFRAMES = "internalframes";
 
-	/**
-	 *  Value: Boolean stating whether palette windows should
+    /**
+     *  Value: Boolean stating whether palette windows should
      *  be floating on top and have palette decoration. Has default value: no!<br>
-	 *  Node: root
-	 */
-	public static final String KEY_FLOATINGPALETTES = "floatingpalettes";
+     *  Node: root
+     */
+    public static final String KEY_FLOATINGPALETTES = "floatingpalettes";
 
-	/**
-	 *  Value: Boolean stating whether to use the look-and-feel (true)
+    /**
+     *  Value: Boolean stating whether to use the look-and-feel (true)
      *  or native (false) decoration for frame borders. Has default value: no!<br>
-	 *  Node: root
-	 */
-	public static final String KEY_LAFDECORATION = "lafdecoration";
+     *  Node: root
+     */
+    public static final String KEY_LAFDECORATION = "lafdecoration";
 
-	/**
-	 *  Value: Rectangle describing the usable screen space last time
+    /**
+     *  Value: Rectangle describing the usable screen space last time
      *  the application was launched. Has default value: no!<br>
-	 *  Node: root
-	 */
-	public static final String KEY_SCREENSPACE = "screenspace";
+     *  Node: root
+     */
+    public static final String KEY_SCREENSPACE = "screenspace";
 
-	private final FloatingPaletteHandler	fph;
-	private final boolean					internalFrames, floating;
-	protected final JDesktopPane			desktop;
-	private final MasterFrame				masterFrame;
+    private final FloatingPaletteHandler	fph;
+    private final boolean					internalFrames, floating;
+    protected final JDesktopPane			desktop;
+    private final MasterFrame				masterFrame;
 //	private final Window					hiddenTopWindow;
-	
-	private final List						collBorrowListeners		= new ArrayList();
-	private AbstractWindow					borrower				= null;
-	private AbstractWindow					defaultBorrower			= null;		// when no doc frame active (usually the main log window)
 
-	private final Action					actionCollect;
-	private boolean							autoCollect				= false;
-	
-	private final BasicApplication			root;
+    private final List						collBorrowListeners		= new ArrayList();
+    private AbstractWindow					borrower				= null;
+    private AbstractWindow					defaultBorrower			= null;		// when no doc frame active (usually the main log window)
 
-	public BasicWindowHandler( BasicApplication root )
-	{
-		this( root,
-		      root.getUserPrefs().getBoolean( KEY_LAFDECORATION, false ),
-		      root.getUserPrefs().getBoolean( KEY_INTERNALFRAMES, false ),
-		      root.getUserPrefs().getBoolean( BasicWindowHandler.KEY_FLOATINGPALETTES, false ));
-		
-		final Preferences	prefs	= root.getUserPrefs();
-		final Rectangle		oScreen	= stringToRectangle( prefs.get( KEY_SCREENSPACE, null ));
-		final Rectangle		nScreen	= calcOuterBounds();
-		autoCollect	= !nScreen.equals( oScreen );
-		prefs.put( KEY_SCREENSPACE, rectangleToString( nScreen ));
-	}
-	
-	public BasicWindowHandler( BasicApplication root, boolean lafDeco,
-							   boolean internalFrames, boolean floating )
-	{
-		super();
-		
-		JFrame.setDefaultLookAndFeelDecorated( lafDeco );
-		
-		this.root			= root;
-		this.internalFrames	= internalFrames;
-		this.floating		= floating;
-		fph					= FloatingPaletteHandler.getInstance();
+    private final Action					actionCollect;
+    private boolean							autoCollect				= false;
 
-		if( internalFrames ) {
-			masterFrame = new MasterFrame( usesScreenMenuBar() );
-			masterFrame.setTitle( root.getName() );
+    private final BasicApplication			root;
+
+    public BasicWindowHandler( BasicApplication root )
+    {
+        this( root,
+              root.getUserPrefs().getBoolean( KEY_LAFDECORATION, false ),
+              root.getUserPrefs().getBoolean( KEY_INTERNALFRAMES, false ),
+              root.getUserPrefs().getBoolean( BasicWindowHandler.KEY_FLOATINGPALETTES, false ));
+
+        final Preferences	prefs	= root.getUserPrefs();
+        final Rectangle		oScreen	= stringToRectangle( prefs.get( KEY_SCREENSPACE, null ));
+        final Rectangle		nScreen	= calcOuterBounds();
+        autoCollect	= !nScreen.equals( oScreen );
+        prefs.put( KEY_SCREENSPACE, rectangleToString( nScreen ));
+    }
+
+    public BasicWindowHandler( BasicApplication root, boolean lafDeco,
+                               boolean internalFrames, boolean floating )
+    {
+        super();
+
+        JFrame.setDefaultLookAndFeelDecorated( lafDeco );
+
+        this.root			= root;
+        this.internalFrames	= internalFrames;
+        this.floating		= floating;
+        fph					= FloatingPaletteHandler.getInstance();
+
+        if( internalFrames ) {
+            masterFrame = new MasterFrame( usesScreenMenuBar() );
+            masterFrame.setTitle( root.getName() );
 //			masterFrame.setSize( 400, 400 ); // XXX
 //			masterFrame.setVisible( true );
-			desktop		= new JDesktopPane();
-			masterFrame.getContentPane().add( desktop );
+            desktop		= new JDesktopPane();
+            masterFrame.getContentPane().add( desktop );
 //			hiddenTopWindow = null;
-		} else {
-			desktop		= null;
-			masterFrame	= null;
-			fph.setListening( true );
+        } else {
+            desktop		= null;
+            masterFrame	= null;
+            fph.setListening( true );
 //			if( floating ) {
 //				hiddenTopWindow = new Frame();
 //				GUIUtil.setAlwaysOnTop( hiddenTopWindow, true );
 //			} else {
 //				hiddenTopWindow = null;
 //			}
-		}
-		
-		actionCollect = new ActionCollect( root.getResourceString( "menuCollectWindows" ));
+        }
+
+        actionCollect = new ActionCollect( root.getResourceString( "menuCollectWindows" ));
 //System.out.println( "autoCollect = " + autoCollect );
-		
+
 //		MenuGroup	mg;
 //
 //		mg	= (MenuGroup) root.getMenuFactory().get( "window" );
 //		mg.add( new MenuItem( "collect", new actionCollectClass( root.getResourceString( "menuCollectWindows" ))));
 //		mg.addSeparator();
-	}
-	
-	public MenuRoot getMenuBarRoot()
-	{
-		return root.getMenuBarRoot();
-	}
-	
-	public Action getCollectAction()
-	{
-		return actionCollect;
-	}
-	
-	public static Component getWindowAncestor( Component c )
-	{
-		final WindowHandler wh = AbstractApplication.getApplication().getWindowHandler();
-		
-		return SwingUtilities.getAncestorOfClass( (wh instanceof BasicWindowHandler) && ((BasicWindowHandler) wh).internalFrames ?
-												  JInternalFrame.class : Window.class, c );
-	}
-	
-	// make sure the menuFactory is ready when calling this
-	public void init()
-	{
-		if( masterFrame != null ) {
-			masterFrame.setDefaultMenuBar( root.getMenuBarRoot().createBar( masterFrame ));
-			masterFrame.setVisible( true );
-		}
-	}
-	
-	public void setMenuBarBorrower( AbstractWindow w )
-	{
-		borrower = w;
-		for( Iterator iter = collBorrowListeners.iterator(); iter.hasNext(); ) {
-			((AppWindow) iter.next()).borrowMenuBar( borrower == null ? defaultBorrower : borrower );
-		}
-	}
-	
-	public void setDefaultBorrower( AbstractWindow w )
-	{
-		if( !internalFrames ) {
-			defaultBorrower = w;
-		}
-	}
-	
-	public void addBorrowListener( AppWindow w )
-	{
-		collBorrowListeners.add( w );
-	}
-	
-	public void removeBorrowListener( AppWindow w )
-	{
-		collBorrowListeners.remove( w );
-	}
-	
-	public AbstractWindow getMenuBarBorrower()
-	{
-		return( borrower == null ? defaultBorrower : borrower );
-	}
-	
+    }
+
+    public MenuRoot getMenuBarRoot()
+    {
+        return root.getMenuBarRoot();
+    }
+
+    public Action getCollectAction()
+    {
+        return actionCollect;
+    }
+
+    public static Component getWindowAncestor( Component c )
+    {
+        final WindowHandler wh = AbstractApplication.getApplication().getWindowHandler();
+
+        return SwingUtilities.getAncestorOfClass( (wh instanceof BasicWindowHandler) && ((BasicWindowHandler) wh).internalFrames ?
+                                                  JInternalFrame.class : Window.class, c );
+    }
+
+    // make sure the menuFactory is ready when calling this
+    public void init()
+    {
+        if( masterFrame != null ) {
+            masterFrame.setDefaultMenuBar( root.getMenuBarRoot().createBar( masterFrame ));
+            masterFrame.setVisible( true );
+        }
+    }
+
+    public void setMenuBarBorrower( AbstractWindow w )
+    {
+        borrower = w;
+        for( Iterator iter = collBorrowListeners.iterator(); iter.hasNext(); ) {
+            ((AppWindow) iter.next()).borrowMenuBar( borrower == null ? defaultBorrower : borrower );
+        }
+    }
+
+    public void setDefaultBorrower( AbstractWindow w )
+    {
+        if( !internalFrames ) {
+            defaultBorrower = w;
+        }
+    }
+
+    public void addBorrowListener( AppWindow w )
+    {
+        collBorrowListeners.add( w );
+    }
+
+    public void removeBorrowListener( AppWindow w )
+    {
+        collBorrowListeners.remove( w );
+    }
+
+    public AbstractWindow getMenuBarBorrower()
+    {
+        return( borrower == null ? defaultBorrower : borrower );
+    }
+
 //	public MenuRoot getMenuBarRoot()
 //	{
 //		return ((BasicApplication) AbstractApplication.getApplication()).getMenuBarRoot();
@@ -249,23 +249,23 @@ extends AbstractWindowHandler
 //			fph.addFrame( w );
 //		}
 //	}
-	
-	public void addWindow( AbstractWindow w, Map options )
-	{
-		super.addWindow( w, options );
+
+    public void addWindow( AbstractWindow w, Map options )
+    {
+        super.addWindow( w, options );
 //		if( (w instanceof FloatingPalette) && ((FloatingPalette) w).isFloating() ) {
-		if( fph != null ) fph.add( w );
+        if( fph != null ) fph.add( w );
 //System.out.println( "checkin " + w );
-		if( autoCollect ) {
-			collect( w, calcOuterBounds() );
-		}
+        if( autoCollect ) {
+            collect( w, calcOuterBounds() );
+        }
 //		if( w.isFloating() ) {
 //			fph.addPalette( w );
 //		} else {
 //			fph.addFrame( w );
 //		}
-	}
-	
+    }
+
 //	public void removeWindow( Window w, Map options )
 //	{
 //		super.removeWindow( w, options );
@@ -276,343 +276,343 @@ extends AbstractWindowHandler
 //		}
 //	}
 
-	public void removeWindow( AbstractWindow w, Map options )
-	{
-		super.removeWindow( w, options );
-		if( fph != null ) fph.remove( w );
+    public void removeWindow( AbstractWindow w, Map options )
+    {
+        super.removeWindow( w, options );
+        if( fph != null ) fph.remove( w );
 //		if( w.isFloating() ) {
 //			fph.removePalette( w );
 //		} else {
 //			fph.removeFrame( w );
 //		}
-	}
-	
-	public AbstractWindow createWindow( int flags )
-	{
+    }
+
+    public AbstractWindow createWindow( int flags )
+    {
 //		final BasicFrame f = new BasicFrame();
 //		f.init( root );
 //		return f;
-		return new AppWindow( flags );
-	}
-	
-	public boolean usesInternalFrames()
-	{
-		return internalFrames;
-	}
+        return new AppWindow( flags );
+    }
 
-	public boolean usesFloating()
-	{
-		return floating;
-	}
+    public boolean usesInternalFrames()
+    {
+        return internalFrames;
+    }
 
-	public boolean usesScreenMenuBar()
-	{
-		return MRJAdapter.isSwingUsingScreenMenuBar();
-	}
+    public boolean usesFloating()
+    {
+        return floating;
+    }
 
-	public JDesktopPane getDesktop()
-	{
-		return desktop;
-	}
-	
-	public AbstractWindow getMasterFrame()
-	{
-		return masterFrame;
-	}
-	
+    public boolean usesScreenMenuBar()
+    {
+        return MRJAdapter.isSwingUsingScreenMenuBar();
+    }
+
+    public JDesktopPane getDesktop()
+    {
+        return desktop;
+    }
+
+    public AbstractWindow getMasterFrame()
+    {
+        return masterFrame;
+    }
+
 //	public Window getHiddenTopWindow()
 //	{
 //		return hiddenTopWindow;
 //	}
-	
-	public Rectangle getWindowSpace()
-	{
-		if( masterFrame != null ) {
-			return new Rectangle( 0, 0, masterFrame.getWidth(), masterFrame.getHeight() );
-		} else {
-			return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-		}
-	}
-	
-	public void place( AbstractWindow w, float halign, float valign )
-	{
-		final Rectangle sr = getWindowSpace();
-		final Dimension wd = w.getSize();
-		w.setLocation( new Point(
-			(int) (sr.x + halign * (sr.width - wd.width)),
-		   (int) (sr.y + valign * (sr.height - wd.height)) ));
-	}
-	
+
+    public Rectangle getWindowSpace()
+    {
+        if( masterFrame != null ) {
+            return new Rectangle( 0, 0, masterFrame.getWidth(), masterFrame.getHeight() );
+        } else {
+            return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        }
+    }
+
+    public void place( AbstractWindow w, float halign, float valign )
+    {
+        final Rectangle sr = getWindowSpace();
+        final Dimension wd = w.getSize();
+        w.setLocation( new Point(
+            (int) (sr.x + halign * (sr.width - wd.width)),
+           (int) (sr.y + valign * (sr.height - wd.height)) ));
+    }
+
 //	public Action getCollectAction()
 //	{
 //		return actionCollect;
 //	}
-	
-	private static Rectangle stringToRectangle( String value )
-	{
-		Rectangle				rect	= null;
-		final StringTokenizer	tok;
-		
-		if( value != null ) {
-			try {
-				tok		= new StringTokenizer( value );
-				rect	= new Rectangle( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ),
-										 Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
-			}
-			catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
-			catch( NumberFormatException e2 ) { e2.printStackTrace(); }
-		}
-		return rect;
-	}
 
-	private static String rectangleToString( Rectangle value )
-	{
-		return( value != null ? (value.x + " " + value.y + " " + value.width + " " + value.height) : null );
-	}
+    private static Rectangle stringToRectangle( String value )
+    {
+        Rectangle				rect	= null;
+        final StringTokenizer	tok;
 
-	protected Rectangle calcOuterBounds()
-	{
-		final Rectangle	outerBounds;
-		final boolean	isMacOS = System.getProperty( "os.name" ).indexOf( "Mac OS" ) >= 0;
-		
-		if( desktop == null ) {
-			outerBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getBounds();
-			if( isMacOS ) {
-				outerBounds.y     += 22;
-				outerBounds.width -= 80;
-				outerBounds.height-= 22;
-			}
-		} else {
-			outerBounds = new Rectangle( 0, 0, desktop.getWidth(), desktop.getHeight() );
-		}
-		return outerBounds;
-	}
+        if( value != null ) {
+            try {
+                tok		= new StringTokenizer( value );
+                rect	= new Rectangle( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ),
+                                         Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
+            }
+            catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
+            catch( NumberFormatException e2 ) { e2.printStackTrace(); }
+        }
+        return rect;
+    }
 
-	protected void collect( AbstractWindow w, Rectangle outerBounds )
-	{
-		final boolean	adjustLeft, adjustTop;
-		final Rectangle	winBounds;
-		boolean			adjustRight, adjustBottom;
-		
-		winBounds	= w.getBounds();
-		adjustLeft	= winBounds.x < outerBounds.x;
-		adjustTop	= winBounds.y < outerBounds.y;
-		adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
-		adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
-		
-		if( !(adjustLeft || adjustTop || adjustRight || adjustBottom) ) return;
+    private static String rectangleToString( Rectangle value )
+    {
+        return( value != null ? (value.x + " " + value.y + " " + value.width + " " + value.height) : null );
+    }
 
-		if( adjustLeft ) {
-			winBounds.x = outerBounds.x;
-			adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
-		}
-		if( adjustTop ) {
-			winBounds.y = outerBounds.y;
-			adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
-		}
-		if( adjustRight ) {
-			winBounds.x = Math.max( outerBounds.x, outerBounds.x + outerBounds.width - winBounds.width );
-			adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
-			if( adjustRight && w.isResizable() ) winBounds.width = outerBounds.width;
-		}
-		if( adjustBottom ) {
-			winBounds.y = Math.max( outerBounds.y, outerBounds.y + outerBounds.height - winBounds.height );
-			adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
-			if( adjustBottom && w.isResizable() ) winBounds.height = outerBounds.height;
-		}
-		w.setBounds( winBounds );
-	}
+    protected Rectangle calcOuterBounds()
+    {
+        final Rectangle	outerBounds;
+        final boolean	isMacOS = System.getProperty( "os.name" ).indexOf( "Mac OS" ) >= 0;
 
-	public static void showDialog( Dialog dlg )
-	{
-		final BasicWindowHandler wh = (BasicWindowHandler) AbstractApplication.getApplication().getWindowHandler();
-		wh.instShowDialog( dlg );
-	}
-	
-	public static int showDialog( JOptionPane op, Component parent, String title )
-	{
-		final JDialog	dlg;
-		final Object	value;
-		final int		result;
-		
-		dlg = op.createDialog( parent, title );
-		showDialog( dlg );
-		value = op.getValue();
-		if( value == null ) {
-			result = JOptionPane.CLOSED_OPTION;
-		} else {
-			final Object[] options = op.getOptions();
-			if( options == null ) {
-				if( value instanceof Integer ) {
-					result = ((Integer) value).intValue();
-				} else {
-					result = JOptionPane.CLOSED_OPTION;
-		       	}
-			} else {
-				int i;
-				for( i = 0; i < options.length; i++ ) {
-			        if( options[ i ].equals( value )) break;
-				}
-				result = i < options.length ? i : JOptionPane.CLOSED_OPTION;
-			}
-		}
-		return result;
-	}
+        if( desktop == null ) {
+            outerBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getBounds();
+            if( isMacOS ) {
+                outerBounds.y     += 22;
+                outerBounds.width -= 80;
+                outerBounds.height-= 22;
+            }
+        } else {
+            outerBounds = new Rectangle( 0, 0, desktop.getWidth(), desktop.getHeight() );
+        }
+        return outerBounds;
+    }
 
-	public static void showErrorDialog( Component component, Throwable exception, String title )
-	{
-		final StringBuffer	strBuf  = new StringBuffer( GUIUtil.getResourceString( "errException" ));
-		final JOptionPane	op;
-		String				message = exception == null ? "null" : (exception.getClass().getName() + " - " + exception.getLocalizedMessage());
-		StringTokenizer		tok;
-		int					lineLen = 0;
-		String				word;
-		String[]			options = { GUIUtil.getResourceString( "buttonOk" ),
-										GUIUtil.getResourceString( "optionDlgStack" )};
-	
-		tok = new StringTokenizer( message );
-		strBuf.append( ":\n" );
-		while( tok.hasMoreTokens() ) {
-			word = tok.nextToken();
-			if( lineLen > 0 && lineLen + word.length() > 40 ) {
-				strBuf.append( "\n" );
-				lineLen = 0;
-			}
-			strBuf.append( word );
-			strBuf.append( ' ' );
-			lineLen += word.length() + 1;
-		}
-		op = new JOptionPane( strBuf.toString(), JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, options[ 0 ]);
-		if( showDialog( op, component, title ) == 1 ) {
-			exception.printStackTrace();
-		}
-	}
+    protected void collect( AbstractWindow w, Rectangle outerBounds )
+    {
+        final boolean	adjustLeft, adjustTop;
+        final Rectangle	winBounds;
+        boolean			adjustRight, adjustBottom;
 
-	private void instShowDialog( Dialog dlg )
-	{
+        winBounds	= w.getBounds();
+        adjustLeft	= winBounds.x < outerBounds.x;
+        adjustTop	= winBounds.y < outerBounds.y;
+        adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
+        adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
+
+        if( !(adjustLeft || adjustTop || adjustRight || adjustBottom) ) return;
+
+        if( adjustLeft ) {
+            winBounds.x = outerBounds.x;
+            adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
+        }
+        if( adjustTop ) {
+            winBounds.y = outerBounds.y;
+            adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
+        }
+        if( adjustRight ) {
+            winBounds.x = Math.max( outerBounds.x, outerBounds.x + outerBounds.width - winBounds.width );
+            adjustRight	= (winBounds.x + winBounds.width) > (outerBounds.x + outerBounds.width);
+            if( adjustRight && w.isResizable() ) winBounds.width = outerBounds.width;
+        }
+        if( adjustBottom ) {
+            winBounds.y = Math.max( outerBounds.y, outerBounds.y + outerBounds.height - winBounds.height );
+            adjustBottom= (winBounds.y + winBounds.height) > (outerBounds.y + outerBounds.height);
+            if( adjustBottom && w.isResizable() ) winBounds.height = outerBounds.height;
+        }
+        w.setBounds( winBounds );
+    }
+
+    public static void showDialog( Dialog dlg )
+    {
+        final BasicWindowHandler wh = (BasicWindowHandler) AbstractApplication.getApplication().getWindowHandler();
+        wh.instShowDialog( dlg );
+    }
+
+    public static int showDialog( JOptionPane op, Component parent, String title )
+    {
+        final JDialog	dlg;
+        final Object	value;
+        final int		result;
+
+        dlg = op.createDialog( parent, title );
+        showDialog( dlg );
+        value = op.getValue();
+        if( value == null ) {
+            result = JOptionPane.CLOSED_OPTION;
+        } else {
+            final Object[] options = op.getOptions();
+            if( options == null ) {
+                if( value instanceof Integer ) {
+                    result = ((Integer) value).intValue();
+                } else {
+                    result = JOptionPane.CLOSED_OPTION;
+                }
+            } else {
+                int i;
+                for( i = 0; i < options.length; i++ ) {
+                    if( options[ i ].equals( value )) break;
+                }
+                result = i < options.length ? i : JOptionPane.CLOSED_OPTION;
+            }
+        }
+        return result;
+    }
+
+    public static void showErrorDialog( Component component, Throwable exception, String title )
+    {
+        final StringBuffer	strBuf  = new StringBuffer( GUIUtil.getResourceString( "errException" ));
+        final JOptionPane	op;
+        String				message = exception == null ? "null" : (exception.getClass().getName() + " - " + exception.getLocalizedMessage());
+        StringTokenizer		tok;
+        int					lineLen = 0;
+        String				word;
+        String[]			options = { GUIUtil.getResourceString( "buttonOk" ),
+                                        GUIUtil.getResourceString( "optionDlgStack" )};
+
+        tok = new StringTokenizer( message );
+        strBuf.append( ":\n" );
+        while( tok.hasMoreTokens() ) {
+            word = tok.nextToken();
+            if( lineLen > 0 && lineLen + word.length() > 40 ) {
+                strBuf.append( "\n" );
+                lineLen = 0;
+            }
+            strBuf.append( word );
+            strBuf.append( ' ' );
+            lineLen += word.length() + 1;
+        }
+        op = new JOptionPane( strBuf.toString(), JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, options[ 0 ]);
+        if( showDialog( op, component, title ) == 1 ) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void instShowDialog( Dialog dlg )
+    {
 //		System.out.println( "instShowDialog" );
-		
-		final AbstractWindow	w;
-		final List				wasOnTop	= new ArrayList();
-		final boolean			modal		= dlg.isModal() && (fph != null);
-		AbstractWindow			w2;
+
+        final AbstractWindow	w;
+        final List				wasOnTop	= new ArrayList();
+        final boolean			modal		= dlg.isModal() && (fph != null);
+        AbstractWindow			w2;
 //boolean gaga = false;
-		
-		// temporarily disable alwaysOnTop
-		if( !internalFrames && floating ) {
-			for( Iterator iter = getWindows(); iter.hasNext(); ) {
-				w2 = (AbstractWindow) iter.next();
-				if( GUIUtil.isAlwaysOnTop( w2.getWindow() )) {
+
+        // temporarily disable alwaysOnTop
+        if( !internalFrames && floating ) {
+            for( Iterator iter = getWindows(); iter.hasNext(); ) {
+                w2 = (AbstractWindow) iter.next();
+                if( GUIUtil.isAlwaysOnTop( w2.getWindow() )) {
 //gaga = true;
 //break;
-					wasOnTop.add( w2 );
-					GUIUtil.setAlwaysOnTop( w2.getWindow(), false );
-				}
-			}
-		}
-		try {
-			w = new AppWindow( dlg );
-			w.init();  // calls addWindow
+                    wasOnTop.add( w2 );
+                    GUIUtil.setAlwaysOnTop( w2.getWindow(), false );
+                }
+            }
+        }
+        try {
+            w = new AppWindow( dlg );
+            w.init();  // calls addWindow
 //			((AppWindow) w).gaga();
-				
-			// --- modal interruption ---
-			if( modal ) fph.addModalDialog(); // this shit is necessary because java.awt.FileDialog doesn't fire windowActivated ...
+
+            // --- modal interruption ---
+            if( modal ) fph.addModalDialog(); // this shit is necessary because java.awt.FileDialog doesn't fire windowActivated ...
 //			if( gaga ) GUIUtil.setAlwaysOnTop( dlg, true );
-			w.setVisible( true );
-			if( modal ) fph.removeModalDialog();
-			
-	//		wh.removeWindow( w, null );
-			w.dispose();	// calls removeWindow
+            w.setVisible( true );
+            if( modal ) fph.removeModalDialog();
 
-		} finally { // make sure to restore original state
-			for( int i = 0; i < wasOnTop.size(); i++ ) {
-				w2 = (AbstractWindow) wasOnTop.get( i );
+    //		wh.removeWindow( w, null );
+            w.dispose();	// calls removeWindow
+
+        } finally { // make sure to restore original state
+            for( int i = 0; i < wasOnTop.size(); i++ ) {
+                w2 = (AbstractWindow) wasOnTop.get( i );
 //				System.out.println( "wasOnTop " + i + " : " + w2.getClass().getName() );
-				GUIUtil.setAlwaysOnTop( w2.getWindow(), true );
-			}
-		}
-	}
+                GUIUtil.setAlwaysOnTop( w2.getWindow(), true );
+            }
+        }
+    }
 
-	// -------------------- internal classes --------------------
-	private static class MasterFrame
-	extends SmartJFrame
-	implements AbstractWindow
-	{
-		private JMenuBar bar = null;
-		
-		protected MasterFrame( boolean screenMenuBar )
-		{
-			super( screenMenuBar );
+    // -------------------- internal classes --------------------
+    private static class MasterFrame
+    extends SmartJFrame
+    implements AbstractWindow
+    {
+        private JMenuBar bar = null;
+
+        protected MasterFrame( boolean screenMenuBar )
+        {
+            super( screenMenuBar );
 //			System.out.println( "screenMenuBar = " + screenMenuBar );
-			setBounds( GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds() );
-		}
-		
-		public void init() { /* empty */ }
-		
-		protected void setDefaultMenuBar( JMenuBar m )
-		{
-			bar = m;
-			setJMenuBar( null );
-		}
-		
-		public void setJMenuBar( JMenuBar m )
-		{
-			super.setJMenuBar( m == null ? bar : m );
-		}
-		
-		public void revalidate()
-		{
-			getRootPane().revalidate();
-		}
-		
-		public void setDirty( boolean b ) { /* empty */ }
-		
-		public ActionMap getActionMap()
-		{
-			return getRootPane().getActionMap();
-		}
+            setBounds( GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds() );
+        }
 
-		public InputMap getInputMap( int mode )
-		{
-			return getRootPane().getInputMap( mode );
-		}
+        public void init() { /* empty */ }
 
-		public void addListener( Listener l )
-		{
-			WindowListenerWrapper.add( l, this );
-		}
-		
-		public void removeListener( Listener l )
-		{
-			WindowListenerWrapper.remove( l, this );
-		}
-		
-		public boolean isFloating()
-		{
-			return false;
-		}
-		
-		public Component getWindow()
-		{
-			return this;
-		}
-	}
-	
-	private class ActionCollect
-	extends AbstractAction
-	{
-		protected ActionCollect( String text )
-		{
-			super( text );
-		}
-		
-		public void actionPerformed( ActionEvent e )
-		{
-			final Rectangle	outerBounds = calcOuterBounds();
+        protected void setDefaultMenuBar( JMenuBar m )
+        {
+            bar = m;
+            setJMenuBar( null );
+        }
 
-			for( Iterator iter = getWindows(); iter.hasNext(); ) {
-				collect( (AbstractWindow) iter.next(), outerBounds );
-			}
-		}
-	}
+        public void setJMenuBar( JMenuBar m )
+        {
+            super.setJMenuBar( m == null ? bar : m );
+        }
+
+        public void revalidate()
+        {
+            getRootPane().revalidate();
+        }
+
+        public void setDirty( boolean b ) { /* empty */ }
+
+        public ActionMap getActionMap()
+        {
+            return getRootPane().getActionMap();
+        }
+
+        public InputMap getInputMap( int mode )
+        {
+            return getRootPane().getInputMap( mode );
+        }
+
+        public void addListener( Listener l )
+        {
+            WindowListenerWrapper.add( l, this );
+        }
+
+        public void removeListener( Listener l )
+        {
+            WindowListenerWrapper.remove( l, this );
+        }
+
+        public boolean isFloating()
+        {
+            return false;
+        }
+
+        public Component getWindow()
+        {
+            return this;
+        }
+    }
+
+    private class ActionCollect
+    extends AbstractAction
+    {
+        protected ActionCollect( String text )
+        {
+            super( text );
+        }
+
+        public void actionPerformed( ActionEvent e )
+        {
+            final Rectangle	outerBounds = calcOuterBounds();
+
+            for( Iterator iter = getWindows(); iter.hasNext(); ) {
+                collect( (AbstractWindow) iter.next(), outerBounds );
+            }
+        }
+    }
 }

@@ -2,7 +2,7 @@
  *  StretchedGridLayout.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -43,55 +43,55 @@ extends GridLayout
 {
     public StretchedGridLayout()
     {
-    	super();
+        super();
     }
 
     public StretchedGridLayout( int rows, int cols )
     {
-    	super( rows, cols );
+        super( rows, cols );
     }
 
     public StretchedGridLayout( int rows, int cols, int hgap, int vgap )
     {
-    	super( rows, cols, hgap, vgap );
+        super( rows, cols, hgap, vgap );
     }
 
     public void layoutContainer( Container parent )
-	{
-		synchronized( parent.getTreeLock() ) {
-			final int		numComp		= parent.getComponentCount();
-			if( numComp == 0 ) return;
-			final Insets	insets		= parent.getInsets();
-			final int		numRows;
-			final int		numCols;
-        	
-			if( getRows() > 0 ) {
-				numRows	= getRows();
-				numCols	= (numComp + numRows - 1) / numRows;
-			} else {
-				numCols	= getColumns(); 
-				numRows	= (numComp + numCols - 1) / numCols;
-			}
+    {
+        synchronized( parent.getTreeLock() ) {
+            final int		numComp		= parent.getComponentCount();
+            if( numComp == 0 ) return;
+            final Insets	insets		= parent.getInsets();
+            final int		numRows;
+            final int		numCols;
 
-			final int		hGap		= getHgap();
-			final int		vGap		= getVgap();
-			final int		w			= parent.getWidth()  - (insets.left + insets.right);
-			final int		h			= parent.getHeight() - (insets.top + insets.bottom);
+            if( getRows() > 0 ) {
+                numRows	= getRows();
+                numCols	= (numComp + numRows - 1) / numRows;
+            } else {
+                numCols	= getColumns();
+                numRows	= (numComp + numCols - 1) / numCols;
+            }
 
-			int cx1, cy1, cx2, cy2 = 0;
-			for( int row = 0, idx = 0; row < numRows; row++ ) {
-				cy1	= cy2;
-				cy2	= h * (row + 1) / numRows;
-				cx2	= 0;
-				for( int col = 0; col < numCols; col++, idx++ ) {
-					cx1	= cx2;
-					cx2	= w * (col + 1) / numCols;
-					if( idx < numComp ) {
-						parent.getComponent( idx ).setBounds(
-							cx1 + insets.left, cy1 + insets.top, cx2 - cx1 - hGap, cy2 - cy1 - vGap );
-					}
-				}
-			}
-		}
-	}
+            final int		hGap		= getHgap();
+            final int		vGap		= getVgap();
+            final int		w			= parent.getWidth()  - (insets.left + insets.right);
+            final int		h			= parent.getHeight() - (insets.top + insets.bottom);
+
+            int cx1, cy1, cx2, cy2 = 0;
+            for( int row = 0, idx = 0; row < numRows; row++ ) {
+                cy1	= cy2;
+                cy2	= h * (row + 1) / numRows;
+                cx2	= 0;
+                for( int col = 0; col < numCols; col++, idx++ ) {
+                    cx1	= cx2;
+                    cx2	= w * (col + 1) / numCols;
+                    if( idx < numComp ) {
+                        parent.getComponent( idx ).setBounds(
+                            cx1 + insets.left, cy1 + insets.top, cx2 - cx1 - hGap, cy2 - cy1 - vGap );
+                    }
+                }
+            }
+        }
+    }
 }

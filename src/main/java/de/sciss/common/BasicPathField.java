@@ -2,7 +2,7 @@
  *  BasicPathField.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -33,28 +33,28 @@ import de.sciss.gui.PrefPathField;
 public class BasicPathField
 extends PrefPathField
 {
-	public BasicPathField( int type, String dlgTxt )
-	{
-		super( type, dlgTxt );
-	}
-	
-	protected PathButton createPathButton( int buttonType )
-	{
-		return new Button( buttonType );
-	}
+    public BasicPathField( int type, String dlgTxt )
+    {
+        super( type, dlgTxt );
+    }
 
-	private static class Button
-	extends PathButton
-	{
-		protected Button( int type )
-		{
-			super( type );
-		}
+    protected PathButton createPathButton( int buttonType )
+    {
+        return new Button( buttonType );
+    }
 
-		protected void showDialog( Dialog dlg )
-		{
+    private static class Button
+    extends PathButton
+    {
+        protected Button( int type )
+        {
+            super( type );
+        }
+
+        protected void showDialog( Dialog dlg )
+        {
 //			dlg.setVisible( true );
-			BasicWindowHandler.showDialog( dlg );
-		}
-	}
+            BasicWindowHandler.showDialog( dlg );
+        }
+    }
 }

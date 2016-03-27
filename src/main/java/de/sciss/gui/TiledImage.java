@@ -2,7 +2,7 @@
  *  TiledImage.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -47,193 +47,193 @@ import java.net.URL;
  */
 public class TiledImage
 {
-	private final Image	img;
-	private final int	tileWidth, tileHeight;
+    private final Image	img;
+    private final int	tileWidth, tileHeight;
 
-	/**
-	 *  Creates a new TiledImage from
-	 *  an image file on harddisc and
-	 *  applies a custom tiling grid.
-	 *  This method waits until the image was loaded.
-	 *
-	 *  @param  imagePath   file name to the image
-	 *						(can be relative to the
-	 *						application path). allowed
-	 *						image formats are GIF, PNG, JPG
-	 *  @param  tileWidth   horizontal width of each tile.
-	 *						thus number of columns = image width / tile width
-	 *  @param  tileHeight  vertical height of each tile.
-	 *						thus number of rows = image height / tile height
-	 *
-	 *  @see	java.awt.Toolkit#getDefaultToolkit()
-	 *  @see	java.awt.Toolkit#getImage( String )
-	 */
-	public TiledImage( String imagePath, int tileWidth, int tileHeight )
-	{
-		this( Toolkit.getDefaultToolkit().getImage( imagePath ), tileWidth, tileHeight );
-	}
-	
-	/**
-	 *  Creates a new TiledImage from
-	 *  an image URL and
-	 *  applies a custom tiling grid.
-	 *  This method waits until the image was loaded.
-	 *
-	 *  @param  imagePath   <code>URL</code> the image. allowed
-	 *						image formats are GIF, PNG, JPG
-	 *  @param  tileWidth   horizontal width of each tile.
-	 *						thus number of columns = image width / tile width
-	 *  @param  tileHeight  vertical height of each tile.
-	 *						thus number of rows = image height / tile height
-	 */
-	public TiledImage( URL imagePath, int tileWidth, int tileHeight )
-	{
-		this( Toolkit.getDefaultToolkit().getImage( imagePath ), tileWidth, tileHeight );
-	}
-	
-	/**
-	 *  Creates a new TiledImage from
-	 *  an image applies a custom tiling grid.
-	 *  This method waits until the image was loaded.
-	 *
-	 *  @param  img			the image to use.
-	 *  @param  tileWidth   horizontal width of each tile.
-	 *						thus number of columns = image width / tile width
-	 *  @param  tileHeight  vertical height of each tile.
-	 *						thus number of rows = image height / tile height
-	 */
-	public TiledImage( Image img, int tileWidth, int tileHeight )
-	{
-		this.img		= img;
-		this.tileWidth  = tileWidth;
-		this.tileHeight = tileHeight;
+    /**
+     *  Creates a new TiledImage from
+     *  an image file on harddisc and
+     *  applies a custom tiling grid.
+     *  This method waits until the image was loaded.
+     *
+     *  @param  imagePath   file name to the image
+     *						(can be relative to the
+     *						application path). allowed
+     *						image formats are GIF, PNG, JPG
+     *  @param  tileWidth   horizontal width of each tile.
+     *						thus number of columns = image width / tile width
+     *  @param  tileHeight  vertical height of each tile.
+     *						thus number of rows = image height / tile height
+     *
+     *  @see	java.awt.Toolkit#getDefaultToolkit()
+     *  @see	java.awt.Toolkit#getImage( String )
+     */
+    public TiledImage( String imagePath, int tileWidth, int tileHeight )
+    {
+        this( Toolkit.getDefaultToolkit().getImage( imagePath ), tileWidth, tileHeight );
+    }
 
-		MediaTracker mediaTracker = new MediaTracker( new Container() );
-		mediaTracker.addImage( img, 0 );
-		try {
-			mediaTracker.waitForID( 0 );
-		} catch( InterruptedException e1 ) { /* ignore */ }
-	}
-	
-	/**
-	 *  Queries the tile width
-	 *
-	 *  @return the width of each tile in pixels,
-	 *			as specified in the constructor
-	 */
-	public int getTileWidth()
-	{
-		return tileWidth;
-	}
+    /**
+     *  Creates a new TiledImage from
+     *  an image URL and
+     *  applies a custom tiling grid.
+     *  This method waits until the image was loaded.
+     *
+     *  @param  imagePath   <code>URL</code> the image. allowed
+     *						image formats are GIF, PNG, JPG
+     *  @param  tileWidth   horizontal width of each tile.
+     *						thus number of columns = image width / tile width
+     *  @param  tileHeight  vertical height of each tile.
+     *						thus number of rows = image height / tile height
+     */
+    public TiledImage( URL imagePath, int tileWidth, int tileHeight )
+    {
+        this( Toolkit.getDefaultToolkit().getImage( imagePath ), tileWidth, tileHeight );
+    }
 
-	/**
-	 *  Queries the tile height
-	 *
-	 *  @return the height of each tile in pixels,
-	 *			as specified in the constructor
-	 */
-	public int getTileHeight()
-	{
-		return tileHeight;
-	}
-	
-	/**
-	 *  Paints a tile onto a graphics surface.
-	 *
-	 *  @param  g		<code>Graphics</code> used to draw the image
-	 *  @param  x		x offset in the graphics context
-	 *  @param  y		y offset in the graphics context
-	 *  @param  tileX	column index of the tile (starting at zero)
-	 *  @param  tileY	row index of the tile (starting at zero)
-	 *  @param  o		asynchronous image update notification receiver
-	 *  @return <code>true</code> if the current output representation
-	 *			is complete; <code>false</code> otherwise.
-	 *
-	 *  @see	java.awt.Graphics#drawImage( Image, int, int, int, int, int, int, int, int, ImageObserver )
-	 */
-	public boolean paintTile( Graphics g, int x, int y, int tileX, int tileY, ImageObserver o )
-	{
-		int sx = tileX * tileWidth;
-		int sy = tileY * tileHeight;
-		
-		return g.drawImage( img, x, y, x + tileWidth, y + tileHeight,
-							sx, sy, sx + tileWidth, sy + tileHeight, o );
-	}
+    /**
+     *  Creates a new TiledImage from
+     *  an image applies a custom tiling grid.
+     *  This method waits until the image was loaded.
+     *
+     *  @param  img			the image to use.
+     *  @param  tileWidth   horizontal width of each tile.
+     *						thus number of columns = image width / tile width
+     *  @param  tileHeight  vertical height of each tile.
+     *						thus number of rows = image height / tile height
+     */
+    public TiledImage( Image img, int tileWidth, int tileHeight )
+    {
+        this.img		= img;
+        this.tileWidth  = tileWidth;
+        this.tileHeight = tileHeight;
 
-	/**
-	 *  Creates a new <code>Icon</code> from
-	 *  this <code>TiledImage</code>, using one
-	 *  particular tile of this image. In this way
-	 *  multiply icons can share the same image file
-	 *  and just use bits of it.
-	 *
-	 *  @param  col			tile column index in the tiled image
-	 *						(starting at zero)
-	 *  @param  row			tile row index in the tiled image
-	 *						(starting at zero)
-	 */
-	public Icon createIcon( int col, int row )
-	{
-		return new Icon( col, row );
-	}
+        MediaTracker mediaTracker = new MediaTracker( new Container() );
+        mediaTracker.addImage( img, 0 );
+        try {
+            mediaTracker.waitForID( 0 );
+        } catch( InterruptedException e1 ) { /* ignore */ }
+    }
 
-	// ---------------- Icon class ---------------- 
+    /**
+     *  Queries the tile width
+     *
+     *  @return the width of each tile in pixels,
+     *			as specified in the constructor
+     */
+    public int getTileWidth()
+    {
+        return tileWidth;
+    }
 
-	private class Icon
-	implements javax.swing.Icon
-	{
-		private final int	col, row;
+    /**
+     *  Queries the tile height
+     *
+     *  @return the height of each tile in pixels,
+     *			as specified in the constructor
+     */
+    public int getTileHeight()
+    {
+        return tileHeight;
+    }
 
-		protected Icon( int col, int row )
-		{
-			this.col	= col;
-			this.row	= row;
-		}
+    /**
+     *  Paints a tile onto a graphics surface.
+     *
+     *  @param  g		<code>Graphics</code> used to draw the image
+     *  @param  x		x offset in the graphics context
+     *  @param  y		y offset in the graphics context
+     *  @param  tileX	column index of the tile (starting at zero)
+     *  @param  tileY	row index of the tile (starting at zero)
+     *  @param  o		asynchronous image update notification receiver
+     *  @return <code>true</code> if the current output representation
+     *			is complete; <code>false</code> otherwise.
+     *
+     *  @see	java.awt.Graphics#drawImage( Image, int, int, int, int, int, int, int, int, ImageObserver )
+     */
+    public boolean paintTile( Graphics g, int x, int y, int tileX, int tileY, ImageObserver o )
+    {
+        int sx = tileX * tileWidth;
+        int sy = tileY * tileHeight;
 
-		/**
-		 *  Queries the icon width which is
-		 *  identical to the tile width of the underlying
-		 *  tiled image.
-		 *
-		 *  @return the width of the icon in pixels
-		 *
-		 *  @see	TiledImage#getTileWidth()
-		 */
-		public int getIconWidth()
-		{
-			return getTileWidth();
-		}
+        return g.drawImage( img, x, y, x + tileWidth, y + tileHeight,
+                            sx, sy, sx + tileWidth, sy + tileHeight, o );
+    }
 
-		/**
-		 *  Queries the icon height which is
-		 *  identical to the tile height of the underlying
-		 *  tiled image.
-		 *
-		 *  @return the height of the icon in pixels
-		 *
-		 *  @see	TiledImage#getTileHeight()
-		 */
-		public int getIconHeight()
-		{
-			return getTileHeight();
-		}
-		
-		/**
-		 *  Paints this icon into a graphics context
-		 *  belonging to a GUI component.
-		 *
-		 *  @param  c   the Component to which the icon
-		 *				is attached. This is used as
-		 *				<code>ImageObserver</code>
-		 *  @param  g   the <code>Graphics</code> context to paint into
-		 *  @param  x   x offset in pixels in the graphics context
-		 *  @param  y   y offset in pixels in the graphics context
-		 *
-		 *  @see	TiledImage#paintTile( Graphics, int, int, int, int, ImageObserver )
-		 */
-		public void paintIcon( Component c, Graphics g, int x, int y )
-		{
-			paintTile( g, x, y, col, row, c );
-		}
-	}
+    /**
+     *  Creates a new <code>Icon</code> from
+     *  this <code>TiledImage</code>, using one
+     *  particular tile of this image. In this way
+     *  multiply icons can share the same image file
+     *  and just use bits of it.
+     *
+     *  @param  col			tile column index in the tiled image
+     *						(starting at zero)
+     *  @param  row			tile row index in the tiled image
+     *						(starting at zero)
+     */
+    public Icon createIcon( int col, int row )
+    {
+        return new Icon( col, row );
+    }
+
+    // ---------------- Icon class ----------------
+
+    private class Icon
+    implements javax.swing.Icon
+    {
+        private final int	col, row;
+
+        protected Icon( int col, int row )
+        {
+            this.col	= col;
+            this.row	= row;
+        }
+
+        /**
+         *  Queries the icon width which is
+         *  identical to the tile width of the underlying
+         *  tiled image.
+         *
+         *  @return the width of the icon in pixels
+         *
+         *  @see	TiledImage#getTileWidth()
+         */
+        public int getIconWidth()
+        {
+            return getTileWidth();
+        }
+
+        /**
+         *  Queries the icon height which is
+         *  identical to the tile height of the underlying
+         *  tiled image.
+         *
+         *  @return the height of the icon in pixels
+         *
+         *  @see	TiledImage#getTileHeight()
+         */
+        public int getIconHeight()
+        {
+            return getTileHeight();
+        }
+
+        /**
+         *  Paints this icon into a graphics context
+         *  belonging to a GUI component.
+         *
+         *  @param  c   the Component to which the icon
+         *				is attached. This is used as
+         *				<code>ImageObserver</code>
+         *  @param  g   the <code>Graphics</code> context to paint into
+         *  @param  x   x offset in pixels in the graphics context
+         *  @param  y   y offset in pixels in the graphics context
+         *
+         *  @see	TiledImage#paintTile( Graphics, int, int, int, int, ImageObserver )
+         */
+        public void paintIcon( Component c, Graphics g, int x, int y )
+        {
+            paintTile( g, x, y, col, row, c );
+        }
+    }
 }

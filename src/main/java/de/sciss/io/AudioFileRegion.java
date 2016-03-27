@@ -2,7 +2,7 @@
  *  AudioFileRegion.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -45,76 +45,76 @@ import java.util.List;
 public class AudioFileRegion
 implements Serializable, Cloneable, Transferable
 {
-	public final File	file;
-	public final Region	region;
+    public final File	file;
+    public final Region	region;
 
-	public static DataFlavor flavor = new DataFlavor( AudioFileRegion.class, "Audio File Region" );
+    public static DataFlavor flavor = new DataFlavor( AudioFileRegion.class, "Audio File Region" );
 
-	private static final DataFlavor[] supportedFlavors = {
-		DataFlavor.javaFileListFlavor, DataFlavor.stringFlavor, flavor
-	};
-	
-	public AudioFileRegion( File file, Region region )
-	{
-		this.file	= file;
-		this.region	= region;
-	}
+    private static final DataFlavor[] supportedFlavors = {
+        DataFlavor.javaFileListFlavor, DataFlavor.stringFlavor, flavor
+    };
 
-	public AudioFileRegion( AudioFile af, Region region )
-	{
-		this.file	= af.getFile();
-		this.region	= region;
-	}
+    public AudioFileRegion( File file, Region region )
+    {
+        this.file	= file;
+        this.region	= region;
+    }
 
-	public AudioFileRegion( File file, Span region )
-	{
-		this.file	= file;
-		this.region	= new Region( region, file.getName() );
-	}
-	
+    public AudioFileRegion( AudioFile af, Region region )
+    {
+        this.file	= af.getFile();
+        this.region	= region;
+    }
+
+    public AudioFileRegion( File file, Span region )
+    {
+        this.file	= file;
+        this.region	= new Region( region, file.getName() );
+    }
+
 // ------------- Cloneable interface -------------
 
-	/**
-	 *	Returns a new audio file region which is
-	 *	equal to this one. <code>CloneNotSupportedException</code>
-	 *	is never thrown.
-	 *
-	 *	@return		a new audio file region identical to this one
-	 */
-	public Object clone()
-	throws CloneNotSupportedException
-	{
-		return super.clone();	// field by field copy
-	}
+    /**
+     *	Returns a new audio file region which is
+     *	equal to this one. <code>CloneNotSupportedException</code>
+     *	is never thrown.
+     *
+     *	@return		a new audio file region identical to this one
+     */
+    public Object clone()
+    throws CloneNotSupportedException
+    {
+        return super.clone();	// field by field copy
+    }
 
 // ------------- Transferable interface -------------
 
-	public DataFlavor[] getTransferDataFlavors()
-	{
-		return supportedFlavors;
-	}
-	
-	public boolean isDataFlavorSupported( DataFlavor aFlavor )
-	{
-		for( int i = 0; i < supportedFlavors.length; i++ ) {
-			if( supportedFlavors[ i ].equals( aFlavor )) return true;
-		}
-		return false;
-	}
-	
-	public Object getTransferData( DataFlavor aFlavor )
-	throws UnsupportedFlavorException, IOException
-	{
-		if( aFlavor.equals( AudioFileRegion.flavor )) {
-			return this;
-		} else if( aFlavor.equals( DataFlavor.javaFileListFlavor )) {
-			final List coll = new ArrayList( 1 );
-			coll.add( file );
-			return coll;
-		} else if( aFlavor.equals( DataFlavor.stringFlavor )) {
-			return region.name;
-		} else {
-			throw new UnsupportedFlavorException( aFlavor );
-		}
-	}
+    public DataFlavor[] getTransferDataFlavors()
+    {
+        return supportedFlavors;
+    }
+
+    public boolean isDataFlavorSupported( DataFlavor aFlavor )
+    {
+        for( int i = 0; i < supportedFlavors.length; i++ ) {
+            if( supportedFlavors[ i ].equals( aFlavor )) return true;
+        }
+        return false;
+    }
+
+    public Object getTransferData( DataFlavor aFlavor )
+    throws UnsupportedFlavorException, IOException
+    {
+        if( aFlavor.equals( AudioFileRegion.flavor )) {
+            return this;
+        } else if( aFlavor.equals( DataFlavor.javaFileListFlavor )) {
+            final List coll = new ArrayList( 1 );
+            coll.add( file );
+            return coll;
+        } else if( aFlavor.equals( DataFlavor.stringFlavor )) {
+            return region.name;
+        } else {
+            throw new UnsupportedFlavorException( aFlavor );
+        }
+    }
 }

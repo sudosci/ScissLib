@@ -2,7 +2,7 @@
  *  AppWindow.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -85,147 +85,144 @@ import de.sciss.gui.WindowListenerWrapper;
  *
  *  @author		Hanns Holger Rutz
  *  @version	0.72, 24-Jan-10
- *
- *  @todo   tempFloatingTimer could maybe be eliminated
- *  		in favour of a simple EventQueue.invokeLater
  */
 public class AppWindow
 implements AbstractWindow
 {
-	/*
-	 *  Value: String representing a Point object
-	 *  describing a windows location. Use stringToPoint.<br>
-	 *  Has default value: no!<br>
-	 *  Node: multiple occurences in shared -> (Frame-class)
-	 */
-	private static final String KEY_LOCATION		= "location";   // point
-	/*
-	 *  Value: String representing a Dimension object
-	 *  describing a windows size. Use stringToDimension.<br>
-	 *  Has default value: no!<br>
-	 *  Node: multiple occurences in shared -> (Frame-class)
-	 */
-	private static final String KEY_SIZE			= "size";		// dimension
-	/*
-	 *  Value: Boolean stating wheter a window is
-	 *  shown or hidden.<br>
-	 *  Has default value: no!<br>
-	 *  Node: multiple occurences in shared -> (Frame-class)
-	 */
-	private static final String KEY_VISIBLE		= "visible";	// boolean
+    /*
+     *  Value: String representing a Point object
+     *  describing a windows location. Use stringToPoint.<br>
+     *  Has default value: no!<br>
+     *  Node: multiple occurences in shared -> (Frame-class)
+     */
+    private static final String KEY_LOCATION		= "location";   // point
+    /*
+     *  Value: String representing a Dimension object
+     *  describing a windows size. Use stringToDimension.<br>
+     *  Has default value: no!<br>
+     *  Node: multiple occurences in shared -> (Frame-class)
+     */
+    private static final String KEY_SIZE			= "size";		// dimension
+    /*
+     *  Value: Boolean stating wheter a window is
+     *  shown or hidden.<br>
+     *  Has default value: no!<br>
+     *  Node: multiple occurences in shared -> (Frame-class)
+     */
+    private static final String KEY_VISIBLE		= "visible";	// boolean
 
-	private ComponentListener	cmpListener		= null;
-	private Listener			winListener		= null;
+    private ComponentListener	cmpListener		= null;
+    private Listener			winListener		= null;
 
-	// windows bounds get saved to a sub node inside the shared node
-	// the node's name is the class name's last part (omitting the package)
-	protected Preferences					classPrefs	= null;
-	
-	// fucking aliases
-	private final Component					c;
-	private final Window					w;
-	private final Frame						f;
-	private final Dialog					d;
-	private final JComponent				jc;
-	private final JDialog					jd;
-	protected final SmartJFrame				jf;
-	protected final JInternalFrame			jif;
-	
-	private final AquaWindowBar				ggTitle;
-	
-	// menu bar matrix:
-	//			screenMenuBar	internalFrames		other
-	// regular	own				own (deleg)			own
-	// support	own				---					---
-	// palette	borrow			borrow (deleg)		---
-	
-	private boolean							floating;
-	protected final boolean					ownMenuBar, borrowMenuBar;
-	protected final BasicWindowHandler		wh;
-	protected JMenuBar						bar			= null;
-	protected AbstractWindow				barBorrower	= null;
-	protected boolean						active		= false;
-	
+    // windows bounds get saved to a sub node inside the shared node
+    // the node's name is the class name's last part (omitting the package)
+    protected Preferences					classPrefs	= null;
+
+    // fucking aliases
+    private final Component					c;
+    private final Window					w;
+    private final Frame						f;
+    private final Dialog					d;
+    private final JComponent				jc;
+    private final JDialog					jd;
+    protected final SmartJFrame				jf;
+    protected final JInternalFrame			jif;
+
+    private final AquaWindowBar				ggTitle;
+
+    // menu bar matrix:
+    //			screenMenuBar	internalFrames		other
+    // regular	own				own (deleg)			own
+    // support	own				---					---
+    // palette	borrow			borrow (deleg)		---
+
+    private boolean							floating;
+    protected final boolean					ownMenuBar, borrowMenuBar;
+    protected final BasicWindowHandler		wh;
+    protected JMenuBar						bar			= null;
+    protected AbstractWindow				barBorrower	= null;
+    protected boolean						active		= false;
+
 //	private final int						flags;
-	
-	protected boolean						initialized	= false;
-	
-	private static final int				TEMPFLOAT_TIMEOUT	= 100;
-	protected final boolean					tempFloating;
-	protected Timer							tempFloatingTimer;
 
-	public AppWindow( int flags )
-	{
-		super();
-		final Application	app		= AbstractApplication.getApplication();
-		final int			type	= flags & TYPES_MASK;
-		wh = (BasicWindowHandler) app.getWindowHandler();
+    protected boolean						initialized	= false;
 
-		switch( type ) {
-		case REGULAR:
-		case SUPPORT:
-			if( wh.usesInternalFrames() ) {
-				c = jc = jif	= new JInternalFrame( null, true, true, true, true );
-				w = f = jf		= null;
-				d = jd			= null;
-				wh.getDesktop().add( jif );
-				ownMenuBar		= type == REGULAR;
+    private static final int				TEMPFLOAT_TIMEOUT	= 100;
+    protected final boolean					tempFloating;
+    protected Timer							tempFloatingTimer;
 
-			} else {
-				c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );				
-				jc = jif		= null;
-				d = jd			= null;
-				ownMenuBar		= wh.usesScreenMenuBar() || (type == REGULAR);
-			}
+    public AppWindow( int flags )
+    {
+        super();
+        final Application	app		= AbstractApplication.getApplication();
+        final int			type	= flags & TYPES_MASK;
+        wh = (BasicWindowHandler) app.getWindowHandler();
+
+        switch( type ) {
+        case REGULAR:
+        case SUPPORT:
+            if( wh.usesInternalFrames() ) {
+                c = jc = jif	= new JInternalFrame( null, true, true, true, true );
+                w = f = jf		= null;
+                d = jd			= null;
+                wh.getDesktop().add( jif );
+                ownMenuBar		= type == REGULAR;
+
+            } else {
+                c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );
+                jc = jif		= null;
+                d = jd			= null;
+                ownMenuBar		= wh.usesScreenMenuBar() || (type == REGULAR);
+            }
 //			floating			= false;
-			tempFloating		= (type == SUPPORT) && wh.usesFloating();
-			floating			= tempFloating;
-			borrowMenuBar		= false;
-			ggTitle				= null;
-			break;
-			
-		case PALETTE:
-			floating			= wh.usesFloating();
-			tempFloating		= false;
-			ownMenuBar			= false;
-			
-			if( wh.usesInternalFrames() ) {
-				c = jc = jif	= new JInternalFrame( null, true, true, true, true );
-				w = f = jf		= null;
-				d = jd			= null;
-				borrowMenuBar	= true;
-				ggTitle			= null;
-				
-				if( floating ) jif.putClientProperty( "JInternalFrame.isPalette", Boolean.TRUE );
-				wh.getDesktop().add( jif, floating ? JLayeredPane.PALETTE_LAYER : JLayeredPane.DEFAULT_LAYER );
+            tempFloating		= (type == SUPPORT) && wh.usesFloating();
+            floating			= tempFloating;
+            borrowMenuBar		= false;
+            ggTitle				= null;
+            break;
 
-			} else {
+        case PALETTE:
+            floating			= wh.usesFloating();
+            tempFloating		= false;
+            ownMenuBar			= false;
 
-				c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );
-				jc = jif		= null;
-				d = jd			= null;
+            if( wh.usesInternalFrames() ) {
+                c = jc = jif	= new JInternalFrame( null, true, true, true, true );
+                w = f = jf		= null;
+                d = jd			= null;
+                borrowMenuBar	= true;
+                ggTitle			= null;
+
+                if( floating ) jif.putClientProperty( "JInternalFrame.isPalette", Boolean.TRUE );
+                wh.getDesktop().add( jif, floating ? JLayeredPane.PALETTE_LAYER : JLayeredPane.DEFAULT_LAYER );
+
+            } else {
+
+                c = w = f = jf	= new SmartJFrame( wh.usesScreenMenuBar() );
+                jc = jif		= null;
+                d = jd			= null;
 //				borrowMenuBar	= wh.usesScreenMenuBar();
-				
-				if( floating ) {
-					final String vs = System.getProperty( "java.version" );
-					if( (UIManager.getLookAndFeel().getName().indexOf( "Mac OS X" ) >= 0) &&
-						(Float.valueOf( vs.substring( 0, vs.indexOf( '.', vs.indexOf( '.' ) + 1 ))).floatValue() >= 1.5f) ) {
-						jf.getRootPane().putClientProperty( "Window.style", "small" );
-						if( GUIUtil.setAlwaysOnTop( jf, true )) {
-							jf.setFocusableWindowState( false );
-							// now track components that need to be focussed
-							new TemporaryFocusTracker( jf );
-						}
-						ggTitle	= null;
-					} else {
-						ggTitle			= new AquaWindowBar( this, true );
-						ggTitle.setAlwaysOnTop( true );
-						jf.setUndecorated( true );
-						final Container cp = jf.getContentPane();
-						cp.add( ggTitle, BorderLayout.NORTH );
-					}
-					borrowMenuBar	= false;
-					
+
+                if( floating ) {
+                    final String vs = System.getProperty( "java.version" );
+                    if( (UIManager.getLookAndFeel().getName().indexOf( "Mac OS X" ) >= 0) &&
+                        (Float.valueOf( vs.substring( 0, vs.indexOf( '.', vs.indexOf( '.' ) + 1 ))).floatValue() >= 1.5f) ) {
+                        jf.getRootPane().putClientProperty( "Window.style", "small" );
+                        if( GUIUtil.setAlwaysOnTop( jf, true )) {
+                            jf.setFocusableWindowState( false );
+                            // now track components that need to be focussed
+                            new TemporaryFocusTracker( jf );
+                        }
+                        ggTitle	= null;
+                    } else {
+                        ggTitle			= new AquaWindowBar( this, true );
+                        ggTitle.setAlwaysOnTop( true );
+                        jf.setUndecorated( true );
+                        final Container cp = jf.getContentPane();
+                        cp.add( ggTitle, BorderLayout.NORTH );
+                    }
+                    borrowMenuBar	= false;
+
 //					if( resizable ) {
 //						final JPanel p = new JPanel( new BorderLayout() );
 //						p.add( new AquaResizeGadget(), BorderLayout.EAST );
@@ -235,25 +232,25 @@ implements AbstractWindow
 //					if( prefs.getBoolean( PrefsUtil.KEY_INTRUDINGSIZE, false )) {
 //						getContentPane().add( Box.createVerticalStrut( 16 ), BorderLayout.SOUTH );
 //					}
-				} else {
-					borrowMenuBar	= wh.usesScreenMenuBar();
-					ggTitle			= null;
-				}
-			}
-			break;
-		
-		default:
-			throw new IllegalArgumentException( "Unsupported window type : " + (flags & TYPES_MASK) );
-		}
-		
-		initTempFloating();
-   	}
-	
-	protected AppWindow( Dialog wrap )
-	{
-		super();
-		final Application app	= AbstractApplication.getApplication();
-		wh = (BasicWindowHandler) app.getWindowHandler();
+                } else {
+                    borrowMenuBar	= wh.usesScreenMenuBar();
+                    ggTitle			= null;
+                }
+            }
+            break;
+
+        default:
+            throw new IllegalArgumentException( "Unsupported window type : " + (flags & TYPES_MASK) );
+        }
+
+        initTempFloating();
+    }
+
+    protected AppWindow( Dialog wrap )
+    {
+        super();
+        final Application app	= AbstractApplication.getApplication();
+        wh = (BasicWindowHandler) app.getWindowHandler();
 
 //wrap.addWindowFocusListener( new WindowFocusListener() {
 //	public void windowGainedFocus( WindowEvent e ) {
@@ -286,12 +283,12 @@ implements AbstractWindow
 //		System.out.println( "FOCUSLOST" );
 //	}
 //});
-		
-		c = w				= wrap;
-		f = jf				= null;	// XXX
-		jc = jif			= null;
-		d = jd				= null;
-		ownMenuBar			= false;
+
+        c = w				= wrap;
+        f = jf				= null;	// XXX
+        jc = jif			= null;
+        d = jd				= null;
+        ownMenuBar			= false;
 // WARNING: modal dialogs must not be permanent floating
 // because they would cause the floating palette handler
 // to hide and show them, re-creating a modal event queue
@@ -301,140 +298,140 @@ implements AbstractWindow
 //		tempFloating		= !wh.usesInternalFrames() && wh.usesFloating();
 //		floating			= false;
 //floating = tempFloating;
-		tempFloating		= false;
-		floating			= false;
-		borrowMenuBar		= false;
-		ggTitle				= null;
-		
+        tempFloating		= false;
+        floating			= false;
+        borrowMenuBar		= false;
+        ggTitle				= null;
+
 //		if( floating ) GUIUtil.setAlwaysOnTop( wrap, true );
 //		initTempFloating();
 //lala=true;
-	}
+    }
 //boolean lala=false;
 //	
 //	protected void gaga() { removeListener( winListener ); }
-	
-	private void initTempFloating()
-	{
-		if( tempFloating ) {
-			tempFloatingTimer = new Timer( TEMPFLOAT_TIMEOUT, new ActionListener() {
-				public void actionPerformed( ActionEvent e )
-				{
-					GUIUtil.setAlwaysOnTop( getWindow(), true );
-				}
-			});
-			tempFloatingTimer.setRepeats( false );
-		}
-	}
-	
-	public BasicWindowHandler getWindowHandler()
-	{
-		return wh;
-	}
 
-	protected static Dimension stringToDimension( String value )
-	{
-		Dimension		dim	= null;
-		StringTokenizer tok;
-		
-		if( value != null ) {
-			try {
-				tok		= new StringTokenizer( value );
-				dim		= new Dimension( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
-			}
-			catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
-			catch( NumberFormatException e2 ) { e2.printStackTrace(); }
-		}
-		return dim;
-	}
+    private void initTempFloating()
+    {
+        if( tempFloating ) {
+            tempFloatingTimer = new Timer( TEMPFLOAT_TIMEOUT, new ActionListener() {
+                public void actionPerformed( ActionEvent e )
+                {
+                    GUIUtil.setAlwaysOnTop( getWindow(), true );
+                }
+            });
+            tempFloatingTimer.setRepeats( false );
+        }
+    }
 
-	protected static Point stringToPoint( String value )
-	{
-		Point			pt	= null;
-		StringTokenizer tok;
-		
-		if( value != null ) {
-			try {
-				tok		= new StringTokenizer( value );
-				pt		= new Point( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
-			}
-			catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
-			catch( NumberFormatException e2 ) { e2.printStackTrace(); }
-		}
-		return pt;
-	}
-	
-	protected static String pointToString( Point value )
-	{
-		return( value != null ? (value.x + " " + value.y) : null );
-	}
-	
-	public static String dimensionToString( Dimension value )
-	{
-		return( value != null ? (value.width + " " + value.height) : null );
-	}
+    public BasicWindowHandler getWindowHandler()
+    {
+        return wh;
+    }
 
-	public boolean isFloating()
-	{
-		return floating;
-	}
-	
+    protected static Dimension stringToDimension( String value )
+    {
+        Dimension		dim	= null;
+        StringTokenizer tok;
+
+        if( value != null ) {
+            try {
+                tok		= new StringTokenizer( value );
+                dim		= new Dimension( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
+            }
+            catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
+            catch( NumberFormatException e2 ) { e2.printStackTrace(); }
+        }
+        return dim;
+    }
+
+    protected static Point stringToPoint( String value )
+    {
+        Point			pt	= null;
+        StringTokenizer tok;
+
+        if( value != null ) {
+            try {
+                tok		= new StringTokenizer( value );
+                pt		= new Point( Integer.parseInt( tok.nextToken() ), Integer.parseInt( tok.nextToken() ));
+            }
+            catch( NoSuchElementException e1 ) { e1.printStackTrace(); }
+            catch( NumberFormatException e2 ) { e2.printStackTrace(); }
+        }
+        return pt;
+    }
+
+    protected static String pointToString( Point value )
+    {
+        return( value != null ? (value.x + " " + value.y) : null );
+    }
+
+    public static String dimensionToString( Dimension value )
+    {
+        return( value != null ? (value.width + " " + value.height) : null );
+    }
+
+    public boolean isFloating()
+    {
+        return floating;
+    }
+
 //	public boolean isTempFloating()
 //	{
 //		return tempFloating;
 //	}
-	
-	/*
-	 *  Restores this frame's bounds and visibility
-	 *  from its class preferences.
-	 *
-	 *  @see	#restoreAllFromPrefs()
-	 */
-	private void restoreFromPrefs()
-	{
-		String		sizeVal = classPrefs.get( KEY_SIZE, null );
-		String		locVal  = classPrefs.get( KEY_LOCATION, null );
-		String		visiVal	= classPrefs.get( KEY_VISIBLE, null );
-		Rectangle   r		= c.getBounds();
+
+    /*
+     *  Restores this frame's bounds and visibility
+     *  from its class preferences.
+     *
+     *  @see	#restoreAllFromPrefs()
+     */
+    private void restoreFromPrefs()
+    {
+        String		sizeVal = classPrefs.get( KEY_SIZE, null );
+        String		locVal  = classPrefs.get( KEY_LOCATION, null );
+        String		visiVal	= classPrefs.get( KEY_VISIBLE, null );
+        Rectangle   r		= c.getBounds();
 //		Insets		i		= getInsets();
 
 //System.err.println( "this "+getClass().getName()+ " visi = "+visiVal );
 
-		Dimension dim		= stringToDimension( sizeVal );
-		if( (dim == null) || alwaysPackSize() ) {
-			pack();
-			dim				= c.getSize();
-		}
+        Dimension dim		= stringToDimension( sizeVal );
+        if( (dim == null) || alwaysPackSize() ) {
+            pack();
+            dim				= c.getSize();
+        }
 
-		r.setSize( dim );
-		Point p = stringToPoint( locVal );
-		if( p != null ) {
-			r.setLocation( p );
-			c.setBounds( r );
-		} else {
-			c.setSize( dim );
-			final Point2D prefLoc = getPreferredLocation();
-			wh.place( this, (float) prefLoc.getX(), (float) prefLoc.getY() );
+        r.setSize( dim );
+        Point p = stringToPoint( locVal );
+        if( p != null ) {
+            r.setLocation( p );
+            c.setBounds( r );
+        } else {
+            c.setSize( dim );
+            final Point2D prefLoc = getPreferredLocation();
+            wh.place( this, (float) prefLoc.getX(), (float) prefLoc.getY() );
 //			if( shouldBeCentered() ) setLocationRelativeTo( null );
-		}
-		c.invalidate();
+        }
+        c.invalidate();
 //		if( alwaysPackSize() ) {
 //			pack();
 //		} else {
-		c.validate();
+        c.validate();
 //		}
 //		lim.queue( this );
-		if( (visiVal != null) && restoreVisibility() ) {
-			setVisible( new Boolean( visiVal ).booleanValue() );
-		}
-	}
-	
- 	/**
-	 *  Updates Swing component tree for all
+        if( (visiVal != null) && restoreVisibility() ) {
+            setVisible( new Boolean( visiVal ).booleanValue() );
+        }
+    }
+
+    /**
+     *  Updates Swing component tree for all
      *  frames after a look-and-feel change
-	 */
-	public static void lookAndFeelUpdate()
-	{
+     */
+    public static void lookAndFeelUpdate()
+    {
 //      if( springContainer == null ) return;
 //        
 //		AppWindow		bf;
@@ -446,41 +443,41 @@ implements AbstractWindow
 //			bf			= springComp.getRealOne();
 //            SwingUtilities.updateComponentTreeUI( bf );
 //      }
-	}
+    }
 
-	/**
-	 *  Queries whether this frame's bounds
-	 *  should be packed automatically to the
-	 *  preferred size independent of
-	 *  concurrent preference settings
-	 *
-	 *  @return	<code>true</code>, if the frame wishes
-	 *			to be packed each time a custom setSize()
-	 *			would be applied in the course of a
-	 *			preference recall. The default value
-	 *			of <code>true</code> can be modified by
-	 *			subclasses by overriding this method.
-	 *  @see	java.awt.Window#pack()
-	 */
-	protected boolean alwaysPackSize()
-	{
-		return true;
-	}
+    /**
+     *  Queries whether this frame's bounds
+     *  should be packed automatically to the
+     *  preferred size independent of
+     *  concurrent preference settings
+     *
+     *  @return	<code>true</code>, if the frame wishes
+     *			to be packed each time a custom setSize()
+     *			would be applied in the course of a
+     *			preference recall. The default value
+     *			of <code>true</code> can be modified by
+     *			subclasses by overriding this method.
+     *  @see	java.awt.Window#pack()
+     */
+    protected boolean alwaysPackSize()
+    {
+        return true;
+    }
 
-	protected boolean restoreVisibility()
-	{
-		return true;
-	}
+    protected boolean restoreVisibility()
+    {
+        return true;
+    }
 
-	protected boolean autoUpdatePrefs()
-	{
-		return false;
-	}
-	
-	protected Point2D getPreferredLocation()
-	{
-		return new Point2D.Float( 0.5f, 0.5f );
-	}
+    protected boolean autoUpdatePrefs()
+    {
+        return false;
+    }
+
+    protected Point2D getPreferredLocation()
+    {
+        return new Point2D.Float( 0.5f, 0.5f );
+    }
 
 //	/**
 //	 *  Queries whether this frame should
@@ -502,97 +499,97 @@ implements AbstractWindow
 //		}
 //	}
 
-	/**
-	 *	MenuFactory uses this method to replace dummy
-	 *	menu items such as File->Save with real actions
-	 *	depending on the concrete frame. By default this
-	 *	method just returns <code>dummyAction</code>, indicating
-	 *	that there is no replacement for the dummy action.
-	 *	Subclasses may check the provided <code>ID</code>
-	 *	and return replacement actions instead.
-	 *
-	 *	@param	ID	an identifier for the menu item, such
-	 *				as <code>MenuFactory.MI_FILE_SAVE</code>.
-	 *
-	 *  @return		the action to use instead of the inactive
-	 *				dummy action, or <code>dummyAction</code> if no
-	 *				specific action exists (menu item stays ghosted)
-	 *
-	 *	@see	MenuFactory#MI_FILE_SAVE
-	 *	@see	MenuFactory#gimmeSomethingReal( AppWindow )
-	 */
+    /**
+     *	MenuFactory uses this method to replace dummy
+     *	menu items such as File->Save with real actions
+     *	depending on the concrete frame. By default this
+     *	method just returns <code>dummyAction</code>, indicating
+     *	that there is no replacement for the dummy action.
+     *	Subclasses may check the provided <code>ID</code>
+     *	and return replacement actions instead.
+     *
+     *	@param	ID	an identifier for the menu item, such
+     *				as <code>MenuFactory.MI_FILE_SAVE</code>.
+     *
+     *  @return		the action to use instead of the inactive
+     *				dummy action, or <code>dummyAction</code> if no
+     *				specific action exists (menu item stays ghosted)
+     *
+     *	@see	MenuFactory#MI_FILE_SAVE
+     *	@see	MenuFactory#gimmeSomethingReal( AppWindow )
+     */
 //	protected Action replaceDummyAction( int ID, Action dummyAction )
 //	{
 //		return dummyAction;
 //	}
 
-	/**
-	 *  Subclasses should call this
-	 *  after having constructed their GUI.
-	 *  Then this method will attach a copy of the main menu
-	 *  from <code>root.menuFactory</code> and
-	 *  restore bounds from preferences.
-	 */
-	public void init()
-	{
-		if( initialized ) throw new IllegalStateException( "Window was already initialized." );
+    /**
+     *  Subclasses should call this
+     *  after having constructed their GUI.
+     *  Then this method will attach a copy of the main menu
+     *  from <code>root.menuFactory</code> and
+     *  restore bounds from preferences.
+     */
+    public void init()
+    {
+        if( initialized ) throw new IllegalStateException( "Window was already initialized." );
 
 //System.out.println( "init " + getClass().getName() );
 
-		if( borrowMenuBar ) {
-			borrowMenuBar( wh.getMenuBarBorrower() );
-			wh.addBorrowListener( this );
-		} else if( ownMenuBar ) {
-			setJMenuBar( wh.getMenuBarRoot().createBar( this ));
-		}
+        if( borrowMenuBar ) {
+            borrowMenuBar( wh.getMenuBarBorrower() );
+            wh.addBorrowListener( this );
+        } else if( ownMenuBar ) {
+            setJMenuBar( wh.getMenuBarRoot().createBar( this ));
+        }
 //		AbstractApplication.getApplication().addComponent( getClass().getName(), this );
-		
-		winListener = new AbstractWindow.Adapter() {
-			public void windowOpened( AbstractWindow.Event e )
-			{
+
+        winListener = new AbstractWindow.Adapter() {
+            public void windowOpened( AbstractWindow.Event e )
+            {
 //System.err.println( "shown" );
-				if( classPrefs != null ) classPrefs.putBoolean( KEY_VISIBLE, true );
-				if( !initialized ) System.err.println( "WARNING: window not initialized (" + e.getWindow() + ")" );
-			}
+                if( classPrefs != null ) classPrefs.putBoolean( KEY_VISIBLE, true );
+                if( !initialized ) System.err.println( "WARNING: window not initialized (" + e.getWindow() + ")" );
+            }
 
 //			public void windowClosing( WindowEvent e )
 //			{
 //				classPrefs.putBoolean( PrefsUtil.KEY_VISIBLE, false );
 //			}
 
-			public void windowClosed( AbstractWindow.Event e )
-			{
+            public void windowClosed( AbstractWindow.Event e )
+            {
 //System.err.println( "hidden" );
-				if( classPrefs != null ) classPrefs.putBoolean( KEY_VISIBLE, false );
-			}
-			
-			public void windowActivated( AbstractWindow.Event e )
-			{
-				try {
-					active = true;
-					if( wh.usesInternalFrames() && ownMenuBar ) {
-						wh.getMasterFrame().setJMenuBar( bar );
-					} else if( borrowMenuBar && (barBorrower != null) ) {
-						barBorrower.setJMenuBar( null );
-						if( jf != null ) {
-							jf.setJMenuBar( bar );
-						} else if( jif != null ) {
-							wh.getMasterFrame().setJMenuBar( bar );
-						} else {
-							throw new IllegalStateException();
-						}
-					}
-					if( tempFloating ) {
-						if( jif == null ) {
+                if( classPrefs != null ) classPrefs.putBoolean( KEY_VISIBLE, false );
+            }
+
+            public void windowActivated( AbstractWindow.Event e )
+            {
+                try {
+                    active = true;
+                    if( wh.usesInternalFrames() && ownMenuBar ) {
+                        wh.getMasterFrame().setJMenuBar( bar );
+                    } else if( borrowMenuBar && (barBorrower != null) ) {
+                        barBorrower.setJMenuBar( null );
+                        if( jf != null ) {
+                            jf.setJMenuBar( bar );
+                        } else if( jif != null ) {
+                            wh.getMasterFrame().setJMenuBar( bar );
+                        } else {
+                            throw new IllegalStateException();
+                        }
+                    }
+                    if( tempFloating ) {
+                        if( jif == null ) {
 //System.out.println( "activ " + enc_getClass().getName() );
 ////							wh.removeWindow( AbstractWindow.this, null );
 tempFloatingTimer.restart();
 //							GUIUtil.setAlwaysOnTop( getWindow(), true );
 ////							floating = true;
 ////							wh.addWindow( AbstractWindow.this, null );
-						} else {
-							jif.setLayer( JLayeredPane.MODAL_LAYER );
-						}
+                        } else {
+                            jif.setLayer( JLayeredPane.MODAL_LAYER );
+                        }
 //					} else if( wh.usesFloating() ) {
 //						// tricky...
 //						// we need to do this because if the opposite's
@@ -601,32 +598,32 @@ tempFloatingTimer.restart();
 //						// so this one is not jumping to the front
 //						// automatically upon activation...
 //						toFront();
-					}
-				}
-				// seems to be a bug ... !
-				catch( NullPointerException e1 ) {
-					e1.printStackTrace();
-				}
-			}
+                    }
+                }
+                // seems to be a bug ... !
+                catch( NullPointerException e1 ) {
+                    e1.printStackTrace();
+                }
+            }
 
-			public void windowDeactivated( AbstractWindow.Event e )
-			{
+            public void windowDeactivated( AbstractWindow.Event e )
+            {
 //System.out.println( "deac2 " + enc_getClass().getName() );
-				try {
-					active = false;
-					if( wh.usesInternalFrames() && ownMenuBar ) {
-						if( wh.getMasterFrame().getJMenuBar() == bar ) wh.getMasterFrame().setJMenuBar( null );
-					} else if( borrowMenuBar && (barBorrower != null) ) {
-						if( jf != null ) {
-							jf.setJMenuBar( null );
-						}
-						barBorrower.setJMenuBar( bar );
-					}
-					if( tempFloating ) {
-						if( jif == null ) {
+                try {
+                    active = false;
+                    if( wh.usesInternalFrames() && ownMenuBar ) {
+                        if( wh.getMasterFrame().getJMenuBar() == bar ) wh.getMasterFrame().setJMenuBar( null );
+                    } else if( borrowMenuBar && (barBorrower != null) ) {
+                        if( jf != null ) {
+                            jf.setJMenuBar( null );
+                        }
+                        barBorrower.setJMenuBar( bar );
+                    }
+                    if( tempFloating ) {
+                        if( jif == null ) {
 //System.out.println( "deact " + enc_getClass().getName() );
 //							wh.removeWindow( AbstractWindow.this, null );
-							GUIUtil.setAlwaysOnTop( getWindow(), false );
+                            GUIUtil.setAlwaysOnTop( getWindow(), false );
 tempFloatingTimer.stop();
 //							floating = false;
 //							wh.addWindow( AbstractWindow.this, null );
@@ -635,184 +632,184 @@ tempFloatingTimer.stop();
 // the next event cycle) and re-put it in the front\
 // coz setAlwaysOnTop came "too late"
 EventQueue.invokeLater( new Runnable() {
-	public void run()
-	{
-		final AbstractWindow fw = FloatingPaletteHandler.getInstance().getFocussedWindow();
-		if( fw != null ) fw.toFront();
-	}
+    public void run()
+    {
+        final AbstractWindow fw = FloatingPaletteHandler.getInstance().getFocussedWindow();
+        if( fw != null ) fw.toFront();
+    }
 });
-						} else {
-							jif.setLayer( JLayeredPane.DEFAULT_LAYER );
-						}
-					}
-				}
-				// seems to be a bug ... !
-				catch( NullPointerException e1 ) {
-					e1.printStackTrace();
-				}
-			}
-		};
-		addListener( winListener );
-		
-		if( autoUpdatePrefs() ) {
-			getClassPrefs();	// this creates the prefs
-			restoreFromPrefs();
-			cmpListener = new ComponentAdapter() {
-				public void componentResized( ComponentEvent e )
-				{
-					classPrefs.put( KEY_SIZE, dimensionToString( e.getComponent().getSize() ));
-				}
+                        } else {
+                            jif.setLayer( JLayeredPane.DEFAULT_LAYER );
+                        }
+                    }
+                }
+                // seems to be a bug ... !
+                catch( NullPointerException e1 ) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        addListener( winListener );
 
-				public void componentMoved( ComponentEvent e )
-				{
-					classPrefs.put( KEY_LOCATION, pointToString( e.getComponent().getLocation() ));
-				}
+        if( autoUpdatePrefs() ) {
+            getClassPrefs();	// this creates the prefs
+            restoreFromPrefs();
+            cmpListener = new ComponentAdapter() {
+                public void componentResized( ComponentEvent e )
+                {
+                    classPrefs.put( KEY_SIZE, dimensionToString( e.getComponent().getSize() ));
+                }
 
-				public void componentShown( ComponentEvent e )
-				{
-					classPrefs.putBoolean( KEY_VISIBLE, true );
-				}
+                public void componentMoved( ComponentEvent e )
+                {
+                    classPrefs.put( KEY_LOCATION, pointToString( e.getComponent().getLocation() ));
+                }
 
-				public void componentHidden( ComponentEvent e )
-				{
-					classPrefs.putBoolean( KEY_VISIBLE, false );
-	//System.err.println( "hidden" );
-				}
-			};
-			c.addComponentListener( cmpListener );
-		} else {
-			if( alwaysPackSize() ) {
-				pack();
-			}
-		}
-		
-		wh.addWindow( this, null );
-		initialized = true;
-	}
-	
-	protected Preferences getClassPrefs()
-	{
-		if( classPrefs == null ) {
-			final String className = getClass().getName();
-			classPrefs = AbstractApplication.getApplication().getUserPrefs().node(
-					className.substring( className.lastIndexOf( '.' ) + 1 ));
-		}
-		return classPrefs;
-	}
+                public void componentShown( ComponentEvent e )
+                {
+                    classPrefs.putBoolean( KEY_VISIBLE, true );
+                }
 
-	protected void addDynamicListening( DynamicListening l )
-	{
-		if( c instanceof RootPaneContainer ) {
-			new DynamicAncestorAdapter( l ).addTo( ((RootPaneContainer) c).getRootPane() );
-		} else if( jc != null ) {
-			new DynamicAncestorAdapter( l ).addTo( jc );
-		}
-	}
+                public void componentHidden( ComponentEvent e )
+                {
+                    classPrefs.putBoolean( KEY_VISIBLE, false );
+    //System.err.println( "hidden" );
+                }
+            };
+            c.addComponentListener( cmpListener );
+        } else {
+            if( alwaysPackSize() ) {
+                pack();
+            }
+        }
 
-	// ---------- AbstractWindow interface ----------
-	
-	public Component getWindow()
-	{
-		return c;
-	}
-	
-	public Insets getInsets()
-	{
-		if( w != null ) {
-			return w.getInsets();
-		} else if( jif != null ) {
-			return jif.getInsets();
-		} else {
-			throw new IllegalStateException();
-		}
-	}
+        wh.addWindow( this, null );
+        initialized = true;
+    }
+
+    protected Preferences getClassPrefs()
+    {
+        if( classPrefs == null ) {
+            final String className = getClass().getName();
+            classPrefs = AbstractApplication.getApplication().getUserPrefs().node(
+                    className.substring( className.lastIndexOf( '.' ) + 1 ));
+        }
+        return classPrefs;
+    }
+
+    protected void addDynamicListening( DynamicListening l )
+    {
+        if( c instanceof RootPaneContainer ) {
+            new DynamicAncestorAdapter( l ).addTo( ((RootPaneContainer) c).getRootPane() );
+        } else if( jc != null ) {
+            new DynamicAncestorAdapter( l ).addTo( jc );
+        }
+    }
+
+    // ---------- AbstractWindow interface ----------
+
+    public Component getWindow()
+    {
+        return c;
+    }
+
+    public Insets getInsets()
+    {
+        if( w != null ) {
+            return w.getInsets();
+        } else if( jif != null ) {
+            return jif.getInsets();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
     
-	/**
-	 *  Frees resources, clears references
-	 */
-	public void dispose()
-	{
-		if( tempFloatingTimer != null ) {
-			tempFloatingTimer.stop();
-		}
-		
-		if( initialized ) {
-			if( winListener != null ) removeListener( winListener );
-			if( cmpListener != null ) c.removeComponentListener( cmpListener );
-			
-			wh.removeWindow( this, null );
+    /**
+     *  Frees resources, clears references
+     */
+    public void dispose()
+    {
+        if( tempFloatingTimer != null ) {
+            tempFloatingTimer.stop();
+        }
+
+        if( initialized ) {
+            if( winListener != null ) removeListener( winListener );
+            if( cmpListener != null ) c.removeComponentListener( cmpListener );
+
+            wh.removeWindow( this, null );
 //			AbstractApplication.getApplication().addComponent( getClass().getName(), null );
-			
-			if( borrowMenuBar ) {
-				borrowMenuBar( null );
-				wh.removeBorrowListener( this );
-			}
-			if( wh.getMenuBarBorrower() == this ) wh.setMenuBarBorrower( null );
-			if( ownMenuBar ) {
-				setJMenuBar( null );
-				wh.getMenuBarRoot().destroy( this );
-			}
-		}
-		
-		if( w != null ) {
-			w.dispose();
-		} else if( jif != null ) {
-			jif.dispose();
-		}
-		
-		if( ggTitle != null ) ggTitle.dispose();
-		
-		classPrefs	= null;
-		cmpListener	= null;
-		winListener = null;
-	}
-	
+
+            if( borrowMenuBar ) {
+                borrowMenuBar( null );
+                wh.removeBorrowListener( this );
+            }
+            if( wh.getMenuBarBorrower() == this ) wh.setMenuBarBorrower( null );
+            if( ownMenuBar ) {
+                setJMenuBar( null );
+                wh.getMenuBarRoot().destroy( this );
+            }
+        }
+
+        if( w != null ) {
+            w.dispose();
+        } else if( jif != null ) {
+            jif.dispose();
+        }
+
+        if( ggTitle != null ) ggTitle.dispose();
+
+        classPrefs	= null;
+        cmpListener	= null;
+        winListener = null;
+    }
+
 //	public void setSize( int width, int height )
 //	{
 //		c.setSize( width, height );
 //	}
 
-	public void setSize( Dimension d )
-	{
-		c.setSize( d );
-	}
-	
-	public Dimension getSize()
-	{
-		return c.getSize();
-	}
+    public void setSize( Dimension d )
+    {
+        c.setSize( d );
+    }
 
-	public Rectangle getBounds()
-	{
-		return c.getBounds();
-	}
-	
-	public void setBounds( Rectangle r )
-	{
-		c.setBounds( r );
-	}
+    public Dimension getSize()
+    {
+        return c.getSize();
+    }
 
-	public void setLocation( Point p )
-	{
-		c.setLocation( p );
-	}
-	
-	public Point getLocation()
-	{
-		return c.getLocation();
-	}
+    public Rectangle getBounds()
+    {
+        return c.getBounds();
+    }
 
-	public void setPreferredSize( Dimension d )
-	{
-		if( c instanceof RootPaneContainer ) {
-			((RootPaneContainer) c).getRootPane().setPreferredSize( d );
-		} else if( jc != null ) {
-			jc.setPreferredSize( d );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
+    public void setBounds( Rectangle r )
+    {
+        c.setBounds( r );
+    }
+
+    public void setLocation( Point p )
+    {
+        c.setLocation( p );
+    }
+
+    public Point getLocation()
+    {
+        return c.getLocation();
+    }
+
+    public void setPreferredSize( Dimension d )
+    {
+        if( c instanceof RootPaneContainer ) {
+            ((RootPaneContainer) c).getRootPane().setPreferredSize( d );
+        } else if( jc != null ) {
+            jc.setPreferredSize( d );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
 //	public boolean hasFocus()
 //	{
 //		return c.hasFocus();
@@ -826,42 +823,42 @@ EventQueue.invokeLater( new Runnable() {
 //			return c.hasFocus();
 //		}
 //	}
-	
+
 //	public void requestFocus()
 //	{
 //		c.requestFocus();
 //	}
-	
-	public boolean isActive()
-	{
-		if( w != null ) {
-			return w.isActive();
-		} else {
-			return false;
-		}
-	}
 
-	public void addListener( Listener l )
-	{
-		if( w != null ) {
-			WindowListenerWrapper.add( l, this );
-		} else if( jif != null ) {
-			InternalFrameListenerWrapper.add( l, this );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public void removeListener( Listener l )
-	{
-		if( w != null ) {
-			WindowListenerWrapper.remove( l, this );
-		} else if( jif != null ) {
-			InternalFrameListenerWrapper.remove( l, this );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
+    public boolean isActive()
+    {
+        if( w != null ) {
+            return w.isActive();
+        } else {
+            return false;
+        }
+    }
+
+    public void addListener( Listener l )
+    {
+        if( w != null ) {
+            WindowListenerWrapper.add( l, this );
+        } else if( jif != null ) {
+            InternalFrameListenerWrapper.add( l, this );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void removeListener( Listener l )
+    {
+        if( w != null ) {
+            WindowListenerWrapper.remove( l, this );
+        } else if( jif != null ) {
+            InternalFrameListenerWrapper.remove( l, this );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
 
 //	public void addWindowFocusListener( WindowFocusListener l )
 //	{
@@ -884,150 +881,150 @@ EventQueue.invokeLater( new Runnable() {
 //			throw new IllegalStateException();
 //		}
 //	}
-	
-	public void toFront()
-	{
+
+    public void toFront()
+    {
 //if( lala ) {
 //	System.out.println( "toFront" );
 //	new Exception().printStackTrace();
 //}
 //		
-		if( w != null ) {
-			w.toFront();
-		} else if( jif != null ) {
-			jif.toFront();
-			try {
-				jif.setSelected( true );
-			} catch( PropertyVetoException e ) { /* ignored */ }
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public void setVisible( boolean b )
-	{
+        if( w != null ) {
+            w.toFront();
+        } else if( jif != null ) {
+            jif.toFront();
+            try {
+                jif.setSelected( true );
+            } catch( PropertyVetoException e ) { /* ignored */ }
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void setVisible( boolean b )
+    {
 //if( lala ) {
 //	System.out.println( "setVisible( " + b + " )" );
 //	new Exception().printStackTrace();
 //}
 //
-		c.setVisible( b );
-	}
-	
-	public boolean isVisible()
-	{
-		return c.isVisible();
-	}
-	
-	public void setDefaultCloseOperation( int mode )
-	{
-		if( ggTitle != null ) {
-			ggTitle.setDefaultCloseOperation( mode );
-		} else if( jf != null ) {
-			jf.setDefaultCloseOperation( mode );
-		} else if( jd != null ) {
-			jd.setDefaultCloseOperation( mode );
-		} else if( jif != null ) {
-			jif.setDefaultCloseOperation( mode );
-		} else {
-			throw new IllegalStateException( "setDefaultCloseOperation wrapper not yet implemented" );
-		}
-	}
-	
-	public void pack()
-	{
-		if( w != null ) {
-			// circumvention for bug 1924630 : this throws a NullPointerException
-			// with the combination Metal-lnf / java 1.5 / screen menu bar / laf window deco
-			// / floating palettes. We have to make sure the window is focusable
-			// during pack():
-			final boolean wasFocusable = w.getFocusableWindowState();
-			if( !wasFocusable ) {
-				w.setFocusableWindowState( true );
-			}
-			w.pack();
-			if( !wasFocusable ) {
-				w.setFocusableWindowState( false );
-			}
-		} else if( jif != null ) {
-			// bug in swing??
-			// when using undecorated windows plus metal-lnf plus lnf-window-deco
-//			try { jif.pack(); } catch( NullPointerException e ) {}
-			jif.pack();
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public void setTitle( String title )
-	{
-		if( ggTitle != null ) {
-			ggTitle.setTitle( title );
-		} else if( f != null ) {
-			f.setTitle( title );
-		} else if( d != null ) {
-			d.setTitle( title );
-		} else if( jif != null ) {
-			jif.setTitle( title );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public String getTitle()
-	{
-		if( f != null ) {
-			return f.getTitle();
-		} else if( d != null ) {
-			return d.getTitle();
-		} else if( jif != null ) {
-			return jif.getTitle();
-		} else {
-			return null; // throw new IllegalStateException();
-		}
-	}
-	
-	public Container getContentPane()
-	{
-		if( c instanceof RootPaneContainer ) {
-			return ((RootPaneContainer) c).getContentPane();
-		} else {
-			return w;
-		}
-	}
-	
-	public void setContentPane( Container c2 )
-	{
-		if( c instanceof RootPaneContainer ) {
-			((RootPaneContainer) c).setContentPane( c2);
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public void setJMenuBar( JMenuBar m )
-	{
-		try {
-			if( jf != null ) {
-				bar = m;
-				jf.setJMenuBar( m );
-			} else if( jif != null ) {
-				bar = m;
-				if( active && ownMenuBar ) wh.getMasterFrame().setJMenuBar( bar );
-	//			jif.setJMenuBar( m );
-			} else {
-				throw new IllegalStateException();
-			}
-		}
-		// seems to be a bug ... !
-		catch( NullPointerException e1 ) {
-			e1.printStackTrace();
-		}
-	}
+        c.setVisible( b );
+    }
 
-	public JMenuBar getJMenuBar()
-	{
-		return bar;
+    public boolean isVisible()
+    {
+        return c.isVisible();
+    }
+
+    public void setDefaultCloseOperation( int mode )
+    {
+        if( ggTitle != null ) {
+            ggTitle.setDefaultCloseOperation( mode );
+        } else if( jf != null ) {
+            jf.setDefaultCloseOperation( mode );
+        } else if( jd != null ) {
+            jd.setDefaultCloseOperation( mode );
+        } else if( jif != null ) {
+            jif.setDefaultCloseOperation( mode );
+        } else {
+            throw new IllegalStateException( "setDefaultCloseOperation wrapper not yet implemented" );
+        }
+    }
+
+    public void pack()
+    {
+        if( w != null ) {
+            // circumvention for bug 1924630 : this throws a NullPointerException
+            // with the combination Metal-lnf / java 1.5 / screen menu bar / laf window deco
+            // / floating palettes. We have to make sure the window is focusable
+            // during pack():
+            final boolean wasFocusable = w.getFocusableWindowState();
+            if( !wasFocusable ) {
+                w.setFocusableWindowState( true );
+            }
+            w.pack();
+            if( !wasFocusable ) {
+                w.setFocusableWindowState( false );
+            }
+        } else if( jif != null ) {
+            // bug in swing??
+            // when using undecorated windows plus metal-lnf plus lnf-window-deco
+//			try { jif.pack(); } catch( NullPointerException e ) {}
+            jif.pack();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void setTitle( String title )
+    {
+        if( ggTitle != null ) {
+            ggTitle.setTitle( title );
+        } else if( f != null ) {
+            f.setTitle( title );
+        } else if( d != null ) {
+            d.setTitle( title );
+        } else if( jif != null ) {
+            jif.setTitle( title );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public String getTitle()
+    {
+        if( f != null ) {
+            return f.getTitle();
+        } else if( d != null ) {
+            return d.getTitle();
+        } else if( jif != null ) {
+            return jif.getTitle();
+        } else {
+            return null; // throw new IllegalStateException();
+        }
+    }
+
+    public Container getContentPane()
+    {
+        if( c instanceof RootPaneContainer ) {
+            return ((RootPaneContainer) c).getContentPane();
+        } else {
+            return w;
+        }
+    }
+
+    public void setContentPane( Container c2 )
+    {
+        if( c instanceof RootPaneContainer ) {
+            ((RootPaneContainer) c).setContentPane( c2);
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void setJMenuBar( JMenuBar m )
+    {
+        try {
+            if( jf != null ) {
+                bar = m;
+                jf.setJMenuBar( m );
+            } else if( jif != null ) {
+                bar = m;
+                if( active && ownMenuBar ) wh.getMasterFrame().setJMenuBar( bar );
+    //			jif.setJMenuBar( m );
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+        // seems to be a bug ... !
+        catch( NullPointerException e1 ) {
+            e1.printStackTrace();
+        }
+    }
+
+    public JMenuBar getJMenuBar()
+    {
+        return bar;
 //		if( jf != null ) {
 //			return jf.getJMenuBar();
 //		} else if( jif != null ) {
@@ -1035,141 +1032,141 @@ EventQueue.invokeLater( new Runnable() {
 //		} else {
 //			return null; // throw new IllegalStateException();
 //		}
-	}
-	
-	protected void borrowMenuBar( AbstractWindow aw )
-	{
-		if( borrowMenuBar && (barBorrower != aw) ) {
-			if( (bar != null) && (barBorrower != null) ) {
-				barBorrower.setJMenuBar( bar );
-				bar = null;
-			}
-			barBorrower = aw;
-			bar			= barBorrower == null ? null : barBorrower.getJMenuBar();
+    }
+
+    protected void borrowMenuBar( AbstractWindow aw )
+    {
+        if( borrowMenuBar && (barBorrower != aw) ) {
+            if( (bar != null) && (barBorrower != null) ) {
+                barBorrower.setJMenuBar( bar );
+                bar = null;
+            }
+            barBorrower = aw;
+            bar			= barBorrower == null ? null : barBorrower.getJMenuBar();
 //System.err.println( "setting bar " + bar + " for window " + this + "; active = "+active );
-			if( active ) {
-				if( barBorrower != null ) barBorrower.setJMenuBar( null );
-				if( jf != null ) {
-					jf.setJMenuBar( bar );
-				} else if( jif != null ) {
-					wh.getMasterFrame().setJMenuBar( bar );
-				} else {
-					throw new IllegalStateException();
-				}
-			}
-		}
-	}
-	
-	public InputMap getInputMap( int condition )
-	{
-		if( c instanceof RootPaneContainer ) {
-			return ((RootPaneContainer) c).getRootPane().getInputMap( condition );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
+            if( active ) {
+                if( barBorrower != null ) barBorrower.setJMenuBar( null );
+                if( jf != null ) {
+                    jf.setJMenuBar( bar );
+                } else if( jif != null ) {
+                    wh.getMasterFrame().setJMenuBar( bar );
+                } else {
+                    throw new IllegalStateException();
+                }
+            }
+        }
+    }
 
-	public ActionMap getActionMap()
-	{
-		if( c instanceof RootPaneContainer ) {
-			return ((RootPaneContainer) c).getRootPane().getActionMap();
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public Window[] getOwnedWindows()
-	{
-		if( w != null ) {
-			return w.getOwnedWindows();
-		} else {
-			return new Window[ 0 ];
-		}
-	}
-	
-	public void setFocusTraversalKeysEnabled( boolean enabled )
-	{
-		c.setFocusTraversalKeysEnabled( enabled );
-	}
-	
-	public void setDirty( boolean dirty )
-	{
-		if( c instanceof RootPaneContainer ) {
-			((RootPaneContainer) c).getRootPane().putClientProperty( "windowModified", new Boolean( dirty ));
-		}
-	}
+    public InputMap getInputMap( int condition )
+    {
+        if( c instanceof RootPaneContainer ) {
+            return ((RootPaneContainer) c).getRootPane().getInputMap( condition );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
 
-	public void setLocationRelativeTo( Component comp )
-	{
-		if( w != null ) {
-			w.setLocationRelativeTo( comp );
-		} else {
+    public ActionMap getActionMap()
+    {
+        if( c instanceof RootPaneContainer ) {
+            return ((RootPaneContainer) c).getRootPane().getActionMap();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public Window[] getOwnedWindows()
+    {
+        if( w != null ) {
+            return w.getOwnedWindows();
+        } else {
+            return new Window[ 0 ];
+        }
+    }
+
+    public void setFocusTraversalKeysEnabled( boolean enabled )
+    {
+        c.setFocusTraversalKeysEnabled( enabled );
+    }
+
+    public void setDirty( boolean dirty )
+    {
+        if( c instanceof RootPaneContainer ) {
+            ((RootPaneContainer) c).getRootPane().putClientProperty( "windowModified", new Boolean( dirty ));
+        }
+    }
+
+    public void setLocationRelativeTo( Component comp )
+    {
+        if( w != null ) {
+            w.setLocationRelativeTo( comp );
+        } else {
 //			throw new IllegalStateException();
-			final Point p;
-			if( comp == null ) {
-				if( jif == null ) {
-					p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
-				} else {
-					comp = wh.getMasterFrame().getWindow();
-					p = new Point( comp.getWidth() >> 1, comp.getHeight() >> 1 );
-				}
- 			} else {
-				p = comp.getLocation();
-				p.translate( comp.getWidth() >> 1, comp.getHeight() >> 1 );
-			}
-			final Point p2 = SwingUtilities.convertPoint( comp, p, c );
-			p2.translate( -(c.getWidth() >> 1), -(c.getHeight() >> 1) );
-			c.setLocation( p2 );
-		}
-	}
-	
-	public void setUndecorated( boolean b )
-	{
-		if( d != null ) {
-			d.setUndecorated( b );
-		} else if( f != null ) {
-			f.setUndecorated( b );
-		} else if( jif != null ) {
+            final Point p;
+            if( comp == null ) {
+                if( jif == null ) {
+                    p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+                } else {
+                    comp = wh.getMasterFrame().getWindow();
+                    p = new Point( comp.getWidth() >> 1, comp.getHeight() >> 1 );
+                }
+            } else {
+                p = comp.getLocation();
+                p.translate( comp.getWidth() >> 1, comp.getHeight() >> 1 );
+            }
+            final Point p2 = SwingUtilities.convertPoint( comp, p, c );
+            p2.translate( -(c.getWidth() >> 1), -(c.getHeight() >> 1) );
+            c.setLocation( p2 );
+        }
+    }
+
+    public void setUndecorated( boolean b )
+    {
+        if( d != null ) {
+            d.setUndecorated( b );
+        } else if( f != null ) {
+            f.setUndecorated( b );
+        } else if( jif != null ) {
 //			System.out.println( "ERROR: borderless property not supported by internal frames!" );
 //			jif.getRootPane().setWindowDecorationStyle( JRootPane.NONE );
-			jif.setUI( new EmptyInternalFrameUI( jif ));
-		} else {
-			throw new IllegalStateException( "setUndecorated() is not supported by this window type" );
-		}
-	}
+            jif.setUI( new EmptyInternalFrameUI( jif ));
+        } else {
+            throw new IllegalStateException( "setUndecorated() is not supported by this window type" );
+        }
+    }
 
-	public void setResizable( boolean b )
-	{
-		if( f != null ) {
-			f.setResizable( b );
-		} else if( d != null ) {
-			d.setResizable( b );
-		} else if( jif != null ) {
-			jif.setResizable( b );
-		} else {
-			throw new IllegalStateException();
-		}
-	}
+    public void setResizable( boolean b )
+    {
+        if( f != null ) {
+            f.setResizable( b );
+        } else if( d != null ) {
+            d.setResizable( b );
+        } else if( jif != null ) {
+            jif.setResizable( b );
+        } else {
+            throw new IllegalStateException();
+        }
+    }
 
-	public boolean isResizable()
-	{
-		if( f != null ) {
-			return f.isResizable();
-		} else if( d != null ) {
-			return d.isResizable();
-		} else if( jif != null ) {
-			return jif.isResizable();
-		} else {
-			throw new IllegalStateException();
-		}
-	}
-	
-	public void revalidate()
-	{
-		if( c instanceof RootPaneContainer ) {
-			((RootPaneContainer) c).getRootPane().revalidate();
-		} else if( jc != null ) {
-			jc.revalidate();
-		}
-	}
+    public boolean isResizable()
+    {
+        if( f != null ) {
+            return f.isResizable();
+        } else if( d != null ) {
+            return d.isResizable();
+        } else if( jif != null ) {
+            return jif.isResizable();
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public void revalidate()
+    {
+        if( c instanceof RootPaneContainer ) {
+            ((RootPaneContainer) c).getRootPane().revalidate();
+        } else if( jc != null ) {
+            jc.revalidate();
+        }
+    }
 }

@@ -2,7 +2,7 @@
  *  ScissLib.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -35,30 +35,30 @@ package de.sciss;
 
 public class ScissLib
 {
-	private static final double VERSION	= 1.0;
-	
-	public static void main( String[] args )
-	{
-		System.err.println( "\nScissUtil v" + VERSION + "\n" +
-		    				"(C)opyright 2004-2012 by Hanns Holger Rutz. All rights reserved.\n" +
-		    				"Published under the GNU General Public License.\n\n" +
-		    				"This is a library which is not meant to be executed by itself.\n\n" );
-		
+    private static final double VERSION	= 1.0;
+
+    public static void main( String[] args )
+    {
+        System.err.println( "\nScissUtil v" + VERSION + "\n" +
+                            "(C)opyright 2004-2012 by Hanns Holger Rutz. All rights reserved.\n" +
+                            "Published under the GNU General Public License.\n\n" +
+                            "This is a library which is not meant to be executed by itself.\n\n" );
+
 //		testAIFF();
 //		testParam();
-		System.exit( 1 );
-	}
+        System.exit( 1 );
+    }
 
-	/**
-	 *	Returns the library's version.
-	 *
-	 *	@return	the current version of ScissUtil
-	 */
-	public static double getVersion()
-	{
-		return VERSION;
-	}
-	
+    /**
+     *	Returns the library's version.
+     *
+     *	@return	the current version of ScissUtil
+     */
+    public static double getVersion()
+    {
+        return VERSION;
+    }
+
 //	private static void testAIFF()
 //	{
 //		try {
@@ -68,7 +68,7 @@ public class ScissLib
 //			e1.printStackTrace();
 //		}
 //	}
-	
+
 //	private static void testParam()
 //	{
 //		final Param p1 = new Param( 441, ParamSpace.spcTimeSmpsD.unit );

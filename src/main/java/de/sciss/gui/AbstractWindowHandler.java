@@ -2,7 +2,7 @@
  *  AbstractWindowHandler.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -48,69 +48,69 @@ import de.sciss.app.GraphicsHandler;
 public abstract class AbstractWindowHandler
 implements de.sciss.app.WindowHandler
 {
-	private final List	collWindows	= new ArrayList();
+    private final List	collWindows	= new ArrayList();
 
-	protected AbstractWindowHandler()
-	{
-		super();
-	}
+    protected AbstractWindowHandler()
+    {
+        super();
+    }
 
-	/**
-	 *	@synchronization	this method is synchronized
-	 */
-	public void addWindow( AbstractWindow w, Map options )
-	{
-		synchronized( collWindows ) {
-			if( collWindows.contains( w )) {
-				throw new IllegalArgumentException( "Duplicate window registration" );
-			}
-			collWindows.add( w );
-		}
-	}
+    /**
+     *	synchronization:	this method is synchronized
+     */
+    public void addWindow( AbstractWindow w, Map options )
+    {
+        synchronized( collWindows ) {
+            if( collWindows.contains( w )) {
+                throw new IllegalArgumentException( "Duplicate window registration" );
+            }
+            collWindows.add( w );
+        }
+    }
 
-	/**
-	 *	@synchronization	this method is synchronized
-	 */
-	public void removeWindow( AbstractWindow w, Map options )
-	{
-		synchronized( collWindows ) {
-			if( !collWindows.remove( w )) {
-				throw new IllegalArgumentException( "Tried to remove unknown window" );
-			}
-		}
-	}
+    /**
+     *	synchronization:	this method is synchronized
+     */
+    public void removeWindow( AbstractWindow w, Map options )
+    {
+        synchronized( collWindows ) {
+            if( !collWindows.remove( w )) {
+                throw new IllegalArgumentException( "Tried to remove unknown window" );
+            }
+        }
+    }
 
-	public Iterator getWindows()
-	{
-		synchronized( collWindows ) {
-			return Collections.unmodifiableList( collWindows ).iterator();
-		}
-	}
+    public Iterator getWindows()
+    {
+        synchronized( collWindows ) {
+            return Collections.unmodifiableList( collWindows ).iterator();
+        }
+    }
 
-	public static void setDeepFont( Container c )
-	{
-		setDeepFont( c, null );
-	}
-	
-	public static void setDeepFont( Container c, List exclude )
-	{
-		setDeepFont( c,
-			AbstractApplication.getApplication().getGraphicsHandler().getFont( GraphicsHandler.FONT_SYSTEM | GraphicsHandler.FONT_SMALL ), exclude );
-	}
+    public static void setDeepFont( Container c )
+    {
+        setDeepFont( c, null );
+    }
 
-	private static void setDeepFont( Container c, Font fnt, List exclude )
-	{
-		final Component[] comp = c.getComponents();
-		
-		c.setFont( fnt );
-		for( int i = 0; i < comp.length; i++ ) {
-			if( (exclude != null) && exclude.contains( comp[ i ])) continue;
+    public static void setDeepFont( Container c, List exclude )
+    {
+        setDeepFont( c,
+            AbstractApplication.getApplication().getGraphicsHandler().getFont( GraphicsHandler.FONT_SYSTEM | GraphicsHandler.FONT_SMALL ), exclude );
+    }
 
-			if( comp[ i ] instanceof Container ) {
-				setDeepFont( (Container) comp[i], fnt, exclude );
-			} else {
-				comp[ i ].setFont( fnt );
-			}
-		}
-	}
+    private static void setDeepFont( Container c, Font fnt, List exclude )
+    {
+        final Component[] comp = c.getComponents();
+
+        c.setFont( fnt );
+        for( int i = 0; i < comp.length; i++ ) {
+            if( (exclude != null) && exclude.contains( comp[ i ])) continue;
+
+            if( comp[ i ] instanceof Container ) {
+                setDeepFont( (Container) comp[i], fnt, exclude );
+            } else {
+                comp[ i ].setFont( fnt );
+            }
+        }
+    }
 }

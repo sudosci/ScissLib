@@ -2,7 +2,7 @@
  *  PeakMeterGroup.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -32,16 +32,16 @@ package de.sciss.gui;
 public class PeakMeterGroup
 implements PeakMeterView
 {
-	private final PeakMeterView[]	views;
-	private final int				numChannels;
-	
-	public PeakMeterGroup( PeakMeterView[] views )
-	{
-		this.views	= views;
-		int numCh = 0;
-		for( int i = 0; i < views.length; i++ ) numCh += views[ i ].getNumChannels();
-		numChannels = numCh;
-	}
+    private final PeakMeterView[]	views;
+    private final int				numChannels;
+
+    public PeakMeterGroup( PeakMeterView[] views )
+    {
+        this.views	= views;
+        int numCh = 0;
+        for( int i = 0; i < views.length; i++ ) numCh += views[ i ].getNumChannels();
+        numChannels = numCh;
+    }
 
 //	public void setRMSPainted( boolean onOff )
 //	{
@@ -56,31 +56,31 @@ implements PeakMeterView
 //			views[ i ].setHoldPainted( onOff );
 //		}
 //	}
-	
-	public int getNumChannels()
-	{
-		return numChannels;
-	}
-	
-	public boolean meterUpdate( float[] peakRMSPairs, int offset, long time )
-	{
-		int dirty = 0;
 
-		for( int i = 0; i < views.length; i++ ) {
-			if( views[ i ].meterUpdate( peakRMSPairs, offset, time )) dirty++;
-			offset += views[ i ].getNumChannels() << 1; 
-		}
-		
-		return( dirty > 0 );
-	}
-	
-	public void clearMeter()
-	{
-		for( int i = 0; i < views.length; i++ ) views[ i ].clearMeter();
-	}
-	
-	public void dispose()
-	{
-		for( int i = 0; i < views.length; i++ ) views[ i ].dispose();
-	}
+    public int getNumChannels()
+    {
+        return numChannels;
+    }
+
+    public boolean meterUpdate( float[] peakRMSPairs, int offset, long time )
+    {
+        int dirty = 0;
+
+        for( int i = 0; i < views.length; i++ ) {
+            if( views[ i ].meterUpdate( peakRMSPairs, offset, time )) dirty++;
+            offset += views[ i ].getNumChannels() << 1;
+        }
+
+        return( dirty > 0 );
+    }
+
+    public void clearMeter()
+    {
+        for( int i = 0; i < views.length; i++ ) views[ i ].clearMeter();
+    }
+
+    public void dispose()
+    {
+        for( int i = 0; i < views.length; i++ ) views[ i ].dispose();
+    }
 }

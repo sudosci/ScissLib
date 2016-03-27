@@ -2,7 +2,7 @@
  *  MenuNode.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -39,30 +39,30 @@ import de.sciss.app.AbstractWindow;
  */
 public interface MenuNode
 {
-	public static final String	IDENTIFIER	= "de.sciss.gui.Identifier";	// Action key (expected value: a String)
+    public static final String	IDENTIFIER	= "de.sciss.gui.Identifier";	// Action key (expected value: a String)
 
-	public JComponent create( AbstractWindow w );
-	public void destroy( AbstractWindow w );
-	public String getID();
-	public void setEnabled( boolean b );
-	public Action getAction();
+    public JComponent create( AbstractWindow w );
+    public void destroy( AbstractWindow w );
+    public String getID();
+    public void setEnabled( boolean b );
+    public Action getAction();
 
-	// ----------------- internal classes -----------------
-	public static class DummyAction
-	extends AbstractAction
-	{
-		protected DummyAction( String text )
-		{
-			super( text );
+    // ----------------- internal classes -----------------
+    public static class DummyAction
+    extends AbstractAction
+    {
+        protected DummyAction( String text )
+        {
+            super( text );
 //			putValue( IDENTIFIER, id );
-		}
-		
-		protected DummyAction( String text, KeyStroke stroke )
-		{
-			this( text );
-			if( stroke != null ) putValue( ACCELERATOR_KEY, stroke );
-		}
-		
-		public void actionPerformed( ActionEvent e ) { /* ignore */ }
-	}
+        }
+
+        protected DummyAction( String text, KeyStroke stroke )
+        {
+            this( text );
+            if( stroke != null ) putValue( ACCELERATOR_KEY, stroke );
+        }
+
+        public void actionPerformed( ActionEvent e ) { /* ignore */ }
+    }
 }

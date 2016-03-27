@@ -2,7 +2,7 @@
  *  MenuRoot.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -38,18 +38,18 @@ import de.sciss.app.AbstractWindow;
 public class MenuRoot
 extends MenuGroup
 {
-	public MenuRoot()
-	{
-		super( "root", (Action) null );
-	}
+    public MenuRoot()
+    {
+        super( "root", (Action) null );
+    }
 
-	public JMenuBar createBar( AbstractWindow w )
-	{
-		return (JMenuBar) create( w );
-	}
-	
-	protected JComponent createComponent( Action a )
-	{
-		return new JMenuBar();
-	}
+    public JMenuBar createBar( AbstractWindow w )
+    {
+        return (JMenuBar) create( w );
+    }
+
+    protected JComponent createComponent( Action a )
+    {
+        return new JMenuBar();
+    }
 }

@@ -2,7 +2,7 @@
  *  IntPrefsMenuAction.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -39,45 +39,45 @@ import javax.swing.KeyStroke;
 public class IntPrefsMenuAction
 extends PrefMenuAction
 {
-	private final int		id;
-	private MenuRadioGroup	g;
+    private final int		id;
+    private MenuRadioGroup	g;
 
-	public IntPrefsMenuAction( String text, KeyStroke shortcut, int id )
-	{
-		super( text, shortcut );
-		this.id = id;
-	}
-	
-	public void setRadioGroup( MenuRadioGroup g )
-	{
-		this.g = g;
-	}
+    public IntPrefsMenuAction( String text, KeyStroke shortcut, int id )
+    {
+        super( text, shortcut );
+        this.id = id;
+    }
 
-	/**
-	 *  Fired when radio button is checked
-	 */
-	public void actionPerformed( ActionEvent e )
-	{
-		if( shouldWritePrefs() ) {
-			if( getPreferenceNode().getInt( getPreferenceKey(), -1 ) != id ) {
-				getPreferenceNode().putInt( getPreferenceKey(), id );
-			}
-		}
-	}
+    public void setRadioGroup( MenuRadioGroup g )
+    {
+        this.g = g;
+    }
 
-	protected void readPrefsFromString( String prefsValue )
-	{
-		if( prefsValue == null ) return;
-		final int prefsVal	= Integer.parseInt( prefsValue );
+    /**
+     *  Fired when radio button is checked
+     */
+    public void actionPerformed( ActionEvent e )
+    {
+        if( shouldWritePrefs() ) {
+            if( getPreferenceNode().getInt( getPreferenceKey(), -1 ) != id ) {
+                getPreferenceNode().putInt( getPreferenceKey(), id );
+            }
+        }
+    }
 
-		if( (prefsVal == id) && (g != null) ) g.setSelected( id );
-	}
-	
-	public void writePrefs()
-	{
-		if( canWritePrefs() ) {
-			getPreferenceNode().putInt( getPreferenceKey(), id );
-		}
-	}
+    protected void readPrefsFromString( String prefsValue )
+    {
+        if( prefsValue == null ) return;
+        final int prefsVal	= Integer.parseInt( prefsValue );
+
+        if( (prefsVal == id) && (g != null) ) g.setSelected( id );
+    }
+
+    public void writePrefs()
+    {
+        if( canWritePrefs() ) {
+            getPreferenceNode().putInt( getPreferenceKey(), id );
+        }
+    }
 }
 

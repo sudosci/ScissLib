@@ -2,7 +2,7 @@
  *  PreferenceEntrySync.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -37,50 +37,50 @@ import java.util.prefs.Preferences;
  */
 public interface PreferenceEntrySync
 {
-	/**
-	 *  Enables Preferences synchronization.
-	 *  This method is not thread safe and
-	 *  must be called from the event thread.
-	 *  When a preference change is received,
-	 *  the GUI is updated and dispatches an event
-	 *  to registered listeners.
-	 *  Likewise, if the user adjusts the GUI
-	 *  value, the preference will be
-	 *  updated. The same is true, if you
-	 *  call one of the value changing methods.
-	 *  
-	 *  @param  prefs   the preferences node in which
-	 *					the value is stored, or null
-	 *					to disable prefs sync.
-	 *  @param  key		the key used to store and recall
-	 *					prefs. the value is converted
-	 *					into a string.
-	 */
-	public void setPreferences( Preferences prefs, String key );
+    /**
+     *  Enables Preferences synchronization.
+     *  This method is not thread safe and
+     *  must be called from the event thread.
+     *  When a preference change is received,
+     *  the GUI is updated and dispatches an event
+     *  to registered listeners.
+     *  Likewise, if the user adjusts the GUI
+     *  value, the preference will be
+     *  updated. The same is true, if you
+     *  call one of the value changing methods.
+     *
+     *  @param  prefs   the preferences node in which
+     *					the value is stored, or null
+     *					to disable prefs sync.
+     *  @param  key		the key used to store and recall
+     *					prefs. the value is converted
+     *					into a string.
+     */
+    public void setPreferences( Preferences prefs, String key );
 
-	public void setPreferenceNode( Preferences prefs );
-	public void setPreferenceKey( String key );
-	
-	/**
-	 *  Gets the recently set preference node
-	 *
-	 *  @return the node set with setPreferences or
-	 *			null if no prefs were set
-	 */
-	public Preferences getPreferenceNode();
+    public void setPreferenceNode( Preferences prefs );
+    public void setPreferenceKey( String key );
 
-	/**
-	 *  Gets the recently set preference key
-	 *
-	 *  @return the key set with setPreferences or
-	 *			null if no prefs were set
-	 */
-	public String getPreferenceKey();
-		
-	public void setReadPrefs( boolean b );
-	public void setWritePrefs( boolean b );
-	public boolean getReadPrefs();
-	public boolean getWritePrefs();
-	public void readPrefs();
-	public void writePrefs();
+    /**
+     *  Gets the recently set preference node
+     *
+     *  @return the node set with setPreferences or
+     *			null if no prefs were set
+     */
+    public Preferences getPreferenceNode();
+
+    /**
+     *  Gets the recently set preference key
+     *
+     *  @return the key set with setPreferences or
+     *			null if no prefs were set
+     */
+    public String getPreferenceKey();
+
+    public void setReadPrefs( boolean b );
+    public void setWritePrefs( boolean b );
+    public boolean getReadPrefs();
+    public boolean getWritePrefs();
+    public void readPrefs();
+    public void writePrefs();
 }

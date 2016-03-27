@@ -2,7 +2,7 @@
  *  AbstractApplication.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -49,74 +49,74 @@ public abstract class AbstractApplication
 extends net.roydesign.app.Application
 implements de.sciss.app.Application
 {
-	/*
-	 *  This ResourceBundle contains all of the strings used in this application.
-	 */
-	private final ResourceBundle resBundle;
+    /*
+     *  This ResourceBundle contains all of the strings used in this application.
+     */
+    private final ResourceBundle resBundle;
 
-	private final Map					mapComponents	= new HashMap();
+    private final Map					mapComponents	= new HashMap();
 
-	private final Class					mainClass;
-	private Preferences					userPrefs		= null;
-	private Preferences					systemPrefs		= null;
-	private Clipboard					clipboard		= null;
+    private final Class					mainClass;
+    private Preferences					userPrefs		= null;
+    private Preferences					systemPrefs		= null;
+    private Clipboard					clipboard		= null;
 
-	private static Application app = null;
+    private static Application app = null;
 
-	/**
-	 *	Creates a new instance of this class. The <code>mainClass</code>
-	 *	will be used to determine the application's preference root node.
-	 *	This <code>name</code> will be used to set the application's name
-	 *	and to load a <code>ResourceBundle</code> with localized text strings.
-	 *	The resource bundle must be stored in a file
-	 *	<code>&quot;<var>&lt;name&gt;</var>Strings.properties&quot;</code>,
-	 *	e.g. if <code>name</code> equals <code>&quot;FScape&quot;</code>, the
-	 *	resources are retrieved from <code>&quot;FScapeStrings.properties&quot;</code>!
-	 *	<p>
-	 *	Only one instance of this class can be created, any further attempt
-	 *	will result in a <code>RuntimeException</code>. The one and only instance
-	 *	is available through the class method <code>getApplication</code>.
-	 *
-	 *	@param	mainClass	the main class of the application whose package
-	 *						(e.g. <code>de.sciss.fscape</code>) is used to identify
-	 *						the preferences files.
-	 *	@param	name		application name, should not contain white spaces
-	 *						or special characters.
-	 *
-	 *	@see	#getApplication
-	 */
-	protected AbstractApplication( Class mainClass, String name )
-	{
-		super();
+    /**
+     *	Creates a new instance of this class. The <code>mainClass</code>
+     *	will be used to determine the application's preference root node.
+     *	This <code>name</code> will be used to set the application's name
+     *	and to load a <code>ResourceBundle</code> with localized text strings.
+     *	The resource bundle must be stored in a file
+     *	<code>&quot;<var>&lt;name&gt;</var>Strings.properties&quot;</code>,
+     *	e.g. if <code>name</code> equals <code>&quot;FScape&quot;</code>, the
+     *	resources are retrieved from <code>&quot;FScapeStrings.properties&quot;</code>!
+     *	<p>
+     *	Only one instance of this class can be created, any further attempt
+     *	will result in a <code>RuntimeException</code>. The one and only instance
+     *	is available through the class method <code>getApplication</code>.
+     *
+     *	@param	mainClass	the main class of the application whose package
+     *						(e.g. <code>de.sciss.fscape</code>) is used to identify
+     *						the preferences files.
+     *	@param	name		application name, should not contain white spaces
+     *						or special characters.
+     *
+     *	@see	#getApplication
+     */
+    protected AbstractApplication( Class mainClass, String name )
+    {
+        super();
 
-		if( AbstractApplication.app != null ) {	// only one application allowed
-			throw new RuntimeException( "AbstractApplication cannot be instantiated more than once" );
-		}
-		AbstractApplication.app	= this;
-		setName( name );
-		
-		resBundle		= ResourceBundle.getBundle( name + "Strings", Locale.getDefault() );
-		this.mainClass	= mainClass;
-		
-	}
+        if( AbstractApplication.app != null ) {	// only one application allowed
+            throw new RuntimeException( "AbstractApplication cannot be instantiated more than once" );
+        }
+        AbstractApplication.app	= this;
+        setName( name );
 
-	public final Preferences getSystemPrefs()
-	{
-		if( systemPrefs == null ) {
-			systemPrefs = Preferences.systemNodeForPackage( mainClass );
-		}
-	
-		return systemPrefs;
-	}
-	
-	public final Preferences getUserPrefs()
-	{
-		if( userPrefs == null ) {
-			userPrefs = Preferences.userNodeForPackage( mainClass );
-		}
-	
-		return userPrefs;
-	}
+        resBundle		= ResourceBundle.getBundle( name + "Strings", Locale.getDefault() );
+        this.mainClass	= mainClass;
+
+    }
+
+    public final Preferences getSystemPrefs()
+    {
+        if( systemPrefs == null ) {
+            systemPrefs = Preferences.systemNodeForPackage( mainClass );
+        }
+
+        return systemPrefs;
+    }
+
+    public final Preferences getUserPrefs()
+    {
+        if( userPrefs == null ) {
+            userPrefs = Preferences.userNodeForPackage( mainClass );
+        }
+
+        return userPrefs;
+    }
 
 //	/**
 //	 *	@sync	this method is synchronized
@@ -136,114 +136,114 @@ implements de.sciss.app.Application
 //		
 //		return undo;
 //	}
-	
-	/**
-	 *	Returns the system's clipboard, or a local
-	 *	clipboard if security permits to retrieve the system clipboard.
-	 */
-	public final Clipboard getClipboard()
-	{
-		if( clipboard == null ) {
-			try {
-				clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			}
-			catch( SecurityException e1 ) {
-				clipboard = new Clipboard( getName() );
-			}
-		}
-		
-		return clipboard;
-	}
 
-	/**
-	 *	@synchronization	this method is synchronized
-	 */
-	public final Object getComponent( Object key )
-	{
-		synchronized( mapComponents ) {
-			return mapComponents.get( key );
-		}
-	}
+    /**
+     *	Returns the system's clipboard, or a local
+     *	clipboard if security permits to retrieve the system clipboard.
+     */
+    public final Clipboard getClipboard()
+    {
+        if( clipboard == null ) {
+            try {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            catch( SecurityException e1 ) {
+                clipboard = new Clipboard( getName() );
+            }
+        }
 
-	/**
-	 *	@synchronization	this method is synchronized
-	 */
-	public final void addComponent( Object key, Object component )
-	{
-		synchronized( mapComponents ) {
-			mapComponents.put( key, component );
-		}
-	}
+        return clipboard;
+    }
 
-	/**
-	 *	@synchronization	this method is synchronized
-	 */
-	public final void removeComponent( Object key )
-	{
-		synchronized( mapComponents ) {
-			mapComponents.remove( key );
-		}
-	}
+    /**
+     *	synchronization:	this method is synchronized
+     */
+    public final Object getComponent( Object key )
+    {
+        synchronized( mapComponents ) {
+            return mapComponents.get( key );
+        }
+    }
 
-	/**
-	 *	Returns <code>this</code>.
-	 */
-	public final net.roydesign.app.Application getMRJApplication()
-	{
-		return this;
-	}
+    /**
+     *	synchronization: this method is synchronized
+     */
+    public final void addComponent( Object key, Object component )
+    {
+        synchronized( mapComponents ) {
+            mapComponents.put( key, component );
+        }
+    }
 
-	public final String getResourceString( String key )
-	{
-		try {
-			return resBundle.getString( key );
-		}
-		catch( MissingResourceException e1 ) {
-			return( "[Missing Resource: " + key + "]" );
-		}
-	}
+    /**
+     *	synchronization:	this method is synchronized
+     */
+    public final void removeComponent( Object key )
+    {
+        synchronized( mapComponents ) {
+            mapComponents.remove( key );
+        }
+    }
 
-	public final String getResourceString( String key, String defaultValue )
-	{
-		try {
-			return resBundle.getString( key );
-		}
-		catch( MissingResourceException e1 ) {
-			return( defaultValue );
-		}
-	}
+    /**
+     *	Returns <code>this</code>.
+     */
+    public final net.roydesign.app.Application getMRJApplication()
+    {
+        return this;
+    }
 
-	/**
-	 *	Flushes preferences and quits.
-	 */
-	public synchronized void quit()
-	{
-		boolean success = false;
-	
-		try {
-			if( systemPrefs != null ) systemPrefs.flush();
-			if( userPrefs != null )   userPrefs.flush();
-			success = true;
-		}
-		catch( BackingStoreException e1 ) {
-			System.err.println( "error while flushing prefs : "+e1.getLocalizedMessage() );
-		}
-		finally {
-			System.exit( success ? 0 : 1 );
-		}
-	}
-	
-	/**
-	 *	Returns the current runtime's application.
-	 *	Since this is a class method, it can be used by
-	 *	static classes such IO or GUI utilities to retrieve
-	 *	the application and its preferences or resource bundle.
-	 *
-	 *	@return	the active <code>Application</code> or <code>null</code>
-	 *			if no application has been created.
-	 */
-	public static final Application getApplication()
-	{
-		return app;
-	}
+    public final String getResourceString( String key )
+    {
+        try {
+            return resBundle.getString( key );
+        }
+        catch( MissingResourceException e1 ) {
+            return( "[Missing Resource: " + key + "]" );
+        }
+    }
+
+    public final String getResourceString( String key, String defaultValue )
+    {
+        try {
+            return resBundle.getString( key );
+        }
+        catch( MissingResourceException e1 ) {
+            return( defaultValue );
+        }
+    }
+
+    /**
+     *	Flushes preferences and quits.
+     */
+    public synchronized void quit()
+    {
+        boolean success = false;
+
+        try {
+            if( systemPrefs != null ) systemPrefs.flush();
+            if( userPrefs != null )   userPrefs.flush();
+            success = true;
+        }
+        catch( BackingStoreException e1 ) {
+            System.err.println( "error while flushing prefs : "+e1.getLocalizedMessage() );
+        }
+        finally {
+            System.exit( success ? 0 : 1 );
+        }
+    }
+
+    /**
+     *	Returns the current runtime's application.
+     *	Since this is a class method, it can be used by
+     *	static classes such IO or GUI utilities to retrieve
+     *	the application and its preferences or resource bundle.
+     *
+     *	@return	the active <code>Application</code> or <code>null</code>
+     *			if no application has been created.
+     */
+    public static final Application getApplication()
+    {
+        return app;
+    }
 }

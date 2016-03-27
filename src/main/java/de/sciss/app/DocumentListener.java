@@ -2,7 +2,7 @@
  *  DocumentListener.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -42,36 +42,36 @@ import java.util.EventListener;
 public interface DocumentListener
 extends EventListener
 {
-	/**
-	 *  Notifies the listener that
-	 *  a document has been created and added
-	 *	to the list of open documents.
-	 *
-	 *  @param  e   the event describing
-	 *				the change
-	 */
-	public void documentAdded( DocumentEvent e );
+    /**
+     *  Notifies the listener that
+     *  a document has been created and added
+     *	to the list of open documents.
+     *
+     *  @param  e   the event describing
+     *				the change
+     */
+    public void documentAdded( DocumentEvent e );
 
-	/**
-	 *  Notifies the listener that
-	 *  a document has been removed from
-	 *	the list of open documents and
-	 *	was destroyed.
-	 *
-	 *  @param  e   the event describing
-	 *				the change
-	 */
-	public void documentRemoved( DocumentEvent e );
+    /**
+     *  Notifies the listener that
+     *  a document has been removed from
+     *	the list of open documents and
+     *	was destroyed.
+     *
+     *  @param  e   the event describing
+     *				the change
+     */
+    public void documentRemoved( DocumentEvent e );
 
-	/**
-	 *  Notifies the listener that
-	 *  a the active document has been switched.
-	 *	<code>e.getDocument</code> will return
-	 *	the newly active document (or <code>null</code>,
-	 *	if no document is active any more).
-	 *
-	 *  @param  e   the event describing
-	 *				the change
-	 */
-	public void documentFocussed( DocumentEvent e );
+    /**
+     *  Notifies the listener that
+     *  a the active document has been switched.
+     *	<code>e.getDocument</code> will return
+     *	the newly active document (or <code>null</code>,
+     *	if no document is active any more).
+     *
+     *  @param  e   the event describing
+     *				the change
+     */
+    public void documentFocussed( DocumentEvent e );
 }

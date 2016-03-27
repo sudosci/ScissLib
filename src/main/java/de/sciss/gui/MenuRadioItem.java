@@ -2,7 +2,7 @@
  *  MenuRadioItem.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -39,36 +39,36 @@ import de.sciss.app.AbstractWindow;
 public class MenuRadioItem
 extends MenuCheckItem
 {
-	private final MenuRadioGroup g;
+    private final MenuRadioGroup g;
 
-	public MenuRadioItem( MenuRadioGroup g, String id, Action a )
-	{
-		super( id, a );
-		this.g	= g;
-	}
-	
-	public MenuRadioGroup getRadioGroup()
-	{
-		return g;
-	}
-	
-	public JComponent create( AbstractWindow w )
-	{
-		final JComponent	c	= super.create( w );
-		g.add( w, (AbstractButton) c );
-		return c;
-	}
+    public MenuRadioItem( MenuRadioGroup g, String id, Action a )
+    {
+        super( id, a );
+        this.g	= g;
+    }
 
-	public void destroy( AbstractWindow w )
-	{
-		final Realized r = (Realized) mapRealized.get( w );
-		g.remove( w, (AbstractButton) r.c );
+    public MenuRadioGroup getRadioGroup()
+    {
+        return g;
+    }
 
-		super.destroy( w );
-	}
+    public JComponent create( AbstractWindow w )
+    {
+        final JComponent	c	= super.create( w );
+        g.add( w, (AbstractButton) c );
+        return c;
+    }
 
-	protected JComponent createComponent( Action a )
-	{
-		return new JRadioButtonMenuItem( a );
-	}
+    public void destroy( AbstractWindow w )
+    {
+        final Realized r = (Realized) mapRealized.get( w );
+        g.remove( w, (AbstractButton) r.c );
+
+        super.destroy( w );
+    }
+
+    protected JComponent createComponent( Action a )
+    {
+        return new JRadioButtonMenuItem( a );
+    }
 }

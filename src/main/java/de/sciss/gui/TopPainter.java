@@ -2,7 +2,7 @@
  *  TopPainter.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -37,17 +37,17 @@ import java.awt.Graphics2D;
  */
 public interface TopPainter
 {
-	/**
-	 *	Paints something on top of a component's
-	 *	graphics context. Components offering
-	 *	adding and removal of top painters should
-	 *	state which flags and transforms are initially
-	 *	set for the context, e.g. if coordinates are
-	 *	already normalized or not. The top painter
-	 *	should undo any temporary changes to the graphics
-	 *	context's affine transform, paint and stroke.
-	 *
-	 *	@param	g	the graphics context to paint onto.
-	 */
-	public void paintOnTop( Graphics2D g );
+    /**
+     *	Paints something on top of a component's
+     *	graphics context. Components offering
+     *	adding and removal of top painters should
+     *	state which flags and transforms are initially
+     *	set for the context, e.g. if coordinates are
+     *	already normalized or not. The top painter
+     *	should undo any temporary changes to the graphics
+     *	context's affine transform, paint and stroke.
+     *
+     *	@param	g	the graphics context to paint onto.
+     */
+    public void paintOnTop( Graphics2D g );
 }

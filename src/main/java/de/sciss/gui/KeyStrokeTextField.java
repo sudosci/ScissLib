@@ -2,7 +2,7 @@
  *  KeyStrokeTextField.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -51,252 +51,252 @@ import de.sciss.app.PreferenceEntrySync;
 public class KeyStrokeTextField
 extends JTextField
 implements  DynamicListening, PreferenceChangeListener,
-			LaterInvocationManager.Listener, PreferenceEntrySync
+            LaterInvocationManager.Listener, PreferenceEntrySync
 {
-	private boolean					listening		= false;
-	private Preferences				prefs			= null;
-	private String					key				= null;
-	private final LaterInvocationManager lim		= new LaterInvocationManager( this );
+    private boolean					listening		= false;
+    private Preferences				prefs			= null;
+    private String					key				= null;
+    private final LaterInvocationManager lim		= new LaterInvocationManager( this );
 //	private ActionListener listener;
-	
-	protected KeyStroke				guiStroke		= null;
-	private KeyStroke				defaultValue	= null;
 
-	private boolean					readPrefs		= true;
-	protected boolean				writePrefs		= true;
-	
-	/**
-	 *  Creates a new empty <code>KeyStrokeTextField</code>
-	 *  with no preferences initially set
-	 */
-	public KeyStrokeTextField()
-	{
-		super( 24 );
-		init();
-	}
+    protected KeyStroke				guiStroke		= null;
+    private KeyStroke				defaultValue	= null;
 
-	/**
-	 *  Creates a new <code>KeyStrokeTextField</code>
-	 *  with no preferences initially set
-	 *
-	 *  @param  stroke	the initial gadget's key stroke content
-	 */
-	public KeyStrokeTextField( KeyStroke stroke )
-	{
-		super( strokeToString( stroke ), 24 );
-		defaultValue = stroke;
-		init();
-	}
-	
-	public void setReadPrefs( boolean b )
-	{
-		if( b != readPrefs ) {
-			readPrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( readPrefs ) prefs.addPreferenceChangeListener( this );
-				else prefs.removePreferenceChangeListener( this );
-			}
-		}
-	}
-	
-	public boolean getReadPrefs()
-	{
-		return readPrefs;
-	}
-	
-	public void setWritePrefs( boolean b )
-	{
-		writePrefs	= b;
-	}
-	
-	public boolean getWritePrefs()
-	{
-		return writePrefs;
-	}
+    private boolean					readPrefs		= true;
+    protected boolean				writePrefs		= true;
 
-	/**
-	 *  Converts a a key stroke's string representation as
-	 *	from preference storage into a KeyStroke object.
-	 *
-	 *  @param		prefsValue		a string representation of the form &quot;modifiers keyCode&quot;
-	 *								or <code>null</code>
-	 *	@return		the KeyStroke parsed from the prefsValue or null if the string was
-	 *				invalid or <code>null</code>
-	 */
-	public static final KeyStroke prefsToStroke( String prefsValue )
-	{
-		if( prefsValue == null ) return null;
-		int i = prefsValue.indexOf( ' ' );
-		KeyStroke prefsStroke = null;
-		try {
-			if( i < 0 ) return null;
-			prefsStroke = KeyStroke.getKeyStroke( Integer.parseInt( prefsValue.substring( i+1 )),
-												  Integer.parseInt( prefsValue.substring( 0, i )));
-		}
-		catch( NumberFormatException e1 ) { e1.printStackTrace(); }
+    /**
+     *  Creates a new empty <code>KeyStrokeTextField</code>
+     *  with no preferences initially set
+     */
+    public KeyStrokeTextField()
+    {
+        super( 24 );
+        init();
+    }
 
-		return prefsStroke;
-	}
-	
-	/**
-	 *  Converts a KeyStroke into a string representation for
-	 *	preference storage.
-	 *
-	 *  @param		prefsStroke	the KeyStroke to convert
-	 *	@return		a string representation of the form &quot;modifiers keyCode&quot;
-	 *				or <code>null</code> if the prefsStroke is invalid or <code>null</code>
-	 */
-	public static final String strokeToPrefs( KeyStroke prefsStroke )
-	{
-		if( prefsStroke == null ) return null;
-		else return String.valueOf( prefsStroke.getModifiers() ) + ' ' +
-					String.valueOf( prefsStroke.getKeyCode() );
-	}
+    /**
+     *  Creates a new <code>KeyStrokeTextField</code>
+     *  with no preferences initially set
+     *
+     *  @param  stroke	the initial gadget's key stroke content
+     */
+    public KeyStrokeTextField( KeyStroke stroke )
+    {
+        super( strokeToString( stroke ), 24 );
+        defaultValue = stroke;
+        init();
+    }
 
-	private void init()
-	{
-		this.addKeyListener( new KeyListener() {
-			public void keyPressed( KeyEvent e )
-			{
-				switch( e.getKeyCode() ) {
-				case KeyEvent.VK_UNDEFINED:
-				case KeyEvent.VK_ALT:
-				case KeyEvent.VK_SHIFT:
-				case KeyEvent.VK_META:
-				case KeyEvent.VK_CONTROL:
-				case KeyEvent.VK_ALT_GRAPH:
-				case KeyEvent.VK_NUM_LOCK:
-				case KeyEvent.VK_CAPS_LOCK:
-					return;
-				default:
-					break;
-				}
-				
-				guiStroke = KeyStroke.getKeyStroke( e.getKeyCode(), e.getModifiers() );
-				
-				if( writePrefs ) writePrefs();
-				
-				e.consume();
-			}
-			
-			public void keyReleased( KeyEvent e )
-			{
-				e.consume();
-			}
+    public void setReadPrefs( boolean b )
+    {
+        if( b != readPrefs ) {
+            readPrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( readPrefs ) prefs.addPreferenceChangeListener( this );
+                else prefs.removePreferenceChangeListener( this );
+            }
+        }
+    }
 
-			public void keyTyped( KeyEvent e )
-			{
-				e.consume();
-			}
-		});
+    public boolean getReadPrefs()
+    {
+        return readPrefs;
+    }
 
-		new DynamicAncestorAdapter( this ).addTo( this );
-	}
-	
-	public void writePrefs()
-	{
-		if( (prefs != null) && (key != null) ) {
-			KeyStroke prefsStroke = KeyStrokeTextField.prefsToStroke( prefs.get( key, null ));
-			if( EventManager.DEBUG_EVENTS ) {
-				System.err.println( "@text updatePrefs : "+this.key+"; old = "+strokeToString( prefsStroke )+" --> "+strokeToString( guiStroke ));
-			}
-			if( (prefsStroke == null && guiStroke != null) ||
-				(prefsStroke != null && guiStroke == null) ||
-				(prefsStroke != null && guiStroke != null && !prefsStroke.equals( guiStroke ))) {
+    public void setWritePrefs( boolean b )
+    {
+        writePrefs	= b;
+    }
 
-				prefs.put( key, KeyStrokeTextField.strokeToPrefs( guiStroke ));
-			}
-			setText( strokeToString( guiStroke ));
-		}
-	}
+    public boolean getWritePrefs()
+    {
+        return writePrefs;
+    }
 
-	private static final String strokeToString( KeyStroke stroke )
-	{
-		return KeyEvent.getKeyModifiersText( stroke.getModifiers() ) + ' ' +
-			   KeyEvent.getKeyText( stroke.getKeyCode() );
-	}
+    /**
+     *  Converts a a key stroke's string representation as
+     *	from preference storage into a KeyStroke object.
+     *
+     *  @param		prefsValue		a string representation of the form &quot;modifiers keyCode&quot;
+     *								or <code>null</code>
+     *	@return		the KeyStroke parsed from the prefsValue or null if the string was
+     *				invalid or <code>null</code>
+     */
+    public static final KeyStroke prefsToStroke( String prefsValue )
+    {
+        if( prefsValue == null ) return null;
+        int i = prefsValue.indexOf( ' ' );
+        KeyStroke prefsStroke = null;
+        try {
+            if( i < 0 ) return null;
+            prefsStroke = KeyStroke.getKeyStroke( Integer.parseInt( prefsValue.substring( i+1 )),
+                                                  Integer.parseInt( prefsValue.substring( 0, i )));
+        }
+        catch( NumberFormatException e1 ) { e1.printStackTrace(); }
 
-	public void setPreferenceNode( Preferences prefs )
-	{
-		setPreferences( prefs, this.key );
-	}
+        return prefsStroke;
+    }
 
-	public void setPreferenceKey( String key )
-	{
-		setPreferences( this.prefs, key );
-	}
+    /**
+     *  Converts a KeyStroke into a string representation for
+     *	preference storage.
+     *
+     *  @param		prefsStroke	the KeyStroke to convert
+     *	@return		a string representation of the form &quot;modifiers keyCode&quot;
+     *				or <code>null</code> if the prefsStroke is invalid or <code>null</code>
+     */
+    public static final String strokeToPrefs( KeyStroke prefsStroke )
+    {
+        if( prefsStroke == null ) return null;
+        else return String.valueOf( prefsStroke.getModifiers() ) + ' ' +
+                    String.valueOf( prefsStroke.getKeyCode() );
+    }
 
-	public void setPreferences( Preferences prefs, String key )
-	{
-		if( listening ) {
-			stopListening();
-			this.prefs  = prefs;
-			this.key	= key;
-			startListening();
-		} else {
-			this.prefs  = prefs;
-			this.key	= key;
-		}
-	}
+    private void init()
+    {
+        this.addKeyListener( new KeyListener() {
+            public void keyPressed( KeyEvent e )
+            {
+                switch( e.getKeyCode() ) {
+                case KeyEvent.VK_UNDEFINED:
+                case KeyEvent.VK_ALT:
+                case KeyEvent.VK_SHIFT:
+                case KeyEvent.VK_META:
+                case KeyEvent.VK_CONTROL:
+                case KeyEvent.VK_ALT_GRAPH:
+                case KeyEvent.VK_NUM_LOCK:
+                case KeyEvent.VK_CAPS_LOCK:
+                    return;
+                default:
+                    break;
+                }
 
-	public Preferences getPreferenceNode() { return prefs; }
-	public String getPreferenceKey() { return key; }
+                guiStroke = KeyStroke.getKeyStroke( e.getKeyCode(), e.getModifiers() );
 
-	public void startListening()
-	{
-		if( (prefs != null) && readPrefs ) {
-			prefs.addPreferenceChangeListener( this );
-			listening	= true;
-			if( key != null ) {
-				readPrefsFromString( prefs.get( key, null ));
-			}
-		}
-	}
+                if( writePrefs ) writePrefs();
 
-	public void stopListening()
-	{
-		if( prefs != null ) {
-			prefs.removePreferenceChangeListener( this );
-			listening = false;
-		}
-	}
-	
-	// o instanceof PreferenceChangeEvent
-	public void laterInvocation( Object o )
-	{
-		readPrefsFromString( ((PreferenceChangeEvent) o).getNewValue() );
-	}
-	
-	public void readPrefs()
-	{
-		if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
-	}
+                e.consume();
+            }
 
-	private void readPrefsFromString( String prefsValue )
-	{
-		KeyStroke prefsStroke   = KeyStrokeTextField.prefsToStroke( prefsValue );
-		if( prefsStroke == null ) {
-			if( defaultValue != null ) {
-				guiStroke = defaultValue;
-				if( writePrefs ) writePrefs();
-			}
-			return;
-		}
+            public void keyReleased( KeyEvent e )
+            {
+                e.consume();
+            }
 
-		if( guiStroke == null || (guiStroke != null && !prefsStroke.equals( guiStroke ))) {
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@text setText" );
-			setText( strokeToString( prefsStroke ));
-			guiStroke = prefsStroke;
-		}
-	}
-	
-	public void preferenceChange( PreferenceChangeEvent e )
-	{
-		if( e.getKey().equals( key )) {
-			if( EventManager.DEBUG_EVENTS ) {
-				System.err.println( "@text preferenceChange : "+key+" --> "+e.getNewValue() );
-			}
-			lim.queue( e );
-		}
-	}
+            public void keyTyped( KeyEvent e )
+            {
+                e.consume();
+            }
+        });
+
+        new DynamicAncestorAdapter( this ).addTo( this );
+    }
+
+    public void writePrefs()
+    {
+        if( (prefs != null) && (key != null) ) {
+            KeyStroke prefsStroke = KeyStrokeTextField.prefsToStroke( prefs.get( key, null ));
+            if( EventManager.DEBUG_EVENTS ) {
+                System.err.println( "@text updatePrefs : "+this.key+"; old = "+strokeToString( prefsStroke )+" --> "+strokeToString( guiStroke ));
+            }
+            if( (prefsStroke == null && guiStroke != null) ||
+                (prefsStroke != null && guiStroke == null) ||
+                (prefsStroke != null && guiStroke != null && !prefsStroke.equals( guiStroke ))) {
+
+                prefs.put( key, KeyStrokeTextField.strokeToPrefs( guiStroke ));
+            }
+            setText( strokeToString( guiStroke ));
+        }
+    }
+
+    private static final String strokeToString( KeyStroke stroke )
+    {
+        return KeyEvent.getKeyModifiersText( stroke.getModifiers() ) + ' ' +
+               KeyEvent.getKeyText( stroke.getKeyCode() );
+    }
+
+    public void setPreferenceNode( Preferences prefs )
+    {
+        setPreferences( prefs, this.key );
+    }
+
+    public void setPreferenceKey( String key )
+    {
+        setPreferences( this.prefs, key );
+    }
+
+    public void setPreferences( Preferences prefs, String key )
+    {
+        if( listening ) {
+            stopListening();
+            this.prefs  = prefs;
+            this.key	= key;
+            startListening();
+        } else {
+            this.prefs  = prefs;
+            this.key	= key;
+        }
+    }
+
+    public Preferences getPreferenceNode() { return prefs; }
+    public String getPreferenceKey() { return key; }
+
+    public void startListening()
+    {
+        if( (prefs != null) && readPrefs ) {
+            prefs.addPreferenceChangeListener( this );
+            listening	= true;
+            if( key != null ) {
+                readPrefsFromString( prefs.get( key, null ));
+            }
+        }
+    }
+
+    public void stopListening()
+    {
+        if( prefs != null ) {
+            prefs.removePreferenceChangeListener( this );
+            listening = false;
+        }
+    }
+
+    // o instanceof PreferenceChangeEvent
+    public void laterInvocation( Object o )
+    {
+        readPrefsFromString( ((PreferenceChangeEvent) o).getNewValue() );
+    }
+
+    public void readPrefs()
+    {
+        if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
+    }
+
+    private void readPrefsFromString( String prefsValue )
+    {
+        KeyStroke prefsStroke   = KeyStrokeTextField.prefsToStroke( prefsValue );
+        if( prefsStroke == null ) {
+            if( defaultValue != null ) {
+                guiStroke = defaultValue;
+                if( writePrefs ) writePrefs();
+            }
+            return;
+        }
+
+        if( guiStroke == null || (guiStroke != null && !prefsStroke.equals( guiStroke ))) {
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@text setText" );
+            setText( strokeToString( prefsStroke ));
+            guiStroke = prefsStroke;
+        }
+    }
+
+    public void preferenceChange( PreferenceChangeEvent e )
+    {
+        if( e.getKey().equals( key )) {
+            if( EventManager.DEBUG_EVENTS ) {
+                System.err.println( "@text preferenceChange : "+key+" --> "+e.getNewValue() );
+            }
+            lim.queue( e );
+        }
+    }
 }

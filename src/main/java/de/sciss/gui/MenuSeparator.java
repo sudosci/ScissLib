@@ -2,7 +2,7 @@
  *  MenuSeparator.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -36,17 +36,17 @@ import javax.swing.JSeparator;
 public class MenuSeparator
 extends MenuItem
 {
-	private static int uniqueID = 0;
-	
-	public MenuSeparator()
-	{
-		super( "_" + String.valueOf( uniqueID++ ), (Action) null );
-	}
+    private static int uniqueID = 0;
 
-	public void setEnabled( boolean b ) { /* ignore */ }
-	
-	protected JComponent createComponent( Action a )
-	{
-		return new JSeparator();
-	}
+    public MenuSeparator()
+    {
+        super( "_" + String.valueOf( uniqueID++ ), (Action) null );
+    }
+
+    public void setEnabled( boolean b ) { /* ignore */ }
+
+    protected JComponent createComponent( Action a )
+    {
+        return new JSeparator();
+    }
 }

@@ -2,7 +2,7 @@
  *  BasicCompoundEdit.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -38,47 +38,47 @@ import de.sciss.app.AbstractCompoundEdit;
 public class BasicCompoundEdit
 extends AbstractCompoundEdit
 {
-	private boolean	significant	= true;
+    private boolean	significant	= true;
 
-	/**
-	 *  Creates a <code>CompountEdit</code> object
-	 */
-	public BasicCompoundEdit()
-	{
-		super();
-	}
+    /**
+     *  Creates a <code>CompountEdit</code> object
+     */
+    public BasicCompoundEdit()
+    {
+        super();
+    }
 
-	/**
-	 *  Creates a <code>CompountEdit</code> object with a given name
-	 * 
-	 *	@param	presentationName	text describing the compound edit
-	 */
-	public BasicCompoundEdit( String presentationName )
-	{
-		super( presentationName );
-	}
-	
-	public boolean isSignificant()
-	{
-		if( significant ) return super.isSignificant();
-		else return false;
-	}
+    /**
+     *  Creates a <code>CompountEdit</code> object with a given name
+     *
+     *	@param	presentationName	text describing the compound edit
+     */
+    public BasicCompoundEdit( String presentationName )
+    {
+        super( presentationName );
+    }
 
-	public void setSignificant( boolean b )
-	{
-		significant = b;
-	}
-	
-	/**
-	 *  Does nothing
-	 */
-	protected void undoDone() { /* empty */ }
-	/**
-	 *  Does nothing
-	 */
-	protected void redoDone() { /* empty */ }
-	/**
-	 *  Does nothing
-	 */
-	protected void cancelDone() { /* empty */ }
+    public boolean isSignificant()
+    {
+        if( significant ) return super.isSignificant();
+        else return false;
+    }
+
+    public void setSignificant( boolean b )
+    {
+        significant = b;
+    }
+
+    /**
+     *  Does nothing
+     */
+    protected void undoDone() { /* empty */ }
+    /**
+     *  Does nothing
+     */
+    protected void redoDone() { /* empty */ }
+    /**
+     *  Does nothing
+     */
+    protected void cancelDone() { /* empty */ }
 }

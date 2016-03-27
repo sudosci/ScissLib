@@ -2,7 +2,7 @@
  *  DoClickAction.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -49,62 +49,62 @@ import javax.swing.KeyStroke;
 public class DoClickAction
 extends KeyedAction
 {
-	private final AbstractButton b;
+    private final AbstractButton b;
 
-	/**
-	 *  Creates a new <code>DoClickAction</code>
-	 *  for a given button. <strong>This action
-	 *  should NOT be attached to this button</strong>
-	 *  because that would produce an infinite feedback
-	 *  loop. Instead it should be attached to another
-	 *  object like a menu item or, as in the
-	 *  <code>GUIUtil.createKeyAction</code> method,
-	 *  to the button's input / action map.
-	 *
-	 *  @param  b   a button whose <code>doClick</code>
-	 *				method is called when the action
-	 *				is performed.
-	 *  @see	GUIUtil#createKeyAction( AbstractButton, KeyStroke )
-	 */
-	public DoClickAction( AbstractButton b )
-	{
-		super( null );
-		this.b = b;
-	}
+    /**
+     *  Creates a new <code>DoClickAction</code>
+     *  for a given button. <strong>This action
+     *  should NOT be attached to this button</strong>
+     *  because that would produce an infinite feedback
+     *  loop. Instead it should be attached to another
+     *  object like a menu item or, as in the
+     *  <code>GUIUtil.createKeyAction</code> method,
+     *  to the button's input / action map.
+     *
+     *  @param  b   a button whose <code>doClick</code>
+     *				method is called when the action
+     *				is performed.
+     *  @see	GUIUtil#createKeyAction( AbstractButton, KeyStroke )
+     */
+    public DoClickAction( AbstractButton b )
+    {
+        super( null );
+        this.b = b;
+    }
 
-	/**
-	 *  Creates a new <code>DoClickAction</code>
-	 *  for a given button. <strong>This action
-	 *  should NOT be attached to this button</strong>
-	 *  because that would produce an infinite feedback
-	 *  loop. Instead it should be attached to another
-	 *  object. Since this constructor takes an additional
-	 *  <code>KeyStroke</code> which is placed in the
-	 *  <code>AbstractAction</code>'s <code>ACCELERATOR_KEY</code>
-	 *  field, this is suitable as a <code>JMenuItem</code>'s
-	 *  action or an invisible global key action. An example
-	 *  of this behaviour can be seen in the <code>ToolPalette</code>
-	 *  constructor which uses the <code>MenuFactory</code>'s
-	 *  <code>addGlobalKeyCommand</code> method for its buttons.
-	 *
-	 *  @param  b   a button whose <code>doClick</code>
-	 *				method is called when the action
-	 *				is performed.
-	 */
-	public DoClickAction( AbstractButton b, KeyStroke stroke )
-	{
-		super( stroke );
-		this.b = b;
-	}
+    /**
+     *  Creates a new <code>DoClickAction</code>
+     *  for a given button. <strong>This action
+     *  should NOT be attached to this button</strong>
+     *  because that would produce an infinite feedback
+     *  loop. Instead it should be attached to another
+     *  object. Since this constructor takes an additional
+     *  <code>KeyStroke</code> which is placed in the
+     *  <code>AbstractAction</code>'s <code>ACCELERATOR_KEY</code>
+     *  field, this is suitable as a <code>JMenuItem</code>'s
+     *  action or an invisible global key action. An example
+     *  of this behaviour can be seen in the <code>ToolPalette</code>
+     *  constructor which uses the <code>MenuFactory</code>'s
+     *  <code>addGlobalKeyCommand</code> method for its buttons.
+     *
+     *  @param  b   a button whose <code>doClick</code>
+     *				method is called when the action
+     *				is performed.
+     */
+    public DoClickAction( AbstractButton b, KeyStroke stroke )
+    {
+        super( stroke );
+        this.b = b;
+    }
 
-	/**
-	 *  Invokes the button's <code>doClick()</code>
-	 *  method.
-	 *
-	 *  @see	javax.swing.AbstractButton#doClick()
-	 */
-	protected void validActionPerformed( ActionEvent e )
-	{
-		b.doClick();
-	}
+    /**
+     *  Invokes the button's <code>doClick()</code>
+     *  method.
+     *
+     *  @see	javax.swing.AbstractButton#doClick()
+     */
+    protected void validActionPerformed( ActionEvent e )
+    {
+        b.doClick();
+    }
 }

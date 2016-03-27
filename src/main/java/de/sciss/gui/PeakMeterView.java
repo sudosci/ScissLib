@@ -2,7 +2,7 @@
  *  PeakMeterView.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -32,7 +32,7 @@ extends Disposable
 {
 //	public void setRMSPainted( boolean onOff );
 //	public void setHoldPainted( boolean onOff );
-	public int getNumChannels();
-	public void clearMeter();
-	public boolean meterUpdate( float[] peakRMSPairs, int offset, long time );
+    public int getNumChannels();
+    public void clearMeter();
+    public boolean meterUpdate( float[] peakRMSPairs, int offset, long time );
 }

@@ -2,7 +2,7 @@
  *  GraphicsHandler.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -29,18 +29,18 @@ import java.awt.Font;
 
 public interface GraphicsHandler
 {
-	public static final int FONT_SYSTEM			= 0x000;
-	public static final int FONT_BOLDSYSTEM		= 0x001;
-	public static final int FONT_USER			= 0x002;
-	public static final int FONT_LABEL			= 0x003;
+    public static final int FONT_SYSTEM			= 0x000;
+    public static final int FONT_BOLDSYSTEM		= 0x001;
+    public static final int FONT_USER			= 0x002;
+    public static final int FONT_LABEL			= 0x003;
 
-	public static final int FONT_TYPE_MASK		= 0x0FF;
+    public static final int FONT_TYPE_MASK		= 0x0FF;
 
-	public static final int FONT_MEDIUM			= 0x000;
-	public static final int FONT_SMALL			= 0x100;
-	public static final int FONT_MINI			= 0x200;
+    public static final int FONT_MEDIUM			= 0x000;
+    public static final int FONT_SMALL			= 0x100;
+    public static final int FONT_MINI			= 0x200;
 
-	public static final int FONT_SIZE_MASK		= 0xF00;
+    public static final int FONT_SIZE_MASK		= 0xF00;
 
-	public Font getFont( int type );
+    public Font getFont( int type );
 }

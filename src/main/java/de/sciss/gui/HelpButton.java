@@ -2,7 +2,7 @@
  *  HelpButton.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -51,106 +51,106 @@ public class HelpButton
 extends JButton
 implements DynamicListening, ActionListener
 {
-	private final Icon icnNormal, icnPressed, icnUnfocussed;
+    private final Icon icnNormal, icnPressed, icnUnfocussed;
 
-	private static TiledImage	imgHelpIcons	= null;
-	
-	private Window	win			= null;
-	private String	file		= null;
-	
-	private final WindowAdapter	winListener;
+    private static TiledImage	imgHelpIcons	= null;
 
-	public HelpButton( String file )
-	{
-		this();
-		setHelpFile( file );
-	}
+    private Window	win			= null;
+    private String	file		= null;
 
-	public HelpButton()
-	{
-		super();
+    private final WindowAdapter	winListener;
 
-		if( imgHelpIcons == null ) {
-			imgHelpIcons = new TiledImage( getClass().getResource( "helpbutton.png" ), 24, 24 );
-		}
-		icnNormal		= imgHelpIcons.createIcon( 0, 0 );
-		icnPressed		= imgHelpIcons.createIcon( 0, 1 );
-		icnUnfocussed	= imgHelpIcons.createIcon( 0, 2 );
+    public HelpButton( String file )
+    {
+        this();
+        setHelpFile( file );
+    }
+
+    public HelpButton()
+    {
+        super();
+
+        if( imgHelpIcons == null ) {
+            imgHelpIcons = new TiledImage( getClass().getResource( "helpbutton.png" ), 24, 24 );
+        }
+        icnNormal		= imgHelpIcons.createIcon( 0, 0 );
+        icnPressed		= imgHelpIcons.createIcon( 0, 1 );
+        icnUnfocussed	= imgHelpIcons.createIcon( 0, 2 );
 
 //		setBorderPainted( false );
-		setBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ));
-		setMargin( new Insets( 2, 2, 2, 2 ));
-		GUIUtil.constrainSize( this, 28, 28 );
-		setContentAreaFilled( false );
-		setFocusable( false );
-		
+        setBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ));
+        setMargin( new Insets( 2, 2, 2, 2 ));
+        GUIUtil.constrainSize( this, 28, 28 );
+        setContentAreaFilled( false );
+        setFocusable( false );
+
         new DynamicAncestorAdapter( this ).addTo( this );
-		
-		addActionListener( this );
 
-		winListener = new WindowAdapter() {
-			public void windowActivated( WindowEvent e )
-			{
-				repaint();
-			}
-			
-			public void windowDeactivated( WindowEvent e )
-			{
-				repaint();
-			}
-		};
-	}
+        addActionListener( this );
 
-	public void setHelpFile( String file )
-	{
-		this.file = file;
-	}
-	
-	public String getHelpFile()
-	{
-		return file;
-	}
+        winListener = new WindowAdapter() {
+            public void windowActivated( WindowEvent e )
+            {
+                repaint();
+            }
 
-	public void actionPerformed( ActionEvent e )
-	{
-		if( file != null ) {
-			HelpFrame.openViewerAndLoadHelpFile( file );
-		}
-	}
+            public void windowDeactivated( WindowEvent e )
+            {
+                repaint();
+            }
+        };
+    }
 
-	public void startListening()
-	{
-		win = SwingUtilities.getWindowAncestor( this );
-		if( win != null ) {
-			win.addWindowListener( winListener );
-		}
-	}
-	
-	public void stopListening()
-	{
-		if( win != null ) {
-			win.removeWindowListener( winListener );
-		}
-		win = null;
-	}
-	
-	// overriden without calling super
-	// to avoid lnf border painting
-	// which is happening despite setting our own border
-	public void paintComponent( Graphics g )
-	{
-		final Icon		icn;
-		final Window	w	= SwingUtilities.getWindowAncestor( this );
-	
-		if( (w != null) && w.isActive() ) {
-			if( getModel().isPressed() ) {
-				icn = icnPressed;
-			} else {
-				icn = icnNormal;
-			}
-		} else {
-			icn = icnUnfocussed;
-		}
-		icn.paintIcon( this, g, ((getWidth() - 24) >> 1) + 2, ((getHeight() - 24) >> 1) + 2 );
-	}
+    public void setHelpFile( String file )
+    {
+        this.file = file;
+    }
+
+    public String getHelpFile()
+    {
+        return file;
+    }
+
+    public void actionPerformed( ActionEvent e )
+    {
+        if( file != null ) {
+            HelpFrame.openViewerAndLoadHelpFile( file );
+        }
+    }
+
+    public void startListening()
+    {
+        win = SwingUtilities.getWindowAncestor( this );
+        if( win != null ) {
+            win.addWindowListener( winListener );
+        }
+    }
+
+    public void stopListening()
+    {
+        if( win != null ) {
+            win.removeWindowListener( winListener );
+        }
+        win = null;
+    }
+
+    // overriden without calling super
+    // to avoid lnf border painting
+    // which is happening despite setting our own border
+    public void paintComponent( Graphics g )
+    {
+        final Icon		icn;
+        final Window	w	= SwingUtilities.getWindowAncestor( this );
+
+        if( (w != null) && w.isActive() ) {
+            if( getModel().isPressed() ) {
+                icn = icnPressed;
+            } else {
+                icn = icnNormal;
+            }
+        } else {
+            icn = icnUnfocussed;
+        }
+        icn.paintIcon( this, g, ((getWidth() - 24) >> 1) + 2, ((getHeight() - 24) >> 1) + 2 );
+    }
 }

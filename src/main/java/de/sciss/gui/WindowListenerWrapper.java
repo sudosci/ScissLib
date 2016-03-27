@@ -2,7 +2,7 @@
  *  WindowListenerWrapper.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -39,81 +39,81 @@ public class WindowListenerWrapper
 implements WindowListener
 {
 //	private static	Map							mapListeners = null;
-	private final	AbstractWindow.Listener		l;
-	private final	AbstractWindow				w;
+    private final	AbstractWindow.Listener		l;
+    private final	AbstractWindow				w;
 
-	private WindowListenerWrapper( AbstractWindow.Listener l, AbstractWindow w )
-	{
-		this.l	= l;
-		this.w	= w;
-	}
-	
-	public static void add( AbstractWindow.Listener l, AbstractWindow w )
-	{
-		final WindowListenerWrapper wlw = new WindowListenerWrapper( l, w );
-		((Window) w.getWindow()).addWindowListener( wlw );
+    private WindowListenerWrapper( AbstractWindow.Listener l, AbstractWindow w )
+    {
+        this.l	= l;
+        this.w	= w;
+    }
+
+    public static void add( AbstractWindow.Listener l, AbstractWindow w )
+    {
+        final WindowListenerWrapper wlw = new WindowListenerWrapper( l, w );
+        ((Window) w.getWindow()).addWindowListener( wlw );
 //		if( mapListeners == null ) mapListeners = new HashMap();
 //		mapListeners.put( w, wlw );
-	}
-	
-	public static void remove( AbstractWindow.Listener l, AbstractWindow w )
-	{
-		final Window w2 = (Window) w.getWindow();
+    }
+
+    public static void remove( AbstractWindow.Listener l, AbstractWindow w )
+    {
+        final Window w2 = (Window) w.getWindow();
 //		final WindowListenerWrapper wlw = (WindowListenerWrapper) mapListeners.remove( w );
 //		w2.removeWindowListener( wlw );
-		
-		final WindowListener[] coll = w2.getWindowListeners();
-		WindowListenerWrapper wlw;
-		for( int i = 0; i < coll.length; i++ ) {
-			if( coll[ i ] instanceof WindowListenerWrapper ) {
-				wlw = (WindowListenerWrapper) coll[ i ];
-				if( wlw.l == l ) {
-					w2.removeWindowListener( wlw );
-					return;
-				}
-			}
-		}
-		throw new IllegalArgumentException( "Listener was not registered " + l );
-	}
 
-	public void windowOpened( WindowEvent e )
-	{
-		l.windowOpened( wrap( e ));
-	}
-	
-	public void windowClosing( WindowEvent e )
-	{
-		l.windowClosing( wrap( e ));
-	}
-	
-	public void windowClosed( WindowEvent e )
-	{
-		l.windowClosed( wrap( e ));
-	}
-	
-	public void windowIconified( WindowEvent e )
-	{
-		l.windowIconified( wrap( e ));
-	}
-	
-	public void windowDeiconified( WindowEvent e )
-	{
-		l.windowDeiconified( wrap( e ));
-	}
-	
-	public void windowActivated( WindowEvent e )
-	{
-		l.windowActivated( wrap( e ));
-	}
-	
-	public void windowDeactivated( WindowEvent e )
-	{
+        final WindowListener[] coll = w2.getWindowListeners();
+        WindowListenerWrapper wlw;
+        for( int i = 0; i < coll.length; i++ ) {
+            if( coll[ i ] instanceof WindowListenerWrapper ) {
+                wlw = (WindowListenerWrapper) coll[ i ];
+                if( wlw.l == l ) {
+                    w2.removeWindowListener( wlw );
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException( "Listener was not registered " + l );
+    }
+
+    public void windowOpened( WindowEvent e )
+    {
+        l.windowOpened( wrap( e ));
+    }
+
+    public void windowClosing( WindowEvent e )
+    {
+        l.windowClosing( wrap( e ));
+    }
+
+    public void windowClosed( WindowEvent e )
+    {
+        l.windowClosed( wrap( e ));
+    }
+
+    public void windowIconified( WindowEvent e )
+    {
+        l.windowIconified( wrap( e ));
+    }
+
+    public void windowDeiconified( WindowEvent e )
+    {
+        l.windowDeiconified( wrap( e ));
+    }
+
+    public void windowActivated( WindowEvent e )
+    {
+        l.windowActivated( wrap( e ));
+    }
+
+    public void windowDeactivated( WindowEvent e )
+    {
 //System.out.println( "windowDeactivated : " + ((javax.swing.JFrame) e.getWindow()).getTitle() + " __ " + l .getClass().getName() );
-		l.windowDeactivated( wrap( e ));
-	}
-	
-	private AbstractWindow.Event wrap( WindowEvent e )
-	{
-		return AbstractWindow.Event.convert( w, e );
-	}
+        l.windowDeactivated( wrap( e ));
+    }
+
+    private AbstractWindow.Event wrap( WindowEvent e )
+    {
+        return AbstractWindow.Event.convert( w, e );
+    }
 }

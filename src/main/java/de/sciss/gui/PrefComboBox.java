@@ -2,7 +2,7 @@
  *  PrefComboBox.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -70,257 +70,257 @@ import de.sciss.app.PreferenceEntrySync;
 public class PrefComboBox
 extends JComboBox
 implements  DynamicListening, PreferenceChangeListener,
-			LaterInvocationManager.Listener, PreferenceEntrySync
+            LaterInvocationManager.Listener, PreferenceEntrySync
 {
-	private boolean							listening		= false;
-	private Preferences						prefs			= null;
-	private String							key				= null;
-	private final LaterInvocationManager	lim				= new LaterInvocationManager( this );
+    private boolean							listening		= false;
+    private Preferences						prefs			= null;
+    private String							key				= null;
+    private final LaterInvocationManager	lim				= new LaterInvocationManager( this );
 //	private List							collKeys		= null;
-	private ActionListener					listener;
+    private ActionListener					listener;
 
-	private Object							defaultValue	= null;
+    private Object							defaultValue	= null;
 
-	private boolean							readPrefs		= true;
-	protected boolean						writePrefs		= true;
+    private boolean							readPrefs		= true;
+    protected boolean						writePrefs		= true;
 
-	/**
-	 *  Creates a new <code>PrefComboBox</code>
-	 *  with default data model and no initial preferences set.
-	 */
-	public PrefComboBox()
-	{
-		super();
-		init();
-	}
-	
-	private void init()
-	{
-		new DynamicAncestorAdapter( this ).addTo( this );
-		listener = new ActionListener() {
-			public void actionPerformed( ActionEvent e )
-			{
-				if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb actionPerformed : "+key+" --> "+getSelectedItem() );
-				if( writePrefs ) writePrefs();
-			}
-		};
-	}
+    /**
+     *  Creates a new <code>PrefComboBox</code>
+     *  with default data model and no initial preferences set.
+     */
+    public PrefComboBox()
+    {
+        super();
+        init();
+    }
 
-	public void setReadPrefs( boolean b )
-	{
-		if( b != readPrefs ) {
-			readPrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( readPrefs ) {
-					prefs.addPreferenceChangeListener( this );
-				} else {
-					prefs.removePreferenceChangeListener( this );
-				}
-			}
-		}
-	}
-	
-	public boolean getReadPrefs()
-	{
-		return readPrefs;
-	}
-	
-	public void setWritePrefs( boolean b )
-	{
-		if( b != writePrefs ) {
-			writePrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( writePrefs ) {
-					this.addActionListener( listener );
-				} else {
-					this.removeActionListener( listener );
-				}
-			}
-		}
-	}
-	
-	public boolean getWritePrefs()
-	{
-		return writePrefs;
-	}
+    private void init()
+    {
+        new DynamicAncestorAdapter( this ).addTo( this );
+        listener = new ActionListener() {
+            public void actionPerformed( ActionEvent e )
+            {
+                if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb actionPerformed : "+key+" --> "+getSelectedItem() );
+                if( writePrefs ) writePrefs();
+            }
+        };
+    }
 
-	/**
-	 *  Because the items in the ComboBox
-	 *  can be naturally moved, added and replaced,
-	 *  it is crucial to have a non-index-based
-	 *  value to store in the preferences. Since
-	 *  the actual String representation of the
-	 *  the items is likely to be locale specific,
-	 *  it is required to add items of class
-	 *  StringItem !
-	 *
-	 *  @param  item	the <code>StringItem</code> to add
-	 *  @see	StringItem
-	 */
-	public void addItem( Object item )
-	{
-		super.addItem( validateItem( item ));
-	}
+    public void setReadPrefs( boolean b )
+    {
+        if( b != readPrefs ) {
+            readPrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( readPrefs ) {
+                    prefs.addPreferenceChangeListener( this );
+                } else {
+                    prefs.removePreferenceChangeListener( this );
+                }
+            }
+        }
+    }
 
-	/*  Add a new item at a specific index position
-	 *  to the gadget. See {@link #addItem( Object ) addItem( Object )}
-	 *  for an explanation of the <code>StringItem</code>
-	 *  usage.
-	 *
-	 *  @param  item	the <code>StringItem</code> to add
-	 *  @see	StringItem
-	 */
-	public void insertItemAt( Object item, int index )
-	{
-		super.insertItemAt( validateItem( item ), index );
-	}
+    public boolean getReadPrefs()
+    {
+        return readPrefs;
+    }
 
-	private Object validateItem( Object item )
-	{
-		if( !(item instanceof StringItem) ) {
-			item = new StringItem( item.toString(), item.toString() );
-		}
-		return item;
-	}
-	
-	public void writePrefs()
-	{
-		String value	= null;
-		String oldValue;
-	
-		if( (prefs != null) && (key != null) ) {
-			final Object item = getSelectedItem();
-			if( item != null && (item instanceof StringItem) ) {
-				value = ((StringItem) item).getKey();
-			}
-			oldValue = prefs.get( key, null );
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb updatePrefs : "+this.key+"; old = "+oldValue+" --> "+value );
-			if( (value != null && oldValue == null) ||
-				(value != null && !value.equals( oldValue ))) {
-				
-				prefs.put( key, value );
+    public void setWritePrefs( boolean b )
+    {
+        if( b != writePrefs ) {
+            writePrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( writePrefs ) {
+                    this.addActionListener( listener );
+                } else {
+                    this.removeActionListener( listener );
+                }
+            }
+        }
+    }
 
-			} else if( value == null && oldValue != null ) {
-				prefs.remove( key );
-			}
-		}
-	}
+    public boolean getWritePrefs()
+    {
+        return writePrefs;
+    }
 
-	public void setPreferenceNode( Preferences prefs )
-	{
-		setPreferences( prefs, this.key );
-	}
+    /**
+     *  Because the items in the ComboBox
+     *  can be naturally moved, added and replaced,
+     *  it is crucial to have a non-index-based
+     *  value to store in the preferences. Since
+     *  the actual String representation of the
+     *  the items is likely to be locale specific,
+     *  it is required to add items of class
+     *  StringItem !
+     *
+     *  @param  item	the <code>StringItem</code> to add
+     *  @see	StringItem
+     */
+    public void addItem( Object item )
+    {
+        super.addItem( validateItem( item ));
+    }
 
-	public void setPreferenceKey( String key )
-	{
-		setPreferences( this.prefs, key );
-	}
+    /*  Add a new item at a specific index position
+     *  to the gadget. See {@link #addItem( Object ) addItem( Object )}
+     *  for an explanation of the <code>StringItem</code>
+     *  usage.
+     *
+     *  @param  item	the <code>StringItem</code> to add
+     *  @see	StringItem
+     */
+    public void insertItemAt( Object item, int index )
+    {
+        super.insertItemAt( validateItem( item ), index );
+    }
 
-	public void setPreferences( Preferences prefs, String key )
-	{
-		if( (this.prefs == null) || (this.key == null) ) {
-			defaultValue = getSelectedItem();
-		}
-		if( listening ) {
-			stopListening();
-			this.prefs  = prefs;
-			this.key	= key;
-			startListening();
-		} else {
-			this.prefs  = prefs;
-			this.key	= key;
-		}
-	}
+    private Object validateItem( Object item )
+    {
+        if( !(item instanceof StringItem) ) {
+            item = new StringItem( item.toString(), item.toString() );
+        }
+        return item;
+    }
 
-	public Preferences getPreferenceNode() { return prefs; }
-	public String getPreferenceKey() { return key; }
+    public void writePrefs()
+    {
+        String value	= null;
+        String oldValue;
 
-	public void startListening()
-	{
-		if( prefs != null ) {
-			listening	= true;
-			if( writePrefs ) this.addActionListener( listener );
-			if( readPrefs ) {
-				prefs.addPreferenceChangeListener( this );
-				readPrefs();
-			}
-		}
-	}
+        if( (prefs != null) && (key != null) ) {
+            final Object item = getSelectedItem();
+            if( item != null && (item instanceof StringItem) ) {
+                value = ((StringItem) item).getKey();
+            }
+            oldValue = prefs.get( key, null );
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb updatePrefs : "+this.key+"; old = "+oldValue+" --> "+value );
+            if( (value != null && oldValue == null) ||
+                (value != null && !value.equals( oldValue ))) {
 
-	public void stopListening()
-	{
-		if( prefs != null ) {
-			if( readPrefs ) prefs.removePreferenceChangeListener( this );
-			if( writePrefs ) this.removeActionListener( listener );
-			listening = false;
-		}
-	}
+                prefs.put( key, value );
 
-	// o instanceof PreferenceChangeEvent
-	public void laterInvocation( Object o )
-	{
-		final String prefsValue = ((PreferenceChangeEvent) o).getNewValue();
-		readPrefsFromString( prefsValue );
-	}
-	
-	public void readPrefs()
-	{
-		if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
-	}
-		
-	private void readPrefsFromString( String prefsValue )
-	{
-		if( (prefsValue == null) && (defaultValue != null) ) {
-			if( listening && writePrefs ) this.removeActionListener( listener );
-			setSelectedItem( defaultValue );
-			if( writePrefs ) writePrefs();
-			if( listening && writePrefs ) this.addActionListener( listener );
-			return;
-		}
-		Object  	guiItem		= getSelectedItem();
-		String  	guiValue	= null;
-		Object  	prefsItem   = null;
+            } else if( value == null && oldValue != null ) {
+                prefs.remove( key );
+            }
+        }
+    }
 
-		if( guiItem != null && (guiItem instanceof StringItem) ) {
-			guiValue = ((StringItem) guiItem).getKey();
-		}
-		if( (prefsValue == null && guiValue != null) ) {
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb lim select null (guiValue was "+guiValue+")" );
-			// thow we filter out events when preferences effectively
-			// remain unchanged, it's more clean and produces less
-			// overhead to temporarily remove our ActionListener
-			// so we don't produce potential loops
-			if( listening && writePrefs ) this.removeActionListener( listener );
-			super.setSelectedItem( null );			// will notify action listeners
-			if( listening && writePrefs ) this.addActionListener( listener );
-		
-		} else if( (prefsValue != null && guiValue == null) ||
-				   (prefsValue != null && !prefsValue.equals( guiValue ))) {
-			
-			for( int i = 0; i < getItemCount(); i++ ) {
-				guiItem = getItemAt( i );
-				if( guiItem != null && ((StringItem) guiItem).getKey().equals( prefsValue )) {
-					prefsItem = guiItem;
-					break;
-				}
-			}
+    public void setPreferenceNode( Preferences prefs )
+    {
+        setPreferences( prefs, this.key );
+    }
 
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb lim select "+prefsItem );
-			// thow we filter out events when preferences effectively
-			// remain unchanged, it's more clean and produces less
-			// overhead to temporarily remove our ActionListener
-			// so we don't produce potential loops
-			if( listening && writePrefs ) this.removeActionListener( listener );
-			super.setSelectedItem( prefsItem );	// will notify action listeners
-			if( listening && writePrefs ) this.addActionListener( listener );
-		}
-	}
-	
-	public void preferenceChange( PreferenceChangeEvent e )
-	{
-		if( e.getKey().equals( key )) {
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb preferenceChange : "+key+" --> "+e.getNewValue() );
-			lim.queue( e );
-		}
-	}
+    public void setPreferenceKey( String key )
+    {
+        setPreferences( this.prefs, key );
+    }
+
+    public void setPreferences( Preferences prefs, String key )
+    {
+        if( (this.prefs == null) || (this.key == null) ) {
+            defaultValue = getSelectedItem();
+        }
+        if( listening ) {
+            stopListening();
+            this.prefs  = prefs;
+            this.key	= key;
+            startListening();
+        } else {
+            this.prefs  = prefs;
+            this.key	= key;
+        }
+    }
+
+    public Preferences getPreferenceNode() { return prefs; }
+    public String getPreferenceKey() { return key; }
+
+    public void startListening()
+    {
+        if( prefs != null ) {
+            listening	= true;
+            if( writePrefs ) this.addActionListener( listener );
+            if( readPrefs ) {
+                prefs.addPreferenceChangeListener( this );
+                readPrefs();
+            }
+        }
+    }
+
+    public void stopListening()
+    {
+        if( prefs != null ) {
+            if( readPrefs ) prefs.removePreferenceChangeListener( this );
+            if( writePrefs ) this.removeActionListener( listener );
+            listening = false;
+        }
+    }
+
+    // o instanceof PreferenceChangeEvent
+    public void laterInvocation( Object o )
+    {
+        final String prefsValue = ((PreferenceChangeEvent) o).getNewValue();
+        readPrefsFromString( prefsValue );
+    }
+
+    public void readPrefs()
+    {
+        if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
+    }
+
+    private void readPrefsFromString( String prefsValue )
+    {
+        if( (prefsValue == null) && (defaultValue != null) ) {
+            if( listening && writePrefs ) this.removeActionListener( listener );
+            setSelectedItem( defaultValue );
+            if( writePrefs ) writePrefs();
+            if( listening && writePrefs ) this.addActionListener( listener );
+            return;
+        }
+        Object  	guiItem		= getSelectedItem();
+        String  	guiValue	= null;
+        Object  	prefsItem   = null;
+
+        if( guiItem != null && (guiItem instanceof StringItem) ) {
+            guiValue = ((StringItem) guiItem).getKey();
+        }
+        if( (prefsValue == null && guiValue != null) ) {
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb lim select null (guiValue was "+guiValue+")" );
+            // thow we filter out events when preferences effectively
+            // remain unchanged, it's more clean and produces less
+            // overhead to temporarily remove our ActionListener
+            // so we don't produce potential loops
+            if( listening && writePrefs ) this.removeActionListener( listener );
+            super.setSelectedItem( null );			// will notify action listeners
+            if( listening && writePrefs ) this.addActionListener( listener );
+
+        } else if( (prefsValue != null && guiValue == null) ||
+                   (prefsValue != null && !prefsValue.equals( guiValue ))) {
+
+            for( int i = 0; i < getItemCount(); i++ ) {
+                guiItem = getItemAt( i );
+                if( guiItem != null && ((StringItem) guiItem).getKey().equals( prefsValue )) {
+                    prefsItem = guiItem;
+                    break;
+                }
+            }
+
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb lim select "+prefsItem );
+            // thow we filter out events when preferences effectively
+            // remain unchanged, it's more clean and produces less
+            // overhead to temporarily remove our ActionListener
+            // so we don't produce potential loops
+            if( listening && writePrefs ) this.removeActionListener( listener );
+            super.setSelectedItem( prefsItem );	// will notify action listeners
+            if( listening && writePrefs ) this.addActionListener( listener );
+        }
+    }
+
+    public void preferenceChange( PreferenceChangeEvent e )
+    {
+        if( e.getKey().equals( key )) {
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb preferenceChange : "+key+" --> "+e.getNewValue() );
+            lim.queue( e );
+        }
+    }
 }

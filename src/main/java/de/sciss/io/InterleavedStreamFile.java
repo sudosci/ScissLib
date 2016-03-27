@@ -2,7 +2,7 @@
  *  InterleavedStreamFile.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -46,27 +46,27 @@ import java.io.IOException;
  */
 public interface InterleavedStreamFile
 {
-	public void close() throws IOException;
+    public void close() throws IOException;
 
-	public void truncate() throws IOException;
+    public void truncate() throws IOException;
 
-	public void readFrames( float[][] data, int offset, int length ) throws IOException;
+    public void readFrames( float[][] data, int offset, int length ) throws IOException;
 
-	public void writeFrames( float[][] data, int offset, int length ) throws IOException;
+    public void writeFrames( float[][] data, int offset, int length ) throws IOException;
 
-	public void copyFrames( InterleavedStreamFile target, long length ) throws IOException;
+    public void copyFrames( InterleavedStreamFile target, long length ) throws IOException;
 
-	public void seekFrame( long position ) throws IOException;
+    public void seekFrame( long position ) throws IOException;
 
-	public long getFrameNum() throws IOException;
+    public long getFrameNum() throws IOException;
 
-	public void setFrameNum( long n ) throws IOException;
+    public void setFrameNum( long n ) throws IOException;
 
-	public int getChannelNum();
+    public int getChannelNum();
 
-	public long getFramePosition() throws IOException;
+    public long getFramePosition() throws IOException;
 
-	public void flush() throws IOException;
+    public void flush() throws IOException;
 
-	public File getFile();
+    public File getFile();
 }

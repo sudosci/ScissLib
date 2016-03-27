@@ -2,7 +2,7 @@
  *  PrefCheckBox.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -71,103 +71,103 @@ import de.sciss.app.PreferenceEntrySync;
 public class PrefCheckBox
 extends JCheckBox
 implements  DynamicListening, PreferenceChangeListener,
-			LaterInvocationManager.Listener, PreferenceEntrySync
+            LaterInvocationManager.Listener, PreferenceEntrySync
 {
-	private boolean							listening		= false;
-	private Preferences						prefs			= null;
-	private String							key				= null;
-	private final LaterInvocationManager	lim				= new LaterInvocationManager( this );
-	private ActionListener					listener;
-	
-	private boolean							defaultValue;
+    private boolean							listening		= false;
+    private Preferences						prefs			= null;
+    private String							key				= null;
+    private final LaterInvocationManager	lim				= new LaterInvocationManager( this );
+    private ActionListener					listener;
 
-	private boolean							readPrefs		= true;
-	protected boolean						writePrefs		= true;
+    private boolean							defaultValue;
 
-	/**
-	 *  Constructs a new <code>PrefCheckBox</code>
-	 *  with no initial preferences set.
-	 */
-	public PrefCheckBox()
-	{
-		super();
-		init();
-	}
+    private boolean							readPrefs		= true;
+    protected boolean						writePrefs		= true;
 
-	/**
-	 *  Constructs a new <code>PrefCheckBox</code>
-	 *  with a given text label and no preferences set.
-	 *
-	 *  @param  text	label of the checkbox
-	 */
-	public PrefCheckBox( String text )
-	{
-		super( text );
-		init();
-	}
+    /**
+     *  Constructs a new <code>PrefCheckBox</code>
+     *  with no initial preferences set.
+     */
+    public PrefCheckBox()
+    {
+        super();
+        init();
+    }
 
-	/**
-	 *  Constructs a new <code>PrefCheckBox</code>
-	 *  with a given action and no initial preferences set.
-	 *
-	 *  @param  a   action to attach to the checkbox
-	 */
-	public PrefCheckBox( Action a )
-	{
-		super( a );
-		init();
-	}
+    /**
+     *  Constructs a new <code>PrefCheckBox</code>
+     *  with a given text label and no preferences set.
+     *
+     *  @param  text	label of the checkbox
+     */
+    public PrefCheckBox( String text )
+    {
+        super( text );
+        init();
+    }
 
-	private void init()
-	{
-		new DynamicAncestorAdapter( this ).addTo( this );
-		listener = new ActionListener() {
-			public void actionPerformed( ActionEvent e )
-			{
-				if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx actionPerformed : "+key+" --> "+isSelected() );
+    /**
+     *  Constructs a new <code>PrefCheckBox</code>
+     *  with a given action and no initial preferences set.
+     *
+     *  @param  a   action to attach to the checkbox
+     */
+    public PrefCheckBox( Action a )
+    {
+        super( a );
+        init();
+    }
+
+    private void init()
+    {
+        new DynamicAncestorAdapter( this ).addTo( this );
+        listener = new ActionListener() {
+            public void actionPerformed( ActionEvent e )
+            {
+                if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx actionPerformed : "+key+" --> "+isSelected() );
 //				guiState = isSelected();
-				if( writePrefs ) writePrefs();
-			}
-		};
-	}
-	
-	public void setReadPrefs( boolean b )
-	{
-		if( b != readPrefs ) {
-			readPrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( readPrefs ) {
-					prefs.addPreferenceChangeListener( this );
-				} else {
-					prefs.removePreferenceChangeListener( this );
-				}
-			}
-		}
-	}
-	
-	public boolean getReadPrefs()
-	{
-		return readPrefs;
-	}
-	
-	public void setWritePrefs( boolean b )
-	{
-		if( b != writePrefs ) {
-			writePrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( writePrefs ) {
-					this.addActionListener( listener );
-				} else {
-					this.removeActionListener( listener );
-				}
-			}
-		}
-	}
-	
-	public boolean getWritePrefs()
-	{
-		return writePrefs;
-	}
+                if( writePrefs ) writePrefs();
+            }
+        };
+    }
+
+    public void setReadPrefs( boolean b )
+    {
+        if( b != readPrefs ) {
+            readPrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( readPrefs ) {
+                    prefs.addPreferenceChangeListener( this );
+                } else {
+                    prefs.removePreferenceChangeListener( this );
+                }
+            }
+        }
+    }
+
+    public boolean getReadPrefs()
+    {
+        return readPrefs;
+    }
+
+    public void setWritePrefs( boolean b )
+    {
+        if( b != writePrefs ) {
+            writePrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( writePrefs ) {
+                    this.addActionListener( listener );
+                } else {
+                    this.removeActionListener( listener );
+                }
+            }
+        }
+    }
+
+    public boolean getWritePrefs()
+    {
+        return writePrefs;
+    }
 
 //	public void setSelected( boolean state )
 //	{
@@ -175,111 +175,111 @@ implements  DynamicListening, PreferenceChangeListener,
 //		super.setSelected( state );
 //		updatePrefs( state );
 //	}
-	
-	public void writePrefs()
-	{
-		if( (prefs != null) && (key != null) ) {
-			final boolean guiState		= isSelected();
-			final boolean prefsState	= prefs.getBoolean( key, !guiState );
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx updatePrefs : "+this.key+"; old = "+prefsState+" --> "+guiState );
-			if( prefsState != guiState ) {
-				prefs.putBoolean( key, guiState );
-			}
-		}
-	}
 
-	public void setPreferenceNode( Preferences prefs )
-	{
-		setPreferences( prefs, this.key );
-	}
+    public void writePrefs()
+    {
+        if( (prefs != null) && (key != null) ) {
+            final boolean guiState		= isSelected();
+            final boolean prefsState	= prefs.getBoolean( key, !guiState );
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx updatePrefs : "+this.key+"; old = "+prefsState+" --> "+guiState );
+            if( prefsState != guiState ) {
+                prefs.putBoolean( key, guiState );
+            }
+        }
+    }
 
-	public void setPreferenceKey( String key )
-	{
-		setPreferences( this.prefs, key );
-	}
+    public void setPreferenceNode( Preferences prefs )
+    {
+        setPreferences( prefs, this.key );
+    }
 
-	public void setPreferences( Preferences prefs, String key )
-	{   
-		if( (this.prefs == null) || (this.key == null) ) {
-			defaultValue = isSelected();
-		}
-		if( listening ) {
-			stopListening();
-			this.prefs  = prefs;
-			this.key	= key;
-			startListening();
-		} else {
-			this.prefs  = prefs;
-			this.key	= key;
-		}
-	}
+    public void setPreferenceKey( String key )
+    {
+        setPreferences( this.prefs, key );
+    }
 
-	public Preferences getPreferenceNode() { return prefs; }
-	public String getPreferenceKey() { return key; }
+    public void setPreferences( Preferences prefs, String key )
+    {
+        if( (this.prefs == null) || (this.key == null) ) {
+            defaultValue = isSelected();
+        }
+        if( listening ) {
+            stopListening();
+            this.prefs  = prefs;
+            this.key	= key;
+            startListening();
+        } else {
+            this.prefs  = prefs;
+            this.key	= key;
+        }
+    }
 
-	public void startListening()
-	{
-		if( prefs != null ) {
-			listening	= true;
-			if( writePrefs ) this.addActionListener( listener );
-			if( readPrefs ) {
-				prefs.addPreferenceChangeListener( this );
-				readPrefs();
-			}
-		}
-	}
+    public Preferences getPreferenceNode() { return prefs; }
+    public String getPreferenceKey() { return key; }
 
-	public void stopListening()
-	{
-		if( prefs != null ) {
-			if( readPrefs ) prefs.removePreferenceChangeListener( this );
-			if( writePrefs ) this.removeActionListener( listener );
-			listening = false;
-		}
-	}
-	
-	// o instanceof PreferenceChangeEvent
-	public void laterInvocation( Object o )
-	{
-		String prefsValue   = ((PreferenceChangeEvent) o).getNewValue();
-		readPrefsFromString( prefsValue );
-	}
-	
-	public void readPrefs()
-	{
-		if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
-	}
+    public void startListening()
+    {
+        if( prefs != null ) {
+            listening	= true;
+            if( writePrefs ) this.addActionListener( listener );
+            if( readPrefs ) {
+                prefs.addPreferenceChangeListener( this );
+                readPrefs();
+            }
+        }
+    }
 
-	private void readPrefsFromString( String prefsValue )
-	{
-		if( prefsValue == null ) {
+    public void stopListening()
+    {
+        if( prefs != null ) {
+            if( readPrefs ) prefs.removePreferenceChangeListener( this );
+            if( writePrefs ) this.removeActionListener( listener );
+            listening = false;
+        }
+    }
+
+    // o instanceof PreferenceChangeEvent
+    public void laterInvocation( Object o )
+    {
+        String prefsValue   = ((PreferenceChangeEvent) o).getNewValue();
+        readPrefsFromString( prefsValue );
+    }
+
+    public void readPrefs()
+    {
+        if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
+    }
+
+    private void readPrefsFromString( String prefsValue )
+    {
+        if( prefsValue == null ) {
 //			if( listening && writePrefs ) this.removeActionListener( listener );
-			setSelected( defaultValue );
+            setSelected( defaultValue );
 //			if( listening && writePrefs ) this.addActionListener( listener );
-			if( writePrefs ) writePrefs();
-			return;
-		}
-		boolean prefsState;
-		boolean guiState	= isSelected();
+            if( writePrefs ) writePrefs();
+            return;
+        }
+        boolean prefsState;
+        boolean guiState	= isSelected();
 
-		prefsState  = new Boolean( prefsValue ).booleanValue();
-		if( prefsState != guiState ) {
-			// though we filter out events when preferences effectively
-			// remain unchanged, it's more clean and produces less
-			// overhead to temporarily remove our ActionListener
-			// so we don't produce potential loops
-			if( listening && writePrefs ) this.removeActionListener( listener );
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx doClick" );
-			doClick(); // setSelected( b );
-			if( listening && writePrefs ) this.addActionListener( listener );
-		}
-	}
-	
-	public void preferenceChange( PreferenceChangeEvent e )
-	{
-		if( e.getKey().equals( key )) {
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx preferenceChange : "+key+" --> "+e.getNewValue() );
-			lim.queue( e );
-		}
-	}
+        prefsState  = new Boolean( prefsValue ).booleanValue();
+        if( prefsState != guiState ) {
+            // though we filter out events when preferences effectively
+            // remain unchanged, it's more clean and produces less
+            // overhead to temporarily remove our ActionListener
+            // so we don't produce potential loops
+            if( listening && writePrefs ) this.removeActionListener( listener );
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx doClick" );
+            doClick(); // setSelected( b );
+            if( listening && writePrefs ) this.addActionListener( listener );
+        }
+    }
+
+    public void preferenceChange( PreferenceChangeEvent e )
+    {
+        if( e.getKey().equals( key )) {
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@chbx preferenceChange : "+key+" --> "+e.getNewValue() );
+            lim.queue( e );
+        }
+    }
 }

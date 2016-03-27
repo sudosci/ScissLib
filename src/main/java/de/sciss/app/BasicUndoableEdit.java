@@ -2,7 +2,7 @@
  *  BasicUndoableEdit.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -35,25 +35,25 @@ public abstract class BasicUndoableEdit
 extends AbstractUndoableEdit
 implements PerformableEdit
 {
-	protected String getResourceString( String key )
-	{
-		final Application app = AbstractApplication.getApplication();
-		return app != null ? app.getResourceString( key ) : key;
-	}
-	
+    protected String getResourceString( String key )
+    {
+        final Application app = AbstractApplication.getApplication();
+        return app != null ? app.getResourceString( key ) : key;
+    }
+
 // UUU
 //	public void cancel();
 
-	public void debugDump( int nest )
-	{
+    public void debugDump( int nest )
+    {
 //		final StringBuffer strBuf = new StringBuffer( nest << 1 );
 //		for( int i = 0; i < nest; i++ ) strBuf.append( "  " );
 //		System.err.print( strBuf.toString() );
-		System.err.println( toString() );
-	}
-	
-	public String toString()
-	{
-		return( getClass().getName().toString() + " (\"" + getPresentationName() + "\") ; canUndo = "+canUndo()+"; canRedo = "+canRedo()+"; isSignificant = "+isSignificant() );
-	}
+        System.err.println( toString() );
+    }
+
+    public String toString()
+    {
+        return( getClass().getName().toString() + " (\"" + getPresentationName() + "\") ; canUndo = "+canUndo()+"; canRedo = "+canRedo()+"; isSignificant = "+isSignificant() );
+    }
 }

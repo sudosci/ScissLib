@@ -2,7 +2,7 @@
  *  HelpGlassPane.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -75,63 +75,63 @@ public class HelpGlassPane
 extends JComponent
 implements PreferenceChangeListener
 {
-	/**
-	 *  Value: Prefs key string "(int) modifiers (int) keyCode" for online
+    /**
+     *  Value: Prefs key string "(int) modifiers (int) keyCode" for online
      *  help accelerator. Has default value: yes!<br>
-	 *  Node: root
-	 */
-	public static final String KEY_KEYSTROKE_HELP = "keystrokehelp";
+     *  Node: root
+     */
+    public static final String KEY_KEYSTROKE_HELP = "keystrokehelp";
 
-	private final Color				colrBg					= new Color( 0x00, 0x00, 0xFF, 0x5F );
-	private final Color				colrBg2					= new Color( 0xF0, 0xFF, 0x00, 0x7F );
+    private final Color				colrBg					= new Color( 0x00, 0x00, 0xFF, 0x5F );
+    private final Color				colrBg2					= new Color( 0xF0, 0xFF, 0x00, 0x7F );
 //  private final Color				colrBg					= GraphicsUtil.colrSelection;
-	private final JFrame			f;
+    private final JFrame			f;
     private Component				normalGlassPane			= null;
     private JComponent				focussedHelpComponent	= null;
-	private FocusTraversalPolicy	normalFocus				= null;
+    private FocusTraversalPolicy	normalFocus				= null;
     private Area					focussedArea			= new Area();
-	private final Action helpAction;
+    private final Action helpAction;
 
-	private KeyStroke helpStroke	= null;
+    private KeyStroke helpStroke	= null;
 
     private static final Object HELP_PROPERTY	= HelpGlassPane.class;
 
-	/**
-	 *  Creates a new dimming help glass pane.
-	 *  This method will install a keystroke action for
+    /**
+     *  Creates a new dimming help glass pane.
+     *  This method will install a keystroke action for
      *  the help key so the frame needn't deal with the help invocation.
-	 *
-	 *  @param  f     the frame to which the help pane
+     *
+     *  @param  f     the frame to which the help pane
      *                belongs
-	 */
+     */
     public static void attachTo( JFrame f )
     {
         new HelpGlassPane( f );
     }
 
- 	/**
-	 *  Adds a help file tag to a component which
+    /**
+     *  Adds a help file tag to a component which
      *  will be examined when the user clicks on the component
      *  in help-mode.
-	 *
-	 *  @param  c           the component for which the help tag
+     *
+     *  @param  c           the component for which the help tag
      *                      shall be installed
-	 *  @param  fileName    plain file name (omitting parent path
+     *  @param  fileName    plain file name (omitting parent path
      *                      and suffix) of the associated help file
      *                      or <code>null</code> to remove the help tag.
-	 *
-	 *  @see	javax.swing.JComponent#putClientProperty( Object, Object )
-	 */
+     *
+     *  @see	javax.swing.JComponent#putClientProperty( Object, Object )
+     */
     public static void setHelp( JComponent c, String fileName )
     {
         c.putClientProperty( HELP_PROPERTY, fileName );
     }
  
-	private HelpGlassPane( JFrame f )
-	{
-		this.f			= f;
+    private HelpGlassPane( JFrame f )
+    {
+        this.f			= f;
         JRootPane grass = f.getRootPane();
-		
+
         MouseInputAdapter mia = new MouseInputAdapter() {
             public void mousePressed( MouseEvent e )
             {
@@ -143,30 +143,30 @@ implements PreferenceChangeListener
                 checkMouseMoved( e );
             }
         };
-		KeyAdapter ka = new KeyAdapter() {
+        KeyAdapter ka = new KeyAdapter() {
             public void keyPressed( KeyEvent e )
             {
                 if( e.getKeyCode() == KeyEvent.VK_ESCAPE ) deactivateHelpMode();
             }
-		};
-		helpAction = new AbstractAction() {
+        };
+        helpAction = new AbstractAction() {
             public void actionPerformed( ActionEvent e )
             {
                 activateHelpMode();
             }
         };
-		
+
         this.addMouseListener( mia );
         this.addMouseMotionListener( mia );
-		this.addKeyListener( ka );
-		this.setCursor( new Cursor( Cursor.HAND_CURSOR ));
+        this.addKeyListener( ka );
+        this.setCursor( new Cursor( Cursor.HAND_CURSOR ));
 
-		grass.getActionMap().put( HELP_PROPERTY, helpAction );
+        grass.getActionMap().put( HELP_PROPERTY, helpAction );
 
-		// --- Listener ---
+        // --- Listener ---
         new DynamicAncestorAdapter( new DynamicPrefChangeManager( GUIUtil.getUserPrefs(),
-			new String[] { KEY_KEYSTROKE_HELP }, this )).addTo( grass );
-	}
+            new String[] { KEY_KEYSTROKE_HELP }, this )).addTo( grass );
+    }
     
     protected void activateHelpMode()
     {
@@ -178,35 +178,35 @@ implements PreferenceChangeListener
         focussedArea.reset();
         f.setGlassPane( this );
         this.setVisible( true );
-		normalFocus				= f.getFocusTraversalPolicy();
-		f.setFocusTraversalPolicy( new NoFocusTraversalPolicy() );
-		this.requestFocus();
+        normalFocus				= f.getFocusTraversalPolicy();
+        f.setFocusTraversalPolicy( new NoFocusTraversalPolicy() );
+        this.requestFocus();
     }
-	
+
     protected void deactivateHelpMode()
     {
         if( f.getGlassPane() != this ) return;
 
         this.setVisible( false );
         f.setGlassPane( normalGlassPane );
-		f.setFocusTraversalPolicy( normalFocus );
+        f.setFocusTraversalPolicy( normalFocus );
         normalGlassPane         = null;
-		normalFocus				= null;
+        normalFocus				= null;
         focussedHelpComponent   = null;
         focussedArea.reset();
-		f.requestFocus();
+        f.requestFocus();
     }
-	
-	/**
-	 *  Paints translucent grey over
-	 *  the rectangle given by the content pane's
-	 *  top margin and the bottom most gadget's
-	 *  bottom margin.
-	 */
-	public void paintComponent( Graphics g )
-	{
+
+    /**
+     *  Paints translucent grey over
+     *  the rectangle given by the content pane's
+     *  top margin and the bottom most gadget's
+     *  bottom margin.
+     */
+    public void paintComponent( Graphics g )
+    {
 //		super.paintComponent( g );
-	
+
 //		Point		gpPoint = SwingUtilities.convertPoint( bottomMost, 0, bottomMost.getHeight(), this );
 
         Graphics2D g2 = (Graphics2D) g;
@@ -218,21 +218,21 @@ implements PreferenceChangeListener
         g2.setColor( colrBg2 );
         g2.fill( focussedArea );
      }
-	
-	protected void checkMousePressed( MouseEvent e )
-	{
-        checkMouseMoved( e );
-		if( focussedHelpComponent != null ) {
-			HelpFrame.openViewerAndLoadHelpFile( (String)
-				focussedHelpComponent.getClientProperty( HELP_PROPERTY ));
-            deactivateHelpMode();
-		}
-	}
 
-	protected void checkMouseMoved( MouseEvent e )
-	{
+    protected void checkMousePressed( MouseEvent e )
+    {
+        checkMouseMoved( e );
+        if( focussedHelpComponent != null ) {
+            HelpFrame.openViewerAndLoadHelpFile( (String)
+                focussedHelpComponent.getClientProperty( HELP_PROPERTY ));
+            deactivateHelpMode();
+        }
+    }
+
+    protected void checkMouseMoved( MouseEvent e )
+    {
         JComponent c = findHelpComponentAt( e.getPoint() );
-		if( c != focussedHelpComponent ) {
+        if( c != focussedHelpComponent ) {
             focussedHelpComponent   = c;
 //          Container contentPane   = f.getContentPane();
             if( c == null ) {
@@ -247,17 +247,17 @@ implements PreferenceChangeListener
             }
             repaint();
         }
-	}
+    }
     
     private JComponent findHelpComponentAt( Point p )
     {
         Container   contentPane = f.getContentPane();
 //		Point		cPoint      = SwingUtilities.convertPoint( bottomMost, 0, bottomMost.getHeight(), contentPane );
-		Point		cp          = SwingUtilities.convertPoint( this, p, contentPane );
-		Component   comp;
+        Point		cp          = SwingUtilities.convertPoint( this, p, contentPane );
+        Component   comp;
         JComponent  jc;
-		
-		comp = SwingUtilities.getDeepestComponentAt( contentPane, cp.x, cp.y );
+
+        comp = SwingUtilities.getDeepestComponentAt( contentPane, cp.x, cp.y );
         while( comp != null ) {
             if( comp instanceof JComponent ) {
                 jc = (JComponent) comp;
@@ -269,19 +269,19 @@ implements PreferenceChangeListener
         return null;
     }
 
-	private void updateHelpStroke( KeyStroke newStroke )
-	{
-		InputMap imap = f.getRootPane().getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
+    private void updateHelpStroke( KeyStroke newStroke )
+    {
+        InputMap imap = f.getRootPane().getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
 
-		if( helpStroke != null ) imap.remove( helpStroke );
-		helpStroke = newStroke;
-		if( helpStroke != null ) imap.put( helpStroke, HELP_PROPERTY );
-	}
+        if( helpStroke != null ) imap.remove( helpStroke );
+        helpStroke = newStroke;
+        if( helpStroke != null ) imap.put( helpStroke, HELP_PROPERTY );
+    }
 
 // ---------------- PreferenceChangeListener interface ---------------- 
 
-	public void preferenceChange( PreferenceChangeEvent e )
-	{
-		updateHelpStroke( KeyStrokeTextField.prefsToStroke( e.getNewValue() ));
-	}
+    public void preferenceChange( PreferenceChangeEvent e )
+    {
+        updateHelpStroke( KeyStrokeTextField.prefsToStroke( e.getNewValue() ));
+    }
 } // class HelpGlassPane

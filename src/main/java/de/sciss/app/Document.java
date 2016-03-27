@@ -2,7 +2,7 @@
  *  Document.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -43,42 +43,42 @@ import de.sciss.util.Disposable;
 public interface Document
 extends Disposable
 {
-	/**
-	 *	Returns the application carrying this document.
-	 *
-	 *	@return	the application carrying this document
-	 */
-	public de.sciss.app.Application getApplication();
-	
-	/**
-	 *	Returns the undo manager responsible for this document.
-	 *
-	 *	@return	the undo manager responsible for this document
-	 */
-	public de.sciss.app.UndoManager getUndoManager();
+    /**
+     *	Returns the application carrying this document.
+     *
+     *	@return	the application carrying this document
+     */
+    public de.sciss.app.Application getApplication();
 
-	/**
-	 *	Asks whether this document contains unsaved changes or not.
-	 *
-	 *	@return	<code>true</code> indicates that the
-	 *			document contains unsaved changes,
-	 *			<code>false</code> indicates that the
-	 *			document was saved or cleared.
-	 */
-	public boolean isDirty();
+    /**
+     *	Returns the undo manager responsible for this document.
+     *
+     *	@return	the undo manager responsible for this document
+     */
+    public de.sciss.app.UndoManager getUndoManager();
 
-	/**
-	 *	Marks this document as having unsaved changes or
-	 *	as being saved.
-	 *
-	 *	@param	dirty	<code>true</code> indicates that the
-	 *					document contains unsaved changes,
-	 *					<code>false</code> indicates that the
-	 *					document was saved or cleared.
-	 */
-	public void setDirty( boolean dirty );
+    /**
+     *	Asks whether this document contains unsaved changes or not.
+     *
+     *	@return	<code>true</code> indicates that the
+     *			document contains unsaved changes,
+     *			<code>false</code> indicates that the
+     *			document was saved or cleared.
+     */
+    public boolean isDirty();
 
-	public String getName();
+    /**
+     *	Marks this document as having unsaved changes or
+     *	as being saved.
+     *
+     *	@param	dirty	<code>true</code> indicates that the
+     *					document contains unsaved changes,
+     *					<code>false</code> indicates that the
+     *					document was saved or cleared.
+     */
+    public void setDirty( boolean dirty );
+
+    public String getName();
 
 //	/**
 //	 *	Call this method to dispose any resources

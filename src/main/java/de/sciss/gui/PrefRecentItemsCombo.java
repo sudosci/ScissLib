@@ -2,7 +2,7 @@
  *  PrefRecentItemsCombo.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -49,293 +49,293 @@ import de.sciss.app.PreferenceEntrySync;
 public class PrefRecentItemsCombo
 extends JComboBox
 implements  DynamicListening, PreferenceChangeListener,
-			LaterInvocationManager.Listener, PreferenceEntrySync
+            LaterInvocationManager.Listener, PreferenceEntrySync
 {
-	private boolean								listening		= false;
-	private Preferences							prefs			= null;
-	private String								key				= null;
-	private final LaterInvocationManager		lim				= new LaterInvocationManager( this );
-	
-	protected final de.sciss.gui.ComboBoxEditor	editor;
-	protected final int							maxItems;
-	
-	private ActionListener						listener;
+    private boolean								listening		= false;
+    private Preferences							prefs			= null;
+    private String								key				= null;
+    private final LaterInvocationManager		lim				= new LaterInvocationManager( this );
 
-	private boolean								readPrefs		= true;
-	protected boolean							writePrefs		= true;
+    protected final de.sciss.gui.ComboBoxEditor	editor;
+    protected final int							maxItems;
 
-	/**
-	 *  Creates a new <code>PrefRecentItemsCombo</code>
-	 *  with default data model and no initial preferences set.
-	 */
-	public PrefRecentItemsCombo( de.sciss.gui.ComboBoxEditor editor, int maxItems )
-	{
-		super();
-		this.editor		= editor;
-		this.maxItems	= maxItems;
-		init();
-	}
-	
-	private void init()
-	{
-		setEditor( editor );
-		setEditable( true );
-		
-		new DynamicAncestorAdapter( this ).addTo( this );
-		listener = new ActionListener() {
-			public void actionPerformed( ActionEvent e )
-			{
-				final Object item = editor.getItem();
-			
-				if( EventManager.DEBUG_EVENTS ) System.err.println( "@ric actionPerformed : "+key+" --> "+item );
-				for( int i = 0; i < getItemCount(); i++ ) {
-					if( getItemAt( i ).equals( item )) {
-						if( getSelectedIndex() != i ) setSelectedIndex( i );
-						return;
-					}
-				}
+    private ActionListener						listener;
+
+    private boolean								readPrefs		= true;
+    protected boolean							writePrefs		= true;
+
+    /**
+     *  Creates a new <code>PrefRecentItemsCombo</code>
+     *  with default data model and no initial preferences set.
+     */
+    public PrefRecentItemsCombo( de.sciss.gui.ComboBoxEditor editor, int maxItems )
+    {
+        super();
+        this.editor		= editor;
+        this.maxItems	= maxItems;
+        init();
+    }
+
+    private void init()
+    {
+        setEditor( editor );
+        setEditable( true );
+
+        new DynamicAncestorAdapter( this ).addTo( this );
+        listener = new ActionListener() {
+            public void actionPerformed( ActionEvent e )
+            {
+                final Object item = editor.getItem();
+
+                if( EventManager.DEBUG_EVENTS ) System.err.println( "@ric actionPerformed : "+key+" --> "+item );
+                for( int i = 0; i < getItemCount(); i++ ) {
+                    if( getItemAt( i ).equals( item )) {
+                        if( getSelectedIndex() != i ) setSelectedIndex( i );
+                        return;
+                    }
+                }
 //				editor.removeActionListener( this );
-				addItem( item );
-				setSelectedIndex( getItemCount() - 1 );
-				if( getItemCount() > maxItems ) removeItemAt( 0 );
-				
-				if( writePrefs ) writePrefs();
+                addItem( item );
+                setSelectedIndex( getItemCount() - 1 );
+                if( getItemCount() > maxItems ) removeItemAt( 0 );
+
+                if( writePrefs ) writePrefs();
 //				editor.addActionListener( this );
-			}
-		};
-	}
+            }
+        };
+    }
 
-	public void setReadPrefs( boolean b )
-	{
-		if( b != readPrefs ) {
-			readPrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( readPrefs ) {
-					prefs.addPreferenceChangeListener( this );
-				} else {
-					prefs.removePreferenceChangeListener( this );
-				}
-			}
-		}
-	}
-	
-	public boolean getReadPrefs()
-	{
-		return readPrefs;
-	}
-	
-	public void setWritePrefs( boolean b )
-	{
-		if( b != writePrefs ) {
-			writePrefs	= b;
-			if( (prefs != null) && listening ) {
-				if( writePrefs ) {
-					this.addActionListener( listener );
-				} else {
-					this.removeActionListener( listener );
-				}
-			}
-		}
-	}
-	
-	public boolean getWritePrefs()
-	{
-		return writePrefs;
-	}
+    public void setReadPrefs( boolean b )
+    {
+        if( b != readPrefs ) {
+            readPrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( readPrefs ) {
+                    prefs.addPreferenceChangeListener( this );
+                } else {
+                    prefs.removePreferenceChangeListener( this );
+                }
+            }
+        }
+    }
 
-	public void writePrefs()
-	{
-		final String		value;
-		final String		oldValue;
-		final StringBuffer	buf;
-		Object				item;
-		String				itemStr;
-	
-		if( (prefs != null) && (key != null) ) {
-			buf = new StringBuffer();
-			for( int i = 0; i < getItemCount(); i++ ) {
-				item	= getItemAt( i );
-				itemStr	= item.toString();
-				// "pascal"-string alike
-				buf.append( itemStr.length() );
-				if( item instanceof StringItem ) {
-					buf.append( ";key=" );
-					buf.append( ((StringItem) item).getKey() );
-				}
-				buf.append( ";val=" );
-				buf.append( itemStr );
-				buf.append( ';' );
-			}
-			value		= buf.toString();			
-			oldValue	= prefs.get( key, null );
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb updatePrefs : "+this.key+"; old = "+oldValue+" --> "+value );
-			if( (value != null && oldValue == null) ||
-				(value != null && !value.equals( oldValue ))) {
-				
-				prefs.put( key, value );
+    public boolean getReadPrefs()
+    {
+        return readPrefs;
+    }
+
+    public void setWritePrefs( boolean b )
+    {
+        if( b != writePrefs ) {
+            writePrefs	= b;
+            if( (prefs != null) && listening ) {
+                if( writePrefs ) {
+                    this.addActionListener( listener );
+                } else {
+                    this.removeActionListener( listener );
+                }
+            }
+        }
+    }
+
+    public boolean getWritePrefs()
+    {
+        return writePrefs;
+    }
+
+    public void writePrefs()
+    {
+        final String		value;
+        final String		oldValue;
+        final StringBuffer	buf;
+        Object				item;
+        String				itemStr;
+
+        if( (prefs != null) && (key != null) ) {
+            buf = new StringBuffer();
+            for( int i = 0; i < getItemCount(); i++ ) {
+                item	= getItemAt( i );
+                itemStr	= item.toString();
+                // "pascal"-string alike
+                buf.append( itemStr.length() );
+                if( item instanceof StringItem ) {
+                    buf.append( ";key=" );
+                    buf.append( ((StringItem) item).getKey() );
+                }
+                buf.append( ";val=" );
+                buf.append( itemStr );
+                buf.append( ';' );
+            }
+            value		= buf.toString();
+            oldValue	= prefs.get( key, null );
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb updatePrefs : "+this.key+"; old = "+oldValue+" --> "+value );
+            if( (value != null && oldValue == null) ||
+                (value != null && !value.equals( oldValue ))) {
+
+                prefs.put( key, value );
 
 //			} else if( value == null && oldValue != null ) {
 //				prefs.remove( key );
-			}
-		}
-	}
+            }
+        }
+    }
 
-	public void setPreferenceNode( Preferences prefs )
-	{
-		setPreferences( prefs, this.key );
-	}
+    public void setPreferenceNode( Preferences prefs )
+    {
+        setPreferences( prefs, this.key );
+    }
 
-	public void setPreferenceKey( String key )
-	{
-		setPreferences( this.prefs, key );
-	}
+    public void setPreferenceKey( String key )
+    {
+        setPreferences( this.prefs, key );
+    }
 
-	public void setPreferences( Preferences prefs, String key )
-	{
-		if( (this.prefs == null) || (this.key == null) ) {
+    public void setPreferences( Preferences prefs, String key )
+    {
+        if( (this.prefs == null) || (this.key == null) ) {
 //			defaultValue = getSelectedItem();
-		}
-		if( listening ) {
-			stopListening();
-			this.prefs  = prefs;
-			this.key	= key;
-			startListening();
-		} else {
-			this.prefs  = prefs;
-			this.key	= key;
-		}
-	}
+        }
+        if( listening ) {
+            stopListening();
+            this.prefs  = prefs;
+            this.key	= key;
+            startListening();
+        } else {
+            this.prefs  = prefs;
+            this.key	= key;
+        }
+    }
 
-	public Preferences getPreferenceNode() { return prefs; }
-	public String getPreferenceKey() { return key; }
+    public Preferences getPreferenceNode() { return prefs; }
+    public String getPreferenceKey() { return key; }
 
-	public void startListening()
-	{
-		if( prefs != null ) {
-			listening	= true;
-			if( writePrefs ) editor.addActionListener( listener );
-			if( readPrefs ) {
-				prefs.addPreferenceChangeListener( this );
-				readPrefs();
-			}
-		}
-	}
+    public void startListening()
+    {
+        if( prefs != null ) {
+            listening	= true;
+            if( writePrefs ) editor.addActionListener( listener );
+            if( readPrefs ) {
+                prefs.addPreferenceChangeListener( this );
+                readPrefs();
+            }
+        }
+    }
 
-	public void stopListening()
-	{
-		if( prefs != null ) {
-			if( readPrefs ) prefs.removePreferenceChangeListener( this );
-			if( writePrefs ) editor.removeActionListener( listener );
-			listening = false;
-		}
-	}
+    public void stopListening()
+    {
+        if( prefs != null ) {
+            if( readPrefs ) prefs.removePreferenceChangeListener( this );
+            if( writePrefs ) editor.removeActionListener( listener );
+            listening = false;
+        }
+    }
 
-	private void printParseError( String prefsValue )
-	{
-		System.err.println( "Warning: for key '"+this.key + "' illegal prefs value '"+prefsValue + "'" );
-	}
-	
-	// o instanceof PreferenceChangeEvent
-	public void laterInvocation( Object o )
-	{
-		final String prefsValue = ((PreferenceChangeEvent) o).getNewValue();
-		readPrefsFromString( prefsValue );
-	}
-	
-	public void readPrefs()
-	{
-		if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
-	}
-		
-	private void readPrefsFromString( String prefsValue )
-	{
+    private void printParseError( String prefsValue )
+    {
+        System.err.println( "Warning: for key '"+this.key + "' illegal prefs value '"+prefsValue + "'" );
+    }
+
+    // o instanceof PreferenceChangeEvent
+    public void laterInvocation( Object o )
+    {
+        final String prefsValue = ((PreferenceChangeEvent) o).getNewValue();
+        readPrefsFromString( prefsValue );
+    }
+
+    public void readPrefs()
+    {
+        if( (prefs != null) && (key != null) ) readPrefsFromString( prefs.get( key, null ));
+    }
+
+    private void readPrefsFromString( String prefsValue )
+    {
 //		if( prefsValue == null && defaultValue != null ) {
 //			updatePrefs( defaultValue );
 //			return;
 //		}
-		
-		final Object			item;
-		final List				collItems	= new ArrayList();
-		int						k, m;
-		String					s, key2;
-		Object					item2;
-		
-//System.err.println( "checking "+prefsValue );
-		if( listening && writePrefs ) editor.removeActionListener( listener );
 
-		try {
-			for( int i = 0; i < prefsValue.length(); ) {
-				key2	= null;
-				k	= prefsValue.indexOf( ';', i );
-				m	= Integer.parseInt( prefsValue.substring( i, k ));
-				i	= k + 1;
-				k	= i + 4;
-				s	= prefsValue.substring( i, k );
-				i	= k;
-				if( s.equals( "key=" )) {
-					k	= prefsValue.indexOf( ';', i );
-					key2	= prefsValue.substring( i, k );
-					i	= k + 1;
-					k	= i + 4;
-					s	= prefsValue.substring( i, k );
-					i	= k;
-				}
-				if( !s.equals( "val=" )) {
-					printParseError( prefsValue );
-					return;
-				}
-				s	= prefsValue.substring( i, i + m );
-				i	= i + m + 1;
-				if( key2 == null ) {
-					collItems.add( s );
-				} else {
-					collItems.add( new StringItem( key2, s ));
-				}
-			}
-		}
-		catch( NumberFormatException e1 ) {
-			printParseError( prefsValue );
-			return;
-		}
-		catch( IndexOutOfBoundsException e1 ) {
-			printParseError( prefsValue );
-			return;
-		}
-		
+        final Object			item;
+        final List				collItems	= new ArrayList();
+        int						k, m;
+        String					s, key2;
+        Object					item2;
+
+//System.err.println( "checking "+prefsValue );
+        if( listening && writePrefs ) editor.removeActionListener( listener );
+
+        try {
+            for( int i = 0; i < prefsValue.length(); ) {
+                key2	= null;
+                k	= prefsValue.indexOf( ';', i );
+                m	= Integer.parseInt( prefsValue.substring( i, k ));
+                i	= k + 1;
+                k	= i + 4;
+                s	= prefsValue.substring( i, k );
+                i	= k;
+                if( s.equals( "key=" )) {
+                    k	= prefsValue.indexOf( ';', i );
+                    key2	= prefsValue.substring( i, k );
+                    i	= k + 1;
+                    k	= i + 4;
+                    s	= prefsValue.substring( i, k );
+                    i	= k;
+                }
+                if( !s.equals( "val=" )) {
+                    printParseError( prefsValue );
+                    return;
+                }
+                s	= prefsValue.substring( i, i + m );
+                i	= i + m + 1;
+                if( key2 == null ) {
+                    collItems.add( s );
+                } else {
+                    collItems.add( new StringItem( key2, s ));
+                }
+            }
+        }
+        catch( NumberFormatException e1 ) {
+            printParseError( prefsValue );
+            return;
+        }
+        catch( IndexOutOfBoundsException e1 ) {
+            printParseError( prefsValue );
+            return;
+        }
+
 checkEquality:
-		if( collItems.size() == getItemCount() ) {
-			for( int i = 0; i < collItems.size(); i++ ) {
-				if( !collItems.get( i ).equals( getItemAt( i ))) break checkEquality;
-			}
+        if( collItems.size() == getItemCount() ) {
+            for( int i = 0; i < collItems.size(); i++ ) {
+                if( !collItems.get( i ).equals( getItemAt( i ))) break checkEquality;
+            }
 //System.err.println( "all the same!" );
-			return;	// prefs value equals gui value
-		}
-		
+            return;	// prefs value equals gui value
+        }
+
 //		editor.removeActionListener( listener );
-		item	= editor.getItem();
-		editor.setComboGate( false );
-		removeAllItems();	// for fuck's sake this will overwrite the editor item
-		k		= -1;
-		for( int i = 0; i < collItems.size(); i++ ) {
-			item2	= collItems.get( i );
-			addItem( item2 );
-			if( item2.equals( item )) {
-				k = i;
-			}
-		}
-		setSelectedIndex( k );
-		editor.setComboGate( true );
+        item	= editor.getItem();
+        editor.setComboGate( false );
+        removeAllItems();	// for fuck's sake this will overwrite the editor item
+        k		= -1;
+        for( int i = 0; i < collItems.size(); i++ ) {
+            item2	= collItems.get( i );
+            addItem( item2 );
+            if( item2.equals( item )) {
+                k = i;
+            }
+        }
+        setSelectedIndex( k );
+        editor.setComboGate( true );
 //System.err.println( "settin "+item );
 //		editor.setItem( item );
 
-		if( listening && writePrefs ) editor.addActionListener( listener );
-	}
-	
-	public void preferenceChange( PreferenceChangeEvent e )
-	{
-		if( e.getKey().equals( key )) {
-			if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb preferenceChange : "+key+" --> "+e.getNewValue() );
-			lim.queue( e );
-		}
-	}
+        if( listening && writePrefs ) editor.addActionListener( listener );
+    }
+
+    public void preferenceChange( PreferenceChangeEvent e )
+    {
+        if( e.getKey().equals( key )) {
+            if( EventManager.DEBUG_EVENTS ) System.err.println( "@comb preferenceChange : "+key+" --> "+e.getNewValue() );
+            lim.queue( e );
+        }
+    }
 }

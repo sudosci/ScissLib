@@ -2,7 +2,7 @@
  *  WindowHandler.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -34,16 +34,16 @@ import java.util.Map;
  */
 public interface WindowHandler
 {
-	public static final Object OPTION_EXCLUDE_FONT		= "excludefont";	// value : (java.util.)List of components
-	public static final Object OPTION_GLOBAL_MENUBAR	= "globalmenu";		// value : null
+    public static final Object OPTION_EXCLUDE_FONT		= "excludefont";	// value : (java.util.)List of components
+    public static final Object OPTION_GLOBAL_MENUBAR	= "globalmenu";		// value : null
 
 //	public void addWindow( Window w, Map options );
 //	public void removeWindow( Window w, Map options );
-	public void addWindow( AbstractWindow w, Map options );
-	public void removeWindow( AbstractWindow w, Map options );
-	public Iterator getWindows();
-	public AbstractWindow createWindow( int flags );
+    public void addWindow( AbstractWindow w, Map options );
+    public void removeWindow( AbstractWindow w, Map options );
+    public Iterator getWindows();
+    public AbstractWindow createWindow( int flags );
 //	public int showOptionPane( JOptionPane op );
-	public boolean usesInternalFrames();
-	public boolean usesScreenMenuBar();
+    public boolean usesInternalFrames();
+    public boolean usesScreenMenuBar();
 }

@@ -2,7 +2,7 @@
  *  ColouredTextField.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -51,75 +51,75 @@ import javax.swing.JTextField;
 public class ColouredTextField
 extends JTextField
 {
-	private Paint p   = null;
+    private Paint p   = null;
 
-	/**
-	 *  Constructs a new ColouredTextField
-	 */
-	public ColouredTextField()
-	{
-		super();
-		init();
-	}
-	
-	/**
-	 *  Constructs a new ColouredTextField
-	 *
-	 *  @param  columns		number of columns for the textfield
-	 */
-	public ColouredTextField( int columns )
-	{
-		super( columns );
-		init();
-	}
-	
-	private void init()
-	{
-		// nothing
-	}
+    /**
+     *  Constructs a new ColouredTextField
+     */
+    public ColouredTextField()
+    {
+        super();
+        init();
+    }
 
-	/**
-	 *  Changes the colour of the text field.
-	 *
-	 *  @param  p   the new colour. Use translucent
-	 *				colour (RGBA) for the normal
-	 *				text component to shine through.
-	 */
-	public void setPaint( Paint p )
-	{
-		this.p = p;
-		repaint();
-	}
+    /**
+     *  Constructs a new ColouredTextField
+     *
+     *  @param  columns		number of columns for the textfield
+     */
+    public ColouredTextField( int columns )
+    {
+        super( columns );
+        init();
+    }
 
-	/**
-	 *  Return the current attached colour.
-	 *
-	 *  @return		the current colour or <code>null</code>
-	 *				if no colour was set
-	 */
-	public Paint getPaint()
-	{
-		return p;
-	}
-	
-	/**
-	 *  Paint the text field component and
-	 *  fill its area with the specified
-	 *  paint afterwards. If no paint was
-	 *  specified, the text field will just
-	 *  look like a normal <code>JTextField</code>.
-	 */
-	public void paintComponent( Graphics g )
-	{
-		super.paintComponent( g );
-		if( p == null ) return;
-		
-		Dimension   d   = getSize();
-		Graphics2D  g2  = (Graphics2D) g;
-		Paint		op  = g2.getPaint();
-		
-		g2.setPaint( p );
-		g2.fillRect( 0, 0, d.width, d.height );
-		g2.setPaint( op );
-	}
+    private void init()
+    {
+        // nothing
+    }
+
+    /**
+     *  Changes the colour of the text field.
+     *
+     *  @param  p   the new colour. Use translucent
+     *				colour (RGBA) for the normal
+     *				text component to shine through.
+     */
+    public void setPaint( Paint p )
+    {
+        this.p = p;
+        repaint();
+    }
+
+    /**
+     *  Return the current attached colour.
+     *
+     *  @return		the current colour or <code>null</code>
+     *				if no colour was set
+     */
+    public Paint getPaint()
+    {
+        return p;
+    }
+
+    /**
+     *  Paint the text field component and
+     *  fill its area with the specified
+     *  paint afterwards. If no paint was
+     *  specified, the text field will just
+     *  look like a normal <code>JTextField</code>.
+     */
+    public void paintComponent( Graphics g )
+    {
+        super.paintComponent( g );
+        if( p == null ) return;
+
+        Dimension   d   = getSize();
+        Graphics2D  g2  = (Graphics2D) g;
+        Paint		op  = g2.getPaint();
+
+        g2.setPaint( p );
+        g2.fillRect( 0, 0, d.width, d.height );
+        g2.setPaint( op );
+    }
 }

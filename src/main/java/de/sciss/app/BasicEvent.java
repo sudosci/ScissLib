@@ -2,7 +2,7 @@
  *  BasicEvent.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -56,85 +56,85 @@ import java.util.EventObject;
 public abstract class BasicEvent
 extends EventObject
 {
-	private final int	id;
-	private final long	when;
+    private final int	id;
+    private final long	when;
 
-	/**
-	 *  Constructs a new <code>BasicEvent</code>.
-	 *
-	 *  @param  source  Since <code>BasicEvent</code>
-	 *					is a subclass of <code>java.util.EventObject</code>,
-	 *					the given 'source' is directly passed to
-	 *					the superclass and can be queried with <code>getSource()</code>.
-	 *					The <code>source</code> describes the object that
-	 *					originated an action.
-	 *  @param  id		type of action depending on the concrete
-	 *					subclass. Generally the <code>id</code> is used to
-	 *					distinguish between different method calls
-	 *					on the registered listeners, hence will be
-	 *					usually ignored by the listeners themselves.
-	 *  @param  when	When the event was generated. See <code>getWhen()</code>.
-	 */
-	public BasicEvent( Object source, int id, long when )
-	{
-		super( source );
-	
-		this.id		= id;
-		this.when   = when;
-	}
-	
-	/**
-	 *  Requests an identifier specifying the
-	 *  exact type of action that was performed.
-	 *
-	 *  @return a subclass specific identifier
-	 */
-	public int getID()
-	{
-		return id;
-	}
+    /**
+     *  Constructs a new <code>BasicEvent</code>.
+     *
+     *  @param  source  Since <code>BasicEvent</code>
+     *					is a subclass of <code>java.util.EventObject</code>,
+     *					the given 'source' is directly passed to
+     *					the superclass and can be queried with <code>getSource()</code>.
+     *					The <code>source</code> describes the object that
+     *					originated an action.
+     *  @param  id		type of action depending on the concrete
+     *					subclass. Generally the <code>id</code> is used to
+     *					distinguish between different method calls
+     *					on the registered listeners, hence will be
+     *					usually ignored by the listeners themselves.
+     *  @param  when	When the event was generated. See <code>getWhen()</code>.
+     */
+    public BasicEvent( Object source, int id, long when )
+    {
+        super( source );
 
-	/**
-	 *  State whens the event has been generated,
-	 *  a timestamp specifying system time millisecs
-	 *  as returned by <code>System.currentTimeMillis()</code>.
-	 *
-	 *  @return time when the event was generated
-	 */
-	public long getWhen()
-	{
-		return when;
-	}
-	
-	/**
-	 *  Asks the event to incorporate the action
-	 *  described by another (older) event.
-	 *  This method has been created to reduce overhead;
-	 *  when many events are added to the event queue
-	 *  of an ELM, this allows to fuse two adjectant
-	 *  events. The idea is mainly based on the <code>replaceEdit()</code>
-	 *  method of the <code>javax.swing.undo.UndoableEdit</code>
-	 *  interface; a pendant of a symmetric <code>addEdit()</code>
-	 *  like method is not provided because it seems to
-	 *  be unnecessary.
-	 *  <p>
-	 *  Implementation notes : the <code>oldEvent</code> should
-	 *  generally only be incorporated if it refers to
-	 *  the same source object (<code>getSource()</code>) and has
-	 *  the same ID (<code>getD()</code>). the
-	 *  timestamp of the current event should not be modified.
-	 *
-	 *  @param		oldEvent	the most recent event in the queue
-	 *							which might be incorporated by this
-	 *							new event.
-	 *  @return		<code>true</code> if this object was able to
-	 *				incorporate the older event. in this
-	 *				case the <code>oldEvent</code> is removed from the
-	 *				event queue. <code>false</code> states
-	 *				that the <code>oldEvent</code> was incompatible and
-	 *				should remain in the queue.
-	 *
-	 *  @see	javax.swing.undo.UndoableEdit#replaceEdit( UndoableEdit )
-	 */
-	public abstract boolean incorporate( BasicEvent oldEvent );
+        this.id		= id;
+        this.when   = when;
+    }
+
+    /**
+     *  Requests an identifier specifying the
+     *  exact type of action that was performed.
+     *
+     *  @return a subclass specific identifier
+     */
+    public int getID()
+    {
+        return id;
+    }
+
+    /**
+     *  State whens the event has been generated,
+     *  a timestamp specifying system time millisecs
+     *  as returned by <code>System.currentTimeMillis()</code>.
+     *
+     *  @return time when the event was generated
+     */
+    public long getWhen()
+    {
+        return when;
+    }
+
+    /**
+     *  Asks the event to incorporate the action
+     *  described by another (older) event.
+     *  This method has been created to reduce overhead;
+     *  when many events are added to the event queue
+     *  of an ELM, this allows to fuse two adjectant
+     *  events. The idea is mainly based on the <code>replaceEdit()</code>
+     *  method of the <code>javax.swing.undo.UndoableEdit</code>
+     *  interface; a pendant of a symmetric <code>addEdit()</code>
+     *  like method is not provided because it seems to
+     *  be unnecessary.
+     *  <p>
+     *  Implementation notes : the <code>oldEvent</code> should
+     *  generally only be incorporated if it refers to
+     *  the same source object (<code>getSource()</code>) and has
+     *  the same ID (<code>getD()</code>). the
+     *  timestamp of the current event should not be modified.
+     *
+     *  @param		oldEvent	the most recent event in the queue
+     *							which might be incorporated by this
+     *							new event.
+     *  @return		<code>true</code> if this object was able to
+     *				incorporate the older event. in this
+     *				case the <code>oldEvent</code> is removed from the
+     *				event queue. <code>false</code> states
+     *				that the <code>oldEvent</code> was incompatible and
+     *				should remain in the queue.
+     *
+     *  @see	javax.swing.undo.UndoableEdit#replaceEdit( UndoableEdit )
+     */
+    public abstract boolean incorporate( BasicEvent oldEvent );
 }

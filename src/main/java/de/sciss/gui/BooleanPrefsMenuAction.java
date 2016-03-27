@@ -2,7 +2,7 @@
  *  BooleanPrefsMenuAction.java
  *  (ScissLib)
  *
- *  Copyright (c) 2004-2013 Hanns Holger Rutz. All rights reserved.
+ *  Copyright (c) 2004-2016 Hanns Holger Rutz. All rights reserved.
  *
  *	This library is free software; you can redistribute it and/or
  *	modify it under the terms of the GNU Lesser General Public
@@ -40,43 +40,43 @@ import javax.swing.KeyStroke;
 public class BooleanPrefsMenuAction
 extends PrefMenuAction
 {
-	private MenuCheckItem mci;
+    private MenuCheckItem mci;
 
-	public BooleanPrefsMenuAction( String text, KeyStroke shortcut )
-	{
-		super( text, shortcut );
-	}
-	
-	public void setCheckItem( MenuCheckItem mci )
-	{
-		this.mci = mci;
-	}
+    public BooleanPrefsMenuAction( String text, KeyStroke shortcut )
+    {
+        super( text, shortcut );
+    }
 
-	/**
-	 *  Switches button state
-	 *  and updates preferences. 
-	 */
-	public void actionPerformed( ActionEvent e )
-	{
-		boolean state   = ((AbstractButton) e.getSource()).isSelected();
+    public void setCheckItem( MenuCheckItem mci )
+    {
+        this.mci = mci;
+    }
 
-		if( mci != null ) mci.setSelected( state );
-	
-		if( shouldWritePrefs() ) {
-			getPreferenceNode().putBoolean( getPreferenceKey(), state );
-		}
-	}
-	
-	public void writePrefs()
-	{
-		if( canWritePrefs() && (mci != null) ) getPreferenceNode().putBoolean( getPreferenceKey(), mci.isSelected() );
-	}
+    /**
+     *  Switches button state
+     *  and updates preferences.
+     */
+    public void actionPerformed( ActionEvent e )
+    {
+        boolean state   = ((AbstractButton) e.getSource()).isSelected();
 
-	protected void readPrefsFromString( String prefsValue )
-	{
-		if( prefsValue == null ) return;
-		final boolean prefsVal	= Boolean.valueOf( prefsValue ).booleanValue();
+        if( mci != null ) mci.setSelected( state );
 
-		if( mci != null ) mci.setSelected( prefsVal );
-	}
+        if( shouldWritePrefs() ) {
+            getPreferenceNode().putBoolean( getPreferenceKey(), state );
+        }
+    }
+
+    public void writePrefs()
+    {
+        if( canWritePrefs() && (mci != null) ) getPreferenceNode().putBoolean( getPreferenceKey(), mci.isSelected() );
+    }
+
+    protected void readPrefsFromString( String prefsValue )
+    {
+        if( prefsValue == null ) return;
+        final boolean prefsVal	= Boolean.valueOf( prefsValue ).booleanValue();
+
+        if( mci != null ) mci.setSelected( prefsVal );
+    }
 }
