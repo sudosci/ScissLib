@@ -25,10 +25,13 @@
 
 package de.sciss.gui;
 
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.FileDialog;
-import java.awt.Frame;
+import de.sciss.app.BasicEvent;
+import de.sciss.app.EventManager;
+
+import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -38,15 +41,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
-import javax.swing.event.MouseInputAdapter;
-
-import de.sciss.app.BasicEvent;
-import de.sciss.app.EventManager;
-
-import net.roydesign.ui.FolderDialog;
 
 /**
  *  This class is a rewritten version
@@ -62,12 +56,11 @@ import net.roydesign.ui.FolderDialog;
  *  @version	0.18, 07-Feb-10
  *
  *  @see		java.awt.FileDialog
- *  @see		net.roydesign.ui.FolderDialog
  */
 public class PathButton
-extends ModificationButton
-implements EventManager.Processor
-{
+        extends ModificationButton
+        implements EventManager.Processor {
+
     private File				path	= null;
     private final int			type;
     private String				dlgTxt;
@@ -247,22 +240,49 @@ implements EventManager.Processor
         } // for( i = 0; i < elm.countListeners(); i++ )
     }
 
-    protected void showDialog( Dialog dlg )
-    {
-        dlg.setVisible( true );
+    protected void showDialog(Dialog dlg) {
+        dlg.setVisible(true);
     }
 
-    protected void showFileChooser()
-    {
+    private void showFolderChooser(Frame win, File p) {
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (p != null) {
+            fc.setSelectedFile(p);
+        }
+        if (filter != null) {
+            fc.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return filter.accept(f.getParentFile(), f.getName());
+                }
+
+                @Override
+                public String getDescription() {
+                    return null;
+                }
+            });
+        }
+        final int result = fc.showDialog(win, null);
+
+        final File fRes = fc.getSelectedFile();
+
+        if (result == JFileChooser.APPROVE_OPTION && fRes != null) {
+            setPathAndDispatchEvent(fRes);
+        }
+    }
+
+    protected void showFileChooser() {
+
         File		p;
         FileDialog	fDlg;
         String		fDir, fFile; // , fPath;
 //		int			i;
         Component	win;
 
-        for( win = this; !(win instanceof Frame); ) {
-            win = SwingUtilities.getWindowAncestor( win );
-            if( win == null ) return;
+        for (win = this; !(win instanceof Frame); ) {
+            win = SwingUtilities.getWindowAncestor(win);
+            if (win == null) return;
         }
 
         p = getPath();
@@ -274,19 +294,22 @@ implements EventManager.Processor
             fDlg = new FileDialog( (Frame) win, dlgTxt, FileDialog.SAVE );
             break;
         case PathField.TYPE_FOLDER:
-            fDlg = new FolderDialog( (Frame) win, dlgTxt );
-            break;
+            showFolderChooser((Frame) win, p);
+            return;
+            // fDlg = new FolderDialog( (Frame) win, dlgTxt );
+            // break;
         default:
             fDlg = null;
             assert false : (type & PathField.TYPE_BASICMASK);
             break;
         }
-        if( p != null ) {
-            fDlg.setFile( p.getName() );
-            fDlg.setDirectory( p.getParent() );
+
+        if (p != null) {
+            fDlg.setFile(p.getName());
+            fDlg.setDirectory(p.getParent());
         }
-        if( filter != null ) {
-            fDlg.setFilenameFilter( filter );
+        if (filter != null) {
+            fDlg.setFilenameFilter(filter);
         }
         showDialog( fDlg );
         fDir	= fDlg.getDirectory();
@@ -296,24 +319,23 @@ implements EventManager.Processor
             fDir = "";
         }
 
-        if( (fFile != null) && (fDir != null) ) {
+        if ((fFile != null) && (fDir != null)) {
 
-            if( (type & PathField.TYPE_BASICMASK) == PathField.TYPE_FOLDER ) {
-                p = new File( fDir );
+            if ((type & PathField.TYPE_BASICMASK) == PathField.TYPE_FOLDER) {
+                p = new File(fDir);
             } else {
-                p = new File( fDir + fFile );
+                p = new File(fDir + fFile);
             }
-            setPathAndDispatchEvent( p );
+            setPathAndDispatchEvent(p);
         }
 
         fDlg.dispose();
     }
 
-// ----------- interner TransferHandler -----------
+// ----------- internal TransferHandler -----------
 
     private class PathTransferHandler
-    extends TransferHandler
-    {
+            extends TransferHandler {
         protected PathTransferHandler() { /* empty */ }
 
         /**
@@ -364,38 +386,27 @@ implements EventManager.Processor
             return new PathTransferable( getPath() );
         }
 
-        protected void exportDone( JComponent source, Transferable data, int action )
-        {
-//			System.err.println( "exportDone. Action == "+action );
+        protected void exportDone(JComponent source, Transferable data, int action) {
         }
 
-        public boolean canImport( JComponent c, DataFlavor[] flavors )
-        {
-// System.err.println( "canImport" );
-
-            for( int i = 0; i < flavors.length; i++ ) {
-                for( int j = 0; j < supportedFlavors.length; j++ ) {
-                    if( flavors[i].equals( supportedFlavors[j] )) return true;
+        public boolean canImport(JComponent c, DataFlavor[] flavors) {
+            for (int i = 0; i < flavors.length; i++) {
+                for (int j = 0; j < supportedFlavors.length; j++) {
+                    if (flavors[i].equals(supportedFlavors[j])) return true;
                 }
             }
             return false;
         }
 
-//		public Icon getVisualRepresentation( Transferable t )
-//		{
-//System.err.println( "getVisualRepresentation" );
-//			return FileSystemView.getFileSystemView().getSystemIcon( new File( System.getProperty( "user.home" )));
-//		}
     } // class PathTransferHandler
 
     private static class PathTransferable
-    implements Transferable
-    {
+            implements Transferable {
+
         private final File f;
 
-        protected PathTransferable( File f )
-        {
-            this.f	= f;
+        protected PathTransferable(File f) {
+            this.f = f;
         }
 
         public DataFlavor[] getTransferDataFlavors()
@@ -403,26 +414,24 @@ implements EventManager.Processor
             return supportedFlavors;
         }
 
-        public boolean isDataFlavorSupported( DataFlavor flavor )
-        {
-            for( int i = 0; i < supportedFlavors.length; i++ ) {
-                if( supportedFlavors[ i ].equals( flavor )) return true;
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            for (int i = 0; i < supportedFlavors.length; i++) {
+                if (supportedFlavors[i].equals(flavor)) return true;
             }
             return false;
         }
 
-        public Object getTransferData( DataFlavor flavor )
-        throws UnsupportedFlavorException, IOException
-        {
-            if( f == null ) throw new IOException();
-            if( flavor.equals( DataFlavor.javaFileListFlavor )) {
-                final List coll = new ArrayList( 1 );
-                coll.add( f );
+        public Object getTransferData(DataFlavor flavor)
+                throws UnsupportedFlavorException, IOException {
+            if (f == null) throw new IOException();
+            if (flavor.equals(DataFlavor.javaFileListFlavor)) {
+                final List coll = new ArrayList(1);
+                coll.add(f);
                 return coll;
-            } else if( flavor.equals( DataFlavor.stringFlavor )) {
+            } else if (flavor.equals(DataFlavor.stringFlavor)) {
                 return f.getAbsolutePath();
             }
-            throw new UnsupportedFlavorException( flavor );
+            throw new UnsupportedFlavorException(flavor);
         }
     }
 }

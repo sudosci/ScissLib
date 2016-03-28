@@ -25,9 +25,16 @@
 
 package de.sciss.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
+import de.sciss.app.AbstractApplication;
+import de.sciss.app.AbstractWindow;
+import de.sciss.app.Application;
+import de.sciss.app.WindowHandler;
+
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.Document;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -38,22 +45,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JEditorPane;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.text.Document;
-
-import net.roydesign.mac.MRJAdapter;
-
-import de.sciss.app.AbstractApplication;
-import de.sciss.app.Application;
-import de.sciss.app.AbstractWindow;
-import de.sciss.app.WindowHandler;
 
 /**
  *  A frame displaying online HTML help
@@ -63,8 +54,7 @@ import de.sciss.app.WindowHandler;
  *  @version	0.19, 02-Nov-10
  */
 public class HelpFrame
-implements HyperlinkListener, PropertyChangeListener
-{
+        implements HyperlinkListener, PropertyChangeListener {
     /**
      *	Identifier for Application.getComponent
      */
@@ -87,8 +77,7 @@ implements HyperlinkListener, PropertyChangeListener
      *
      *  @see    #loadHelpFile( String )
      */
-    public HelpFrame()
-    {
+    public HelpFrame() {
         super();
         
         final Application	app	= AbstractApplication.getApplication();
@@ -105,36 +94,34 @@ implements HyperlinkListener, PropertyChangeListener
 
         win.setTitle( plainTitle );
 
-        // ---------- HTML schoko ----------
-        htmlPane    = new JEditorPane();
-        htmlPane.setEditable( false );
-        htmlPane.addHyperlinkListener( this );
-        htmlPane.setPreferredSize( new Dimension( 320, 320 ));
-        htmlPane.setAutoscrolls( true );
-//      htmlPane.setContentType( "text/html" );
-        htmlPane.addPropertyChangeListener( this );
-//		HelpGlassPane.setHelp( htmlPane, "HelpHTMLPane" );
-        ggScroll    = new JScrollPane( htmlPane );
-        ggVScroll	= ggScroll.getVerticalScrollBar();
+        // ---------- HTML stuff ----------
+        htmlPane = new JEditorPane();
+        htmlPane.setEditable(false);
+        htmlPane.addHyperlinkListener(this);
+        htmlPane.setPreferredSize(new Dimension(320, 320));
+        htmlPane.setAutoscrolls(true);
+        htmlPane.addPropertyChangeListener(this);
+        ggScroll = new JScrollPane(htmlPane);
+        ggScroll.putClientProperty("styleId", "undecorated");
+        ggVScroll = ggScroll.getVerticalScrollBar();
         
         // ---------- generic gadgets ----------
 
         buttonPanel = Box.createHorizontalBox(); // new JPanel( new FlowLayout( FlowLayout.RIGHT, 4, 4 ));
-        ggEdit		= new JButton( GUIUtil.getResourceString( "buttonJEdit" ));
-        buttonPanel.add( ggEdit );
-        buttonPanel.add( Box.createHorizontalGlue() );
-        ggEdit.addActionListener( new ActionListener() {
-            public void actionPerformed( ActionEvent e )
-            {
+        ggEdit = new JButton(GUIUtil.getResourceString("buttonTextEdit"));
+        buttonPanel.add(ggEdit);
+        buttonPanel.add(Box.createHorizontalGlue());
+        ggEdit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 if( historyIndex < 0 ) return;
 
                 try {
-                    final File			f	= net.roydesign.mac.MRJAdapter.findApplication( "JESP" );	// try to open with jEdit
-                    final HistoryEntry	he	= (HistoryEntry) history.get( historyIndex );
-                    if( f != null ) {
-                        final String[] cmdArray = { "open", "-a", f.getAbsolutePath(), new File( new URI( he.url.toString() )).getAbsolutePath() };
-                        java.lang.Runtime.getRuntime().exec( cmdArray );
-                    }
+                    final String[] editor = app.getUserPrefs().get("text-editor", "gedit").split(" ");
+                    final HistoryEntry he = (HistoryEntry) history.get(historyIndex);
+                    final String[] cmdArray = new String[editor.length + 1];
+                    System.arraycopy(editor, 0, cmdArray, 0, editor.length);
+                    cmdArray[cmdArray.length - 1] = new File(new URI(he.url.toString())).getAbsolutePath();
+                    java.lang.Runtime.getRuntime().exec(cmdArray);
                 }
                 catch( IOException e1 ) {
                     GUIUtil.displayError( win.getWindow(), e1, ggEdit.getText() );
@@ -231,16 +218,24 @@ implements HyperlinkListener, PropertyChangeListener
      *                      the help text, omitting
      *                      the directory and the ".html" suffix
      */
-    public static void openViewerAndLoadHelpFile( String fileName )
-    {
-        HelpFrame helpFrame = (HelpFrame) AbstractApplication.getApplication().getComponent(
-            HelpFrame.COMP_HELP );
+    public static void openViewerAndLoadHelpFile(String fileName) {
+        try {
+            URL url = new File("help", fileName + ".html").toURI().toURL();
+            openViewerAndLoadHelpFile(url);
+        } catch (IOException e1) {
+            GUIUtil.displayError(null, e1, null);
+        }
+    }
 
-        if( helpFrame == null ) {
+    public static void openViewerAndLoadHelpFile(URL url) {
+        HelpFrame helpFrame = (HelpFrame) AbstractApplication.getApplication().getComponent(
+                HelpFrame.COMP_HELP);
+
+        if (helpFrame == null) {
             helpFrame = new HelpFrame();
         }
-        helpFrame.loadHelpFile( fileName );
-        helpFrame.win.setVisible( true );
+        helpFrame.loadHelpFile(url);
+        helpFrame.win.setVisible(true);
         helpFrame.win.toFront();
     }
 
@@ -252,127 +247,120 @@ implements HyperlinkListener, PropertyChangeListener
      *                      the help text, omitting
      *                      the directory and the ".html" suffix
      */
-    public void loadHelpFile( String fileName )
-    {
+    public void loadHelpFile(String fileName) {
         try {
-            URL url = new File( "help", fileName + ".html" ).toURI().toURL();
-            addAndLoadURL( url );
-        }
-        catch( IOException e1 ) {
-            GUIUtil.displayError( win.getWindow(), e1, null );
+            URL url = new File("help", fileName + ".html").toURI().toURL();
+            loadHelpFile(url);
+        } catch (IOException e1) {
+            GUIUtil.displayError(win.getWindow(), e1, null);
         }
     }
 
-    private void addAndLoadURL( URL url )
-    throws IOException
-    {
-        if( historyIndex >= 0 ) {
-            ((HistoryEntry) history.get( historyIndex )).setVerticalScroll( ggVScroll.getValue() );
+    public void loadHelpFile(URL url) {
+        try {
+            addAndLoadURL(url);
+        } catch (IOException e1) {
+            GUIUtil.displayError(win.getWindow(), e1, null);
         }
-        history.add( ++historyIndex, new HistoryEntry( url ));
+    }
+
+    private void addAndLoadURL(URL url)
+            throws IOException {
+        if (historyIndex >= 0) {
+            ((HistoryEntry) history.get(historyIndex)).setVerticalScroll(ggVScroll.getValue());
+        }
+        history.add(++historyIndex, new HistoryEntry(url));
         try {
             loadURL();
-            for( int i = history.size() - 1; i > historyIndex; i-- ) {
-                history.remove( i );
+            for (int i = history.size() - 1; i > historyIndex; i--) {
+                history.remove(i);
             }
-        }
-        catch( IOException e2 ) {   // try to load previous file
-            history.remove( historyIndex-- );
-            if( historyIndex >= 0 ) loadURL();
+        } catch (IOException e2) {   // try to load previous file
+            history.remove(historyIndex--);
+            if (historyIndex >= 0) loadURL();
             throw e2;
         }
     }
-    
+
     protected void loadURL()
-    throws IOException
-    {
+            throws IOException {
         try {
-            HistoryEntry he = (HistoryEntry) history.get( historyIndex );
-            htmlPane.setPage( he.url );
-        }
-        finally {
+            HistoryEntry he = (HistoryEntry) history.get(historyIndex);
+            htmlPane.setPage(he.url);
+        } finally {
             updateButtons();
         }
     }
 
-    private void updateButtons()
-    {
-        ggOpenInBrowser.setEnabled( historyIndex >= 0 );
-        ggEdit.setEnabled( historyIndex >= 0 );
-        ggBack.setEnabled( historyIndex > 0 );
+    private void updateButtons() {
+        ggOpenInBrowser.setEnabled(historyIndex >= 0);
+        ggEdit.setEnabled(historyIndex >= 0);
+        ggBack.setEnabled(historyIndex > 0);
     }
 
-    protected void openInBrowser()
-    {
-        if( historyIndex >= 0 ) {
+    protected void openInBrowser() {
+        if (historyIndex >= 0) {
             try {
-                MRJAdapter.openURL( ((HistoryEntry) history.get( historyIndex )).url.toString() );
-            }
-            catch( IOException e1 ) {
-                GUIUtil.displayError( win.getWindow(), e1, null );
+                final URI uri = ((HistoryEntry) history.get(historyIndex)).url.toURI();
+                Desktop.getDesktop().browse(uri);
+            } catch (IOException e1) {
+                GUIUtil.displayError(win.getWindow(), e1, null);
+            } catch (URISyntaxException e1) {
+                GUIUtil.displayError(win.getWindow(), e1, null);
             }
         }
     }
 
     // doc.getProperty always returns null on windows??
-    private void pageIsLoaded()
-    {
-        javax.swing.text.Document		doc = htmlPane.getDocument();
-        HistoryEntry	he	= (HistoryEntry) history.get( historyIndex );
+    private void pageIsLoaded() {
+        javax.swing.text.Document doc = htmlPane.getDocument();
+        HistoryEntry he = (HistoryEntry) history.get(historyIndex);
 
-        if( doc != null ) {
-            Object title = doc.getProperty( Document.TitleProperty );
-            win.setTitle( title == null ? plainTitle : plainTitle + (" : " + title) );
-            ggVScroll.setValue( he.getVerticalScroll() );
+        if (doc != null) {
+            Object title = doc.getProperty(Document.TitleProperty);
+            win.setTitle(title == null ? plainTitle : plainTitle + (" : " + title));
+            ggVScroll.setValue(he.getVerticalScroll());
         }
     }
     
     // --------------- HyperlinkListener interface ---------------
-    public void hyperlinkUpdate( HyperlinkEvent e )
-    {
-        if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             try {
-                addAndLoadURL( e.getURL() );
-            }
-            catch( IOException e1 ) {
-                GUIUtil.displayError( win.getWindow(), e1, null );
+                addAndLoadURL(e.getURL());
+            } catch (IOException e1) {
+                GUIUtil.displayError(win.getWindow(), e1, null);
             }
         }
     }
 
     // --------------- PropertyChangeListener interface ---------------
-    public void propertyChange( PropertyChangeEvent e )
-    {
-        if( e.getPropertyName().equals( "page" )) {
+    public void propertyChange(PropertyChangeEvent e) {
+        if (e.getPropertyName().equals("page")) {
             pageIsLoaded();
         }
     }
 
 // --------------- internal classes ---------------
 
-    private static class HistoryEntry
-    {
-        protected final URL	url;
-        private int	verticalScroll;
+    private static class HistoryEntry {
+        protected final URL url;
+        private int verticalScroll;
 
-        private HistoryEntry( URL url, int verticalScroll )
-        {
-            this.url			= url;
-            this.verticalScroll	= verticalScroll;
+        private HistoryEntry(URL url, int verticalScroll) {
+            this.url = url;
+            this.verticalScroll = verticalScroll;
         }
 
-        protected HistoryEntry( URL url )
-        {
-            this( url, 0 );
+        protected HistoryEntry(URL url) {
+            this(url, 0);
         }
 
-        protected void setVerticalScroll( int verticalScroll )
-        {
-            this.verticalScroll	= verticalScroll;
+        protected void setVerticalScroll(int verticalScroll) {
+            this.verticalScroll = verticalScroll;
         }
 
-        protected int getVerticalScroll()
-        {
+        protected int getVerticalScroll() {
             return verticalScroll;
         }
     }

@@ -53,8 +53,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import net.roydesign.mac.MRJAdapter;
-
 import de.sciss.app.AbstractApplication;
 import de.sciss.app.AbstractWindow;
 import de.sciss.app.WindowHandler;
@@ -307,7 +305,7 @@ extends AbstractWindowHandler
 
     public boolean usesScreenMenuBar()
     {
-        return MRJAdapter.isSwingUsingScreenMenuBar();
+        return false; // MRJAdapter.isSwingUsingScreenMenuBar();
     }
 
     public JDesktopPane getDesktop()

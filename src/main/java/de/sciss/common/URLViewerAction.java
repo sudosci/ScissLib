@@ -24,14 +24,16 @@
  */
 package de.sciss.common;
 
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-
-import javax.swing.KeyStroke;
-
-import net.roydesign.mac.MRJAdapter;
 import de.sciss.gui.HelpFrame;
 import de.sciss.gui.MenuAction;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  *	Generic action for bringing up
@@ -41,28 +43,23 @@ import de.sciss.gui.MenuAction;
  *	@author		Hanns Holger Rutz
  *	@version	0.10, 09-Aug-09
  */
-public class URLViewerAction extends MenuAction
-{
-    private final String	theURL;
-    private final boolean	openWebBrowser;
+public class URLViewerAction extends MenuAction {
+    private final String theURL;
+    private final boolean openWebBrowser;
 
     /**
      * @param	theURL			what file to open ; when using the
      * 							help viewer, that's the relative help file name
      *							without .html extension. when using web browser,
      *							that's the complete URL!
-     * @param text
-     * @param shortcut
-     * @param theURL
      * @param   openWebBrowser	if true, use the default web browser,
      *							if false use internal help viewer
      */
-    public URLViewerAction( String text, KeyStroke shortcut, String theURL, boolean openWebBrowser )
-    {
-        super( text, shortcut );
+    public URLViewerAction(String text, KeyStroke shortcut, String theURL, boolean openWebBrowser) {
+        super(text, shortcut);
 
-        this.theURL			= theURL;
-        this.openWebBrowser	= openWebBrowser;
+        this.theURL = theURL;
+        this.openWebBrowser = openWebBrowser;
     }
 
     /**
@@ -73,17 +70,18 @@ public class URLViewerAction extends MenuAction
      *  If the window is already open, this
      *  method will bring it to the front.
      */
-    public void actionPerformed( ActionEvent e )
-    {
-        if( openWebBrowser ) {
+    public void actionPerformed(ActionEvent e) {
+        if (openWebBrowser) {
             try {
-                MRJAdapter.openURL( theURL );
-            }
-            catch( IOException e1 ) {
-                BasicWindowHandler.showErrorDialog( null, e1, NAME );
+                final URI uri = new URL(theURL).toURI();
+                Desktop.getDesktop().browse(uri);
+            } catch (IOException e1) {
+                BasicWindowHandler.showErrorDialog(null, e1, NAME);
+            } catch (URISyntaxException e1) {
+                BasicWindowHandler.showErrorDialog(null, e1, NAME);
             }
         } else {
-            HelpFrame.openViewerAndLoadHelpFile( theURL );
+            HelpFrame.openViewerAndLoadHelpFile(theURL);
         }
     }
 }

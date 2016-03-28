@@ -25,7 +25,7 @@
 
 package de.sciss.app;
 
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.util.HashMap;
 import java.util.Locale;
@@ -38,17 +38,14 @@ import java.util.prefs.Preferences;
 /**
  *  A rudimentary implementation of the <code>de.sciss.app.Application</code>
  *	interface, which deals with component registration, quitting,
- *	preference, clipboard and resource bundle generation. It
- *	extends <code>net.roydesign.app.Application</code> in order
- *	to supply easy access to methods.
+ *	preference, clipboard and resource bundle generation.
  *
  *  @author		Hanns Holger Rutz
  *  @version	0.13, 15-Sep-05
  */
 public abstract class AbstractApplication
-extends net.roydesign.app.Application
-implements de.sciss.app.Application
-{
+        implements de.sciss.app.Application {
+
     /*
      *  This ResourceBundle contains all of the strings used in this application.
      */
@@ -62,6 +59,8 @@ implements de.sciss.app.Application
     private Clipboard					clipboard		= null;
 
     private static Application app = null;
+
+    private String name;
 
     /**
      *	Creates a new instance of this class. The <code>mainClass</code>
@@ -85,34 +84,43 @@ implements de.sciss.app.Application
      *
      *	@see	#getApplication
      */
-    protected AbstractApplication( Class mainClass, String name )
-    {
+    protected AbstractApplication(Class mainClass, String name) {
         super();
 
-        if( AbstractApplication.app != null ) {	// only one application allowed
-            throw new RuntimeException( "AbstractApplication cannot be instantiated more than once" );
+        if (AbstractApplication.app != null) {    // only one application allowed
+            throw new RuntimeException("AbstractApplication cannot be instantiated more than once");
         }
-        AbstractApplication.app	= this;
-        setName( name );
+        AbstractApplication.app = this;
+        setName(name);
 
-        resBundle		= ResourceBundle.getBundle( name + "Strings", Locale.getDefault() );
-        this.mainClass	= mainClass;
+        resBundle = ResourceBundle.getBundle(name + "Strings", Locale.getDefault());
+        this.mainClass = mainClass;
 
     }
 
-    public final Preferences getSystemPrefs()
-    {
-        if( systemPrefs == null ) {
-            systemPrefs = Preferences.systemNodeForPackage( mainClass );
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        if(this.name == null) {
+            this.name = System.getProperty("com.apple.mrj.application.apple.menu.about.name");
+        }
+
+        return this.name;
+    }
+
+    public final Preferences getSystemPrefs() {
+        if (systemPrefs == null) {
+            systemPrefs = Preferences.systemNodeForPackage(mainClass);
         }
 
         return systemPrefs;
     }
 
-    public final Preferences getUserPrefs()
-    {
-        if( userPrefs == null ) {
-            userPrefs = Preferences.userNodeForPackage( mainClass );
+    public final Preferences getUserPrefs() {
+        if (userPrefs == null) {
+            userPrefs = Preferences.userNodeForPackage(mainClass);
         }
 
         return userPrefs;
@@ -168,68 +176,48 @@ implements de.sciss.app.Application
     /**
      *	synchronization: this method is synchronized
      */
-    public final void addComponent( Object key, Object component )
-    {
-        synchronized( mapComponents ) {
-            mapComponents.put( key, component );
+    public final void addComponent(Object key, Object component) {
+        synchronized (mapComponents) {
+            mapComponents.put(key, component);
         }
     }
 
     /**
      *	synchronization:	this method is synchronized
      */
-    public final void removeComponent( Object key )
-    {
-        synchronized( mapComponents ) {
-            mapComponents.remove( key );
+    public final void removeComponent(Object key) {
+        synchronized (mapComponents) {
+            mapComponents.remove(key);
         }
     }
 
-    /**
-     *	Returns <code>this</code>.
-     */
-    public final net.roydesign.app.Application getMRJApplication()
-    {
-        return this;
-    }
-
-    public final String getResourceString( String key )
-    {
+    public final String getResourceString(String key) {
         try {
-            return resBundle.getString( key );
-        }
-        catch( MissingResourceException e1 ) {
-            return( "[Missing Resource: " + key + "]" );
+            return resBundle.getString(key);
+        } catch (MissingResourceException e1) {
+            return ("[Missing Resource: " + key + "]");
         }
     }
 
-    public final String getResourceString( String key, String defaultValue )
-    {
+    public final String getResourceString(String key, String defaultValue) {
         try {
-            return resBundle.getString( key );
-        }
-        catch( MissingResourceException e1 ) {
-            return( defaultValue );
+            return resBundle.getString(key);
+        } catch (MissingResourceException e1) {
+            return (defaultValue);
         }
     }
 
     /**
      *	Flushes preferences and quits.
      */
-    public synchronized void quit()
-    {
-        boolean success = false;
-
+    public synchronized void quit() {
         try {
-            if( systemPrefs != null ) systemPrefs.flush();
-            if( userPrefs != null )   userPrefs.flush();
-            success = true;
-        }
-        catch( BackingStoreException e1 ) {
-            System.err.println( "error while flushing prefs : "+e1.getLocalizedMessage() );
-        }
-        finally {
-            System.exit( success ? 0 : 1 );
+            if (systemPrefs != null) systemPrefs.flush();
+            if (userPrefs   != null) userPrefs  .flush();
+            System.exit(0);
+        } catch (BackingStoreException e1) {
+            System.err.println("error while flushing prefs : " + e1.getLocalizedMessage());
+            System.exit(1);
         }
     }
 
@@ -242,8 +230,7 @@ implements de.sciss.app.Application
      *	@return	the active <code>Application</code> or <code>null</code>
      *			if no application has been created.
      */
-    public static final Application getApplication()
-    {
+    public static Application getApplication() {
         return app;
     }
 }

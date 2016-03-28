@@ -31,14 +31,9 @@ To use this library in your project, you can link to the following [Maven](http:
 
 Please see the file [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## source code
-
-This project's source code is published on [github.com/Sciss/ScissLib](https://github.com/Sciss/ScissLib). It uses Steve Roy's MRJAdapter published under the Artistic License, source code provided through [java.net/projects/mrjadapter/sources/svn/show](https://java.net/projects/mrjadapter/sources/svn/show).
-
-MRJAdapter is not included as a Maven dependency. Therefore, you must include MRJAdapter manually in your projects.
-
 ## change history
 
+ - v1.1.0 (mar 2016). supports dark look-and-feel. drop MRJ adaptor.
  - v1.0.0 (aug 2013). fixes issue no. 1 (remove unnecessary scala-library dependency).
  - v0.15 (apr 2012). moved from SourceForge/svn/Eclipse/ant to GitHub/git/IDEA/sbt.
  - v0.12 (jul 2009)

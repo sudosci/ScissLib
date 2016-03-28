@@ -28,8 +28,6 @@ package de.sciss.app;
 import java.awt.datatransfer.Clipboard;
 import java.util.prefs.Preferences;
 
-// import net.roydesign.app.Application;
-
 /**
  *  The <code>Application</code> interface is an attempt
  *	to create common classes and interfaces (the package
@@ -80,20 +78,6 @@ public interface Application
     public String getName();
 
     /**
-     *	Returns the four character Mac OS specific creator code
-     *	as registered on the Apple Developer Connection. This creator
-     *	code can be used to tag files with the corresponding
-     *	application. This method will return the code independant
-     *	of the running operating system.
-     *
-     *	@return	the creator code for this application or <code>null</code>
-     *			if there hasn't been registered any code.
-     *
-     *	@see	net.roydesign.mac.MRJAdapter#setFileCreator( java.io.File, java.lang.String )
-     */
-    public String getMacOSCreator();
-
-    /**
      *	Returns the clipboard used by the application.
      *
      *	@return	the clipboard used by the application
@@ -136,17 +120,6 @@ public interface Application
     public WindowHandler getWindowHandler();
 
     public GraphicsHandler getGraphicsHandler();
-
-    /**
-     *	Returns an instance of MRJAdapter's <code>Application</code>
-     *	class which will deal with basic platform dependent GUI
-     *	operations such as providing a Quit or Preferences menu item,
-     *	handling file open requests from the system etc.
-     *
-     *	@return	the <code>Application</code> class providing access to
-     *			common menu items and system events registration
-     */
-    public net.roydesign.app.Application getMRJApplication();
 
     /**
      *	Returns a localized string for a given

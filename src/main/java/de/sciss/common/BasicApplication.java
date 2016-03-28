@@ -25,15 +25,6 @@
 
 package de.sciss.common;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import net.roydesign.event.ApplicationEvent;
-import net.roydesign.mac.MRJAdapter;
-
 import de.sciss.app.AbstractApplication;
 import de.sciss.app.DocumentHandler;
 import de.sciss.app.GraphicsHandler;
@@ -41,100 +32,80 @@ import de.sciss.app.WindowHandler;
 import de.sciss.gui.MenuAction;
 import de.sciss.gui.MenuRoot;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
 public abstract class BasicApplication
-extends AbstractApplication
-{
-    private final ActionQuit		actionQuit;
-    private BasicWindowHandler			wh;
-    private DocumentHandler				dh;
-    private GraphicsHandler				gh;
-    private BasicMenuFactory			mf;
+        extends AbstractApplication {
+    private final ActionQuit actionQuit;
+    private BasicWindowHandler wh;
+    private DocumentHandler dh;
+    private GraphicsHandler gh;
+    private BasicMenuFactory mf;
 
-    protected BasicApplication( Class c, String name )
-    {
-        super( c, name );
+    protected BasicApplication(Class c, String name) {
+        super(c, name);
 
-        actionQuit			= new ActionQuit( getResourceString( "menuQuit" ),
-                                                   KeyStroke.getKeyStroke( KeyEvent.VK_Q,
-                                                   BasicMenuFactory.MENU_SHORTCUT ));
+        actionQuit = new ActionQuit(getResourceString("menuQuit"),
+                KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+                        BasicMenuFactory.MENU_SHORTCUT));
     }
 
-    protected void init()
-    {
-        gh					= new BasicGraphicsHandler();
-        dh					= createDocumentHandler();
-        mf					= createMenuFactory();
-        wh					= createWindowHandler();
+    protected void init() {
+        gh = new BasicGraphicsHandler();
+        dh = createDocumentHandler();
+        mf = createMenuFactory();
+        wh = createWindowHandler();
 
         mf.init();
         wh.init();
-
-        // ---- listeners ----
-
-        MRJAdapter.addOpenDocumentListener( new ActionListener() {
-            public void actionPerformed( ActionEvent e )
-            {
-                handleOpenFile( (ApplicationEvent) e );
-            }
-        });
     }
 
-    public GraphicsHandler getGraphicsHandler()
-    {
+    public GraphicsHandler getGraphicsHandler() {
         return gh;
     }
 
-    protected abstract BasicMenuFactory		createMenuFactory();
-    protected abstract BasicWindowHandler	createWindowHandler();
-    protected abstract DocumentHandler		createDocumentHandler();
+    protected abstract BasicMenuFactory createMenuFactory();
 
-    public WindowHandler getWindowHandler()
-    {
+    protected abstract BasicWindowHandler createWindowHandler();
+
+    protected abstract DocumentHandler createDocumentHandler();
+
+    public WindowHandler getWindowHandler() {
         return wh;
     }
 
-    public DocumentHandler getDocumentHandler()
-    {
+    public DocumentHandler getDocumentHandler() {
         return dh;
     }
 
-    public MenuRoot getMenuBarRoot()
-    {
+    public MenuRoot getMenuBarRoot() {
         return mf;
     }
 
-    public BasicMenuFactory getMenuFactory()
-    {
+    public BasicMenuFactory getMenuFactory() {
         return mf;
     }
 
-    public Action getQuitAction()
-    {
+    public Action getQuitAction() {
         return actionQuit;
-    }
-
-    protected void handleOpenFile( ApplicationEvent e )
-    {
-        mf.openDocument( e.getFile() );
     }
 
 // ---------------- internal classes ---------------- 
 
     // action for Application-Quit menu item
     private class ActionQuit
-    extends MenuAction
-    {
+            extends MenuAction {
 //		private String text;
 
-        protected ActionQuit( String text, KeyStroke shortcut )
-        {
-            super( text, shortcut );
+        protected ActionQuit(String text, KeyStroke shortcut) {
+            super(text, shortcut);
 
 //			this.text = text;
         }
 
-        public void actionPerformed( ActionEvent e )
-        {
+        public void actionPerformed(ActionEvent e) {
             quit();
         }
     }

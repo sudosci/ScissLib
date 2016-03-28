@@ -25,16 +25,13 @@
 
 package de.sciss.gui;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
 
 /**
  *  A <code>JTextArea</code> encompassing a <code>PrintWriter</code> that
@@ -54,13 +51,12 @@ import javax.swing.ScrollPaneConstants;
  *  @see	java.lang.System#setErr( PrintStream )
  */
 public class LogTextArea
-extends JTextArea
-{
+        extends JTextArea {
+
     protected final boolean		useLogFile;
     protected final File		logFile;
     private final PrintStream	outStream;
     protected FileWriter		logFileWriter   = null;
-//	private final JTextArea		textArea		= this;
     private int					totalLength		= 0;
     private MenuAction			actionClear		= null;
 
@@ -77,21 +73,19 @@ extends JTextArea
      *						into which the log is written. if <code>useLogFile</code> is
      *						<code>false</code>, you can pass <code>null</code> here.
      */
-    public LogTextArea( int rows, int columns, boolean useLogFile, File logFile )
-    {
-        super( rows, columns );
+    public LogTextArea(int rows, int columns, boolean useLogFile, File logFile) {
+        super(rows, columns);
 
         this.useLogFile = useLogFile;
-        this.logFile	= logFile;
-        outStream		= new PrintStream( new RedirectedStream() );
+        this.logFile    = logFile;
+        outStream       = new PrintStream(new RedirectedStream());
 
-        setEditable( false );
-        setLineWrap( true );
+        setEditable(false);
+        setLineWrap(true);
     }
 
-    public LogTextArea()
-    {
-        this( 6, 40, false, null );
+    public LogTextArea() {
+        this(6, 40, false, null);
     }
 
     /*
@@ -110,8 +104,7 @@ extends JTextArea
      *  @see	java.lang.System#setOut( PrintStream )
      *  @see	java.lang.System#setErr( PrintStream )
      */
-    public PrintStream getLogStream()
-    {
+    public PrintStream getLogStream() {
         return outStream;
     }
 
@@ -123,19 +116,16 @@ extends JTextArea
      *  stream and thus not appear in
      *  a log file.
      */
-    public void append( String str )
-    {
-        super.append( str );
+    public void append(String str) {
+        super.append(str);
         totalLength += str.length();
         updateCaret();
     }
 
-    private void updateCaret()
-    {
+    private void updateCaret() {
         try {
-            setCaretPosition( Math.max( 0, totalLength - 1 ));
-        }
-        catch( IllegalArgumentException e1 ) { /* ignore */ }
+            setCaretPosition(Math.max(0, totalLength - 1));
+        } catch (IllegalArgumentException e1) { /* ignore */ }
     }
 
     /**
@@ -149,114 +139,89 @@ extends JTextArea
      *					the gadgets content or <code>null</code>
      *					to clear the gadget.
      */
-    public void setText( String str )
-    {
-        super.setText( str );
+    public void setText(String str) {
+        super.setText(str);
         totalLength = str == null ? 0 : str.length();
     }
 
-//	public void laterInvocation( Object o )
-//	{
-//		append( (String) o );
-//	}
-
-    public MenuAction getClearAction()
-    {
-        if( actionClear == null ) {
+    public MenuAction getClearAction() {
+        if (actionClear == null) {
             actionClear = new ActionClear();
         }
         return actionClear;
     }
 
-    public JScrollPane placeMeInAPane()
-    {
-        return( new JScrollPane( this, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, // aqua hin aqua her. VERTICAL_SCROLLBAR_ALWAYS
-                                       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER ));
+    public JScrollPane placeMeInAPane() {
+        final JScrollPane res = new JScrollPane(this,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        res.putClientProperty("styleId", "undecorated");
+        return res;
     }
 
-    public void makeSystemOutput()
-    {
-        System.setOut( getLogStream() );
-        System.setErr( getLogStream() );
+    public void makeSystemOutput() {
+        System.setOut(getLogStream());
+        System.setErr(getLogStream());
     }
-
-// no effect (on aqua)
-//	public void paintComponent( Graphics g )
-//	{
-//		final Graphics2D g2 = (Graphics2D) g;
-//		g2.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF );
-//		super.paintComponent( g );
-//	}
 
 // ---------------- internal classes ----------------
 
     private class RedirectedStream
-    extends OutputStream
-    {
+            extends OutputStream {
         private byte[] cheesy = new byte[1];
-//		private int totalLength = 0;
 
-        protected RedirectedStream()
-        {
+        protected RedirectedStream() {
             super();
         }
 
-        public void write( byte b[] )
-        throws IOException
-        {
-            this.write( b, 0, b.length );
+        public void write(byte b[])
+                throws IOException {
+            this.write(b, 0, b.length);
         }
 
-        public void write( byte b[], int off, int len )
-        throws IOException
-        {
-            String str = new String( b, off, len );
+        public void write(byte b[], int off, int len)
+                throws IOException {
+            String str = new String(b, off, len);
             append( str );
-//			lim.queue( str );
 
-            if( useLogFile ) {
-                if( logFileWriter == null ) {
-                    logFileWriter = new FileWriter( logFile );
+            if (useLogFile) {
+                if (logFileWriter == null) {
+                    logFileWriter = new FileWriter(logFile);
                 }
-                logFileWriter.write( str );
+                logFileWriter.write(str);
             }
         }
 
         public void flush()
-        throws IOException
-        {
-            if( logFileWriter != null ) {
+                throws IOException {
+            if (logFileWriter != null) {
                 logFileWriter.flush();
             }
             super.flush();
         }
 
         public void close()
-        throws IOException
-        {
-            if( logFileWriter != null ) {
+                throws IOException {
+            if (logFileWriter != null) {
                 logFileWriter.close();
                 logFileWriter = null;
             }
             super.close();
         }
 
-        public void write( int b )
-        throws IOException
-        {
+        public void write(int b)
+                throws IOException {
             cheesy[0] = (byte) b;
-            this.write( cheesy );
+            this.write(cheesy);
         }
     }
 
     private class ActionClear
-    extends MenuAction
-    {
+            extends MenuAction {
         protected ActionClear() { /* empty */ }
 
-        public void actionPerformed( ActionEvent e )
-        {
-            setText( null );
+        public void actionPerformed(ActionEvent e) {
+            setText(null);
         }
     }
  }

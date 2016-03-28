@@ -25,18 +25,17 @@
 
 package de.sciss.gui;
 
+import de.sciss.app.AbstractApplication;
+
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import java.awt.*;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.Date;
-import javax.swing.ImageIcon;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-
-import net.roydesign.mac.MRJAdapter;
-import net.roydesign.ui.StandardMacAboutFrame;
-
-import de.sciss.app.AbstractApplication;
 
 /**
  *  About, Copyright + Credits Frame
@@ -45,9 +44,8 @@ import de.sciss.app.AbstractApplication;
  *  @version	0.32, 29-Jan-09
  */
 public class AboutBox
-extends StandardMacAboutFrame
-implements HyperlinkListener
-{
+        extends AbstractAboutFrame
+        implements HyperlinkListener {
     /**
      *  Value for add/getComponent(): the about box
      */
@@ -106,14 +104,13 @@ implements HyperlinkListener
 
     // --------- HyperlinkListener interface ---------
 
-    public void hyperlinkUpdate( HyperlinkEvent e )
-    {
-        if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             try {
-                MRJAdapter.openURL( e.getURL().toString() );
-            }
-            catch( Exception e1 ) {
-                GUIUtil.displayError( this, e1, this.getTitle() );
+                final URI uri = e.getURL().toURI();
+                Desktop.getDesktop().browse(uri);
+            } catch (Exception e1) {
+                GUIUtil.displayError(this, e1, this.getTitle());
             }
         }
     }

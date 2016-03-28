@@ -36,10 +36,6 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
-import net.roydesign.app.AboutJMenuItem;
-import net.roydesign.app.PreferencesJMenuItem;
-import net.roydesign.app.QuitJMenuItem;
-
 import de.sciss.app.AbstractWindow;
 import de.sciss.app.DocumentEvent;
 import de.sciss.app.DocumentHandler;
@@ -236,12 +232,13 @@ implements DocumentListener
         mg.add( new MenuItem( "saveAs", getResourceString( "menuSaveAs" ), KeyStroke.getKeyStroke( KeyEvent.VK_S, MENU_SHORTCUT + InputEvent.SHIFT_MASK )));
         mg.add( new MenuItem( "saveCopyAs", getResourceString( "menuSaveCopyAs" )));
 //		mg.add( new MenuItem( "saveSelectionAs", getResourceString( "menuSaveSelectionAs" )));
-        if( QuitJMenuItem.isAutomaticallyPresent() ) {
-            root.getQuitJMenuItem().setAction( root.getQuitAction() );
-        } else {
+
+//        if( QuitJMenuItem.isAutomaticallyPresent() ) {
+//            root.getQuitJMenuItem().setAction( root.getQuitAction() );
+//        } else {
             mg.addSeparator();
             mg.add( new MenuItem( "quit", root.getQuitAction() ));
-        }
+//        }
         add( mg );
 
         // --- edit menu ---
@@ -256,22 +253,22 @@ implements DocumentListener
         mg.addSeparator();
         mg.add( new MenuItem( "selectAll", getResourceString( "menuSelectAll" ), KeyStroke.getKeyStroke( KeyEvent.VK_A, MENU_SHORTCUT )));
         a	= new ActionPreferences( getResourceString( "menuPreferences" ), KeyStroke.getKeyStroke( KeyEvent.VK_COMMA, MENU_SHORTCUT ));
-        if( PreferencesJMenuItem.isAutomaticallyPresent() ) {
-            // WORKING AROUND BUG WITH LATEST FUCKING APPLE JAVA
-            // see https://mrjadapter.dev.java.net/issues/show_bug.cgi?id=3
-            try {
-                final Class appClazz 	= Class.forName( "com.apple.eawt.Application" );
-                final Method getAppM 	= appClazz.getMethod( "getApplication", null );
-                final Object appleApp 	= getAppM.invoke( null, null );
-                final Method addPrefsM	= appleApp.getClass().getMethod( "addPreferencesMenuItem", null );
-                addPrefsM.invoke( appleApp, null );
-            } catch( Throwable t ) {} // screw you
-//			com.apple.eawt.Application.getApplication().addPreferencesMenuItem();
-            root.getPreferencesJMenuItem().setAction( a );
-        } else {
+//        if( PreferencesJMenuItem.isAutomaticallyPresent() ) {
+//            // WORKING AROUND BUG WITH LATEST FUCKING APPLE JAVA
+//            // see https://mrjadapter.dev.java.net/issues/show_bug.cgi?id=3
+//            try {
+//                final Class appClazz 	= Class.forName( "com.apple.eawt.Application" );
+//                final Method getAppM 	= appClazz.getMethod( "getApplication", null );
+//                final Object appleApp 	= getAppM.invoke( null, null );
+//                final Method addPrefsM	= appleApp.getClass().getMethod( "addPreferencesMenuItem", null );
+//                addPrefsM.invoke( appleApp, null );
+//            } catch( Throwable t ) {} // screw you
+////			com.apple.eawt.Application.getApplication().addPreferencesMenuItem();
+//            root.getPreferencesJMenuItem().setAction( a );
+//        } else {
             mg.addSeparator();
             mg.add( new MenuItem( "preferences", a ));
-        }
+//        }
         add( mg );
 
         // --- window menu ---
@@ -297,12 +294,12 @@ implements DocumentListener
         mg.addSeparator();
         mg.add( new MenuItem( "website", new URLViewerAction( getResourceString( "menuHelpWebsite" ), null, getResourceString( "appURL" ), true )));
         a = new ActionAbout( getResourceString( "menuAbout" ), null );
-        if( AboutJMenuItem.isAutomaticallyPresent() ) {
-            root.getAboutJMenuItem().setAction( a );
-        } else {
+//        if( AboutJMenuItem.isAutomaticallyPresent() ) {
+//            root.getAboutJMenuItem().setAction( a );
+//        } else {
             mg.addSeparator();
             mg.add( new MenuItem( "about", a ));
-        }
+//        }
 
         add( mg );
 

@@ -25,28 +25,19 @@
 
 package de.sciss.gui;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.TexturePaint;
+import de.sciss.util.Disposable;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JComponent;
-
-import de.sciss.util.Disposable;
-
 public class ComponentHost
-extends JComponent
-implements Disposable
-{
+        extends JComponent
+        implements Disposable {
+
     // --- top painter ---
 
     private Image					limited			= null;
@@ -55,107 +46,85 @@ implements Disposable
     private int						recentWidth, recentHeight;
 
     private final List				collTopPainters	= new ArrayList();
-//	private final List				collLights		= new ArrayList();
-//	private final Map				mapLights		= new HashMap();
 
-    private static Paint			pntBackground	= null;		// initialized with the first instance
+    private static Paint			pntBackgroundDark;
+    private static Paint			pntBackgroundLight;
 
-    private static final int[]		pntBgAquaPixels = { 0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0,
-                                                        0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0,
-                                                        0xFFECECEC, 0xFFECECEC, 0xFFECECEC, 0xFFECECEC,
-                                                        0xFFECECEC, 0xFFECECEC, 0xFFECECEC, 0xFFECECEC };
+    private static final int[]		pntBgAquaPixels = {
+            0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0,
+            0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0, 0xFFF0F0F0,
+            0xFFECECEC, 0xFFECECEC, 0xFFECECEC, 0xFFECECEC,
+            0xFFECECEC, 0xFFECECEC, 0xFFECECEC, 0xFFECECEC
+    };
+
+    private static final int[]		pntBgDarkPixels = {
+            0xFF0F0F0F, 0xFF0F0F0F, 0xFF0F0F0F, 0xFF0F0F0F,
+            0xFF0F0F0F, 0xFF0F0F0F, 0xFF0F0F0F, 0xFF0F0F0F,
+            0xFF131313, 0xFF131313, 0xFF131313, 0xFF131313,
+            0xFF131313, 0xFF131313, 0xFF131313, 0xFF131313
+    };
 
     private final Rectangle			updateRect		= new Rectangle();
 
-    private final Object			sync			= new Object();
+    private final Paint pntBackground;
+    private final Object sync = new Object();
 
-    public ComponentHost()
-    {
-        super();
+    static {
+        final BufferedImage imgDark = new BufferedImage( 4, 4, BufferedImage.TYPE_INT_ARGB );
+        imgDark.setRGB( 0, 0, 4, 4, pntBgDarkPixels, 0, 4 );
+        pntBackgroundDark = new TexturePaint( imgDark, new Rectangle( 0, 0, 4, 4 ));
 
-        synchronized( sync )
-        {
-            if( pntBackground == null ) {
-                final BufferedImage img = new BufferedImage( 4, 4, BufferedImage.TYPE_INT_ARGB );
-                img.setRGB( 0, 0, 4, 4, pntBgAquaPixels, 0, 4 );
-                pntBackground = new TexturePaint( img, new Rectangle( 0, 0, 4, 4 ));
-            }
-        }
-
-        setOpaque( true );
-        setDoubleBuffered( false );
+        final BufferedImage imgLight = new BufferedImage( 4, 4, BufferedImage.TYPE_INT_ARGB );
+        imgLight.setRGB( 0, 0, 4, 4, pntBgAquaPixels, 0, 4 );
+        pntBackgroundLight = new TexturePaint( imgLight, new Rectangle( 0, 0, 4, 4 ));
     }
 
-    public void update( Component c )
-    {
-        synchronized( sync ) {
+    public ComponentHost() {
+        super();
+
+        final boolean isDark = UIManager.getBoolean("dark-skin");
+        pntBackground = isDark ? pntBackgroundDark : pntBackgroundLight;
+
+        setOpaque(true);
+        setDoubleBuffered(false);
+    }
+
+    public void update(Component c) {
+        synchronized (sync) {
             final Rectangle r = c.getBounds();
-            if( updateRect.isEmpty() ) {
-                updateRect.setBounds( r );
+            if (updateRect.isEmpty()) {
+                updateRect.setBounds(r);
             } else {
-                updateRect.setBounds( updateRect.union( r ));
+                updateRect.setBounds(updateRect.union(r));
             }
             imageUpdate = true;
 //System.err.println( "Repaint "+r.x+", "+r.y+", "+r.width+", "+r.height );
-            repaint( r );
+            repaint(r);
         }
     }
 
-//	public void update( LightComponent c )
-//	{
-//		final LightInfo li;
-//	
-//		synchronized( sync ) {
-//			li = (LightInfo) mapLights.get( c );
-//		
-//			if( updateRect.isEmpty() ) {
-//				updateRect.setBounds( li.r );
-//			} else {
-//				updateRect.setBounds( updateRect.union( li.r ));
-//			}
-//			imageUpdate = true;
-//			repaint( li.r );
-//		}
-//	}
-
-    public void update( Rectangle r )
-    {
-        synchronized( sync ) {
-            if( updateRect.isEmpty() ) {
-                updateRect.setBounds( r );
+    public void update(Rectangle r) {
+        synchronized (sync) {
+            if (updateRect.isEmpty()) {
+                updateRect.setBounds(r);
             } else {
-                updateRect.setBounds( updateRect.union( r ));
+                updateRect.setBounds(updateRect.union(r));
             }
             imageUpdate = true;
-            repaint( r );
+            repaint(r);
         }
     }
 
-    public void updateAll()
-    {
-        synchronized( sync ) {
-            updateRect.setBounds( 0, 0, getWidth(), getHeight() );
+    public void updateAll() {
+        synchronized (sync) {
+            updateRect.setBounds(0, 0, getWidth(), getHeight());
             imageUpdate = true;
             repaint();
         }
     }
 
-//	public void addLight( LightComponent c )
-//	{
-//		final LightInfo li = new LightInfo( c );
-//	
-//		synchronized( sync ) {
-//			collLights.add( li );
-//			mapLights.put( c, li );
-//			c.setBounds( r );
-//			add( c );
-//		}
-//	}
-
-    private void redrawImage()
-    {
-        if( limited == null ) return;
-//System.err.println( "redrawImage" );
+    private void redrawImage() {
+        if (limited == null) return;
 
         final Graphics2D		g2			= (Graphics2D) limited.getGraphics();
         final Shape				clipOrig	= g2.getClip();
@@ -197,87 +166,66 @@ implements Disposable
         g2.dispose();
     }
 
-//	public void clear( Graphics2D g2, int x, int y, int w, int h )
-//	{
-//		g2.setPaint( pntBackground );
-//		g2.fillRect( 0, 0, w, h );	
-//	}
-
-    public void dispose()
-    {
+    public void dispose() {
         Component c;
 
         flushImage();
-        synchronized( sync ) {
-//			for( int i = 0; i < collLights.size(); i++ ) {
-//				((LightInfo) collLights.get( i )).c.dispose();
-//			}
-//			collLights.clear();
-//			mapLights.clear();
-            for( int i = 0; i < getComponentCount(); i++ ) {
-                c = getComponent( i );
-                if( c instanceof Disposable ) {
+        synchronized (sync) {
+            for (int i = 0; i < getComponentCount(); i++) {
+                c = getComponent(i);
+                if (c instanceof Disposable) {
                     ((Disposable) c).dispose();
                 }
             }
             removeAll();
         }
-//		buffer	= null;
     }
 
-    private void flushImage()
-    {
-        if( limited != null ) {
+    private void flushImage() {
+        if (limited != null) {
             limited.flush();
             limited = null;
         }
     }
 
-    private void recreateImage()
-    {
+    private void recreateImage() {
         flushImage();
-        limited = createImage( recentWidth, recentHeight );
+        limited = createImage(recentWidth, recentHeight);
         imageUpdateC = true;
     }
 
-    public void paint( Graphics g )	// no paintChildren() !
-    {
-        paintComponent( g );
+    // no paintChildren() !
+    public void paint(Graphics g) {
+        paintComponent(g);
     }
 
-    public void paintComponent( Graphics g )
-    {
-        super.paintComponent( g );
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
         final int width		= getWidth();
         final int height	= getHeight();
 
-        if( (width != recentWidth) || (height != recentHeight) ) {
-            recentWidth		= width;
-            recentHeight	= height;
+        if ((width != recentWidth) || (height != recentHeight)) {
+            recentWidth = width;
+            recentHeight = height;
             recreateImage();
         }
 
-        if( imageUpdate || imageUpdateC ) {
+        if (imageUpdate || imageUpdateC) {
             redrawImage();
         }
 
-        if( limited != null ) {
-            g.drawImage( limited, 0, 0, this );
+        if (limited != null) {
+            g.drawImage(limited, 0, 0, this);
         }
 
         // --- invoke top painters ---
-        if( !collTopPainters.isEmpty() ) {
-            final Graphics2D		g2			= (Graphics2D) g;
-//			final AffineTransform	trnsOrig	= g2.getTransform();
-
-// XXX
-//			g2.transform( trnsVirtualToScreen );
-            g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            for( int i = 0; i < collTopPainters.size(); i++ ) {
-                ((TopPainter) collTopPainters.get( i )).paintOnTop( g2 );
+        if (!collTopPainters.isEmpty()) {
+            final Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            for (int i = 0; i < collTopPainters.size(); i++) {
+                ((TopPainter) collTopPainters.get(i)).paintOnTop(g2);
             }
-//			g2.setTransform( trnsOrig );
         }
     }
 
@@ -291,10 +239,9 @@ implements Disposable
      *
      *  @param  p   the painter to be added to the paint queue
      */
-    public void addTopPainter( TopPainter p )
-    {
-        if( !collTopPainters.contains( p )) {
-            collTopPainters.add( p );
+    public void addTopPainter(TopPainter p) {
+        if (!collTopPainters.contains(p)) {
+            collTopPainters.add(p);
         }
     }
 
@@ -305,8 +252,7 @@ implements Disposable
      *
      *  @param  p   the painter to be removed from the paint queue
      */
-    public void removeTopPainter( TopPainter p )
-    {
-        collTopPainters.remove( p );
+    public void removeTopPainter(TopPainter p) {
+        collTopPainters.remove(p);
     }
 }

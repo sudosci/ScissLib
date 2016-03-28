@@ -165,6 +165,10 @@ public class Axis
         this(orient, flags, dark, null);
     }
 
+    public Axis(int orient, int flags, ComponentHost host) {
+        this(orient, flags, UIManager.getBoolean("dark-skin"), host);
+    }
+
     public Axis(int orient, int flags, boolean dark, ComponentHost host) {
         super();
 
