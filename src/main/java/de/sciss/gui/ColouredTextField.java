@@ -108,8 +108,8 @@ public class ColouredTextField
         final Graphics2D g2   = (Graphics2D) g;
         final Paint op        = g2.getPaint();
 
-        final String    lafName     = UIManager.getLookAndFeel().getName();
-        final boolean   isWebLaF    = lafName.equals("WebLaF");
+        final String    lafId       = UIManager.getLookAndFeel().getID();
+        final boolean   isWebLaF    = lafId.equals("submin") || lafId.equals("weblaf");
         final int       insets      = isWebLaF ? 1 : 0;
 
         g2.setPaint(p);
