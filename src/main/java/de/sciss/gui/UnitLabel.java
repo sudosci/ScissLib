@@ -25,16 +25,8 @@
 
 package de.sciss.gui;
 
-import java.awt.AWTEventMulticaster;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -44,14 +36,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
-import javax.swing.JPopupMenu;
-import javax.swing.MenuElement;
 
 /**
  *	This class extends <code>JLabel</code> by adding support
@@ -62,23 +46,20 @@ import javax.swing.MenuElement;
  *	class. You can think of <code>UnitLabel</code> as a <code>JComboBox</code>
  *	which uses a text and/or icon label as renderer and not a button.
  *
- *  @author		Hanns Holger Rutz
- *  @version	0.33, 28-Jun-08
- *
  *	@see		ParamField
  */
 public class UnitLabel
-extends JLabel
-implements Icon, PropertyChangeListener
-{
+        extends JLabel
+        implements Icon, PropertyChangeListener {
+
     private static final int[]		polyX		= { 0, 4, 8 };
     private static final int[]		polyY		= { 0, 4, 0 };
 
-    private static final Color		colrTri		= new Color( 0x00, 0x00, 0x00, 0xB0 );
-    private static final Color		colrTriD	= new Color( 0x00, 0x00, 0x00, 0x55 );
+//    private static final Color		colrTri		= new Color( 0x00, 0x00, 0x00, 0xB0 );
+//    private static final Color		colrTriD	= new Color( 0x00, 0x00, 0x00, 0x55 );
 
-    private final Color				colrLab		= null;
-    private final Color				colrLabD	= new Color( 0x00, 0x00, 0x00, 0x7F );
+    // private final Color				colrLab		= null;
+    // private final Color				colrLabD	= new Color( 0x00, 0x00, 0x00, 0x7F );
 
     protected final JPopupMenu		pop			= new JPopupMenu();
     private final ButtonGroup		bg			= new ButtonGroup();
@@ -90,34 +71,41 @@ implements Icon, PropertyChangeListener
 
     protected boolean				cycle		= false;
 
+    private final Color colrLabD, colrTri, colrTriD;
+
     /**
      *	Creates a new empty label.
      */
-    public UnitLabel()
-    {
+    public UnitLabel() {
         super();
-        setHorizontalTextPosition( LEFT );
-//		setVerticalTextPosition( BOTTOM );
+        setHorizontalTextPosition(LEFT);
 
-        setFocusable( true );
-        addMouseListener( new MouseAdapter() {
-            public void mousePressed( MouseEvent e )
-            {
-                if( isEnabled() && units.size() > 1 ) {
+        final Color colrLab = getForeground();
+        final int cr = colrLab.getRed();
+        final int cg = colrLab.getGreen();
+        final int cb = colrLab.getBlue();
+        colrLabD = new Color(cr, cg, cb, 0x7F);
+        colrTri  = new Color(cr, cg, cb, 0xB0);
+        colrTriD = new Color(cr, cg, cb, 0x55);
+
+        setFocusable(true);
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (isEnabled() && units.size() > 1) {
                     requestFocus();
-                    if( cycle ) {
-                        ((UnitAction) units.get( (selectedIdx + 1) % units.size() )).setLabel();
-                        ((JCheckBoxMenuItem) pop.getComponent( selectedIdx )).setSelected( true );
+                    if (cycle) {
+                        ((UnitAction) units.get((selectedIdx + 1) % units.size())).setLabel();
+                        ((JCheckBoxMenuItem) pop.getComponent(selectedIdx)).setSelected(true);
                     } else {
-                        pop.show( UnitLabel.this, 0, UnitLabel.this.getHeight() );
+                        pop.show(UnitLabel.this, 0, UnitLabel.this.getHeight());
                     }
                 }
             }
         });
 
-        this.addPropertyChangeListener( "font", this );
-        this.addPropertyChangeListener( "enabled", this );
-        this.addPropertyChangeListener( "insets", this );
+        this.addPropertyChangeListener("font", this);
+        this.addPropertyChangeListener("enabled", this);
+        this.addPropertyChangeListener("insets", this);
     }
 
     /**
@@ -125,8 +113,7 @@ implements Icon, PropertyChangeListener
      *
      *	@return	the index of the active unit or <code>-1</code> if no unit has been selected
      */
-    public int getSelectedIndex()
-    {
+    public int getSelectedIndex() {
         return selectedIdx;
     }
 
@@ -136,9 +123,8 @@ implements Icon, PropertyChangeListener
      *
      *	@return	the action at the given index
      */
-    public Action getUnit( int idx )
-    {
-        return (Action) units.get( idx );
+    public Action getUnit(int idx) {
+        return (Action) units.get(idx);
     }
 
     /**
@@ -147,9 +133,8 @@ implements Icon, PropertyChangeListener
      *
      *	@return	the action at the selected index or <code>null</code> if no unit is selected
      */
-    public Action getSelectedUnit()
-    {
-        return( ((selectedIdx < 0) || (selectedIdx >= units.size())) ? null : (Action) units.get( selectedIdx ));
+    public Action getSelectedUnit() {
+        return (((selectedIdx < 0) || (selectedIdx >= units.size())) ? null : (Action) units.get(selectedIdx));
     }
 
     /**
@@ -159,12 +144,11 @@ implements Icon, PropertyChangeListener
      *	@param	idx		the new index. Values outside the allowed range (0 ... numUnits-1)
      *					are ignored.
      */
-    public void setSelectedIndex( int idx )
-    {
-        this.selectedIdx = idx;	// so we won't fire
-        if( idx >= 0 && idx < units.size() ) {
-            ((UnitAction) units.get( idx )).setLabel();
-            ((JCheckBoxMenuItem) pop.getComponent( idx )).setSelected( true );
+    public void setSelectedIndex(int idx) {
+        this.selectedIdx = idx;    // so we won't fire
+        if (idx >= 0 && idx < units.size()) {
+            ((UnitAction) units.get(idx)).setLabel();
+            ((JCheckBoxMenuItem) pop.getComponent(idx)).setSelected(true);
         }
     }
 
@@ -175,9 +159,8 @@ implements Icon, PropertyChangeListener
      *
      *	@param	name	the name of the new label.
      */
-    public void addUnit( String name )
-    {
-        addUnit( new UnitAction( name ));
+    public void addUnit(String name) {
+        addUnit(new UnitAction(name));
     }
 
     /**
@@ -187,9 +170,8 @@ implements Icon, PropertyChangeListener
      *
      *	@param	icon	the icon view of the new label.
      */
-    public void addUnit( Icon icon )
-    {
-        addUnit( new UnitAction( icon ));
+    public void addUnit(Icon icon) {
+        addUnit(new UnitAction(icon));
     }
 
     /**
@@ -200,14 +182,12 @@ implements Icon, PropertyChangeListener
      *	@param	name	the name of the new label.
      *	@param	icon	the icon view of the new label.
      */
-    public void addUnit( String name, Icon icon )
-    {
-        addUnit( new UnitAction( name, icon ));
+    public void addUnit(String name, Icon icon) {
+        addUnit(new UnitAction(name, icon));
     }
 
-    public void setCycling( boolean b )
-    {
-        if( b != cycle ) {
+    public void setCycling(boolean b) {
+        if (b != cycle) {
             cycle = b;
             repaint();
         }
@@ -218,39 +198,37 @@ implements Icon, PropertyChangeListener
         return cycle;
     }
 
-    private void addUnit( UnitAction a )
-    {
-        final JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem( a );
-        bg.add( cbmi );
-        pop.add( cbmi );
-        units.add( a );
-        if( units.size() == 1 ) {
+    private void addUnit(UnitAction a) {
+        final JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem(a);
+        bg.add(cbmi);
+        pop.add(cbmi);
+        units.add(a);
+        if (units.size() == 1) {
             a.setLabel();
-            cbmi.setSelected( true );
+            cbmi.setSelected(true);
         }
         updatePreferredSize();
     }
 
-    private void updatePreferredSize()
-    {
-        final Font			fnt		= getFont();
-        final FontMetrics	fntMetr	= getFontMetrics( fnt );
-        UnitAction			ua;
-        Dimension			d;
-        int					w		= 4;
-        int					h		= 4;
-        final Insets		in		= getInsets();
+    private void updatePreferredSize() {
+        final Font fnt = getFont();
+        final FontMetrics fntMetr = getFontMetrics(fnt);
+        UnitAction ua;
+        Dimension d;
+        int w = 4;
+        int h = 4;
+        final Insets in = getInsets();
 
-        for( int i = 0; i < units.size(); i++ ) {
-            ua	= (UnitAction) units.get( i );
-            d	= ua.getPreferredSize( fntMetr );
-            w	= Math.max( w, d.width );
-            h	= Math.max( h, d.height );
+        for (int i = 0; i < units.size(); i++) {
+            ua = (UnitAction) units.get(i);
+            d = ua.getPreferredSize(fntMetr);
+            w = Math.max(w, d.width);
+            h = Math.max(h, d.height);
         }
 
-        d	= new Dimension( w + in.left + in.right, h + in.top + in.bottom );
-        setMinimumSize( d );
-        setPreferredSize( d );
+        d = new Dimension(w + in.left + in.right, h + in.top + in.bottom);
+        setMinimumSize(d);
+        setPreferredSize(d);
     }
 
 //	private void checkPopup( MouseEvent e )
@@ -266,29 +244,27 @@ implements Icon, PropertyChangeListener
      *  Forwards <code>Font</code> property
      *  changes to the child gadgets
      */
-    public void propertyChange( PropertyChangeEvent e )
-    {
-        if( e.getPropertyName().equals( "font" )) {
-            final Font			fnt		= this.getFont();
-            final MenuElement[]	items	= pop.getSubElements();
-            for( int i = 0; i < items.length; i++ ) {
-                items[ i ].getComponent().setFont( fnt );
+    public void propertyChange(PropertyChangeEvent e) {
+        if (e.getPropertyName().equals("font")) {
+            final Font fnt = this.getFont();
+            final MenuElement[] items = pop.getSubElements();
+            for (int i = 0; i < items.length; i++) {
+                items[i].getComponent().setFont(fnt);
             }
             updatePreferredSize();
 
-        } else if( e.getPropertyName().equals( "enabled" )) {
-            setForeground( isEnabled() ? colrLab : colrLabD );
+        } else if (e.getPropertyName().equals("enabled")) {
+            setForeground(isEnabled() ? null : colrLabD);
 
-        } else if( e.getPropertyName().equals( "insets" )) {
+        } else if (e.getPropertyName().equals("insets")) {
             updatePreferredSize();
         }
     }
 
-    protected void fireUnitChanged()
-    {
+    protected void fireUnitChanged() {
         final ActionListener l = al;
-        if( l != null ) {
-            l.actionPerformed( new ActionEvent( this, ActionEvent.ACTION_PERFORMED, getText() ));
+        if (l != null) {
+            l.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, getText()));
         }
     }
 
@@ -392,71 +368,64 @@ implements Icon, PropertyChangeListener
             this.icon	= new CompoundIcon( icon, UnitLabel.this, UnitLabel.this.getIconTextGap() );
         }
 
-        public void actionPerformed( ActionEvent e )
-        {
+        public void actionPerformed(ActionEvent e) {
             setLabel();
         }
 
-        protected void setLabel()
-        {
-            UnitLabel.this.setText( name );
-            UnitLabel.this.setIcon( icon );
-            final int newIndex	= UnitLabel.this.units.indexOf( this );
-            if( newIndex != UnitLabel.this.selectedIdx ) {
+        protected void setLabel() {
+            UnitLabel.this.setText(name);
+            UnitLabel.this.setIcon(icon);
+            final int newIndex = UnitLabel.this.units.indexOf(this);
+            if (newIndex != UnitLabel.this.selectedIdx) {
                 selectedIdx = newIndex;
                 fireUnitChanged();
             }
         }
 
-        protected Dimension getPreferredSize( FontMetrics fntMetr )
-        {
+        protected Dimension getPreferredSize(FontMetrics fntMetrics) {
             int w, h;
 
-            if( name != null ) {
-                w	= fntMetr.stringWidth( name ) + UnitLabel.this.getIconTextGap();
-                h	= fntMetr.getHeight();
+            if (name != null) {
+                w = fntMetrics.stringWidth(name) + UnitLabel.this.getIconTextGap();
+                h = fntMetrics.getHeight();
             } else {
-                w	= 0;
-                h	= 0;
+                w = 0;
+                h = 0;
             }
 
-            return new Dimension( w + icon.getIconWidth(), Math.max( h, icon.getIconHeight() ));
+            return new Dimension(w + icon.getIconWidth(), Math.max(h, icon.getIconHeight()));
         }
     }
 
     private static class CompoundIcon
-    implements Icon
-    {
+            implements Icon {
+
         private final Icon	iconWest, iconEast;
         private final int	gap;
 
-        protected CompoundIcon( Icon iconWest, Icon iconEast, int gap )
-        {
-            this.iconWest	= iconWest;
-            this.iconEast	= iconEast;
-            this.gap		= gap;
+        protected CompoundIcon(Icon iconWest, Icon iconEast, int gap) {
+            this.iconWest = iconWest;
+            this.iconEast = iconEast;
+            this.gap = gap;
         }
 
-        public int getIconWidth()
-        {
-            return (iconWest == null ? 0 : iconWest.getIconWidth() + gap) +
-                   (iconEast == null ? 0 : iconEast.getIconWidth());
+        public int getIconWidth() {
+            return  (iconWest == null ? 0 : iconWest.getIconWidth() + gap) +
+                    (iconEast == null ? 0 : iconEast.getIconWidth());
         }
 
-        public int getIconHeight()
-        {
-            return Math.max( iconWest == null ? 0 : iconWest.getIconHeight(),
-                             iconEast == null ? 0 : iconEast.getIconHeight() );
+        public int getIconHeight() {
+            return Math.max(iconWest == null ? 0 : iconWest.getIconHeight(),
+                            iconEast == null ? 0 : iconEast.getIconHeight());
         }
 
-        public void paintIcon( Component c, Graphics g, int x, int y )
-        {
-            if( iconWest != null ) {
-                iconWest.paintIcon( c, g, x, ((iconWest.getIconHeight() - getIconHeight()) >> 1) );
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            if (iconWest != null) {
+                iconWest.paintIcon(c, g, x, ((iconWest.getIconHeight() - getIconHeight()) >> 1));
             }
-            if( iconEast != null ) {
-                iconEast.paintIcon( c, g, x + (iconWest == null ? 0 : iconWest.getIconWidth() + gap),
-                    y + getIconHeight() - iconEast.getIconHeight() );
+            if (iconEast != null) {
+                iconEast.paintIcon(c, g, x + (iconWest == null ? 0 : iconWest.getIconWidth() + gap),
+                        y + getIconHeight() - iconEast.getIconHeight());
             }
         }
     }

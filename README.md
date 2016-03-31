@@ -25,7 +25,7 @@ To use this library in your project, you can link to the following [Maven](http:
 
     GroupId: de.sciss
     ArtifactId: scisslib
-    Version: 1.1.0
+    Version: 1.1.1
 
 ## contributing
 
@@ -33,7 +33,7 @@ Please see the file [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## change history
 
- - v1.1.0 (mar 2016). supports dark look-and-feel. drop MRJ adaptor.
+ - v1.1.0 (mar 2016). supports dark look-and-feel. drop MRJ adaptor.; v1.1.1 - colour enhancements
  - v1.0.0 (aug 2013). fixes issue no. 1 (remove unnecessary scala-library dependency).
  - v0.15 (apr 2012). moved from SourceForge/svn/Eclipse/ant to GitHub/git/IDEA/sbt.
  - v0.12 (jul 2009)

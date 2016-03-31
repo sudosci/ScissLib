@@ -25,62 +25,39 @@
 
 package de.sciss.gui;
 
-/**
- *	@version	0.59, 14-Mar-10
- *	@author		Hanns Holger Rutz
- */
 public class PeakMeterGroup
-implements PeakMeterView
-{
-    private final PeakMeterView[]	views;
-    private final int				numChannels;
+        implements PeakMeterView {
 
-    public PeakMeterGroup( PeakMeterView[] views )
-    {
-        this.views	= views;
+    private final PeakMeterView[] views;
+    private final int numChannels;
+
+    public PeakMeterGroup(PeakMeterView[] views) {
+        this.views = views;
         int numCh = 0;
-        for( int i = 0; i < views.length; i++ ) numCh += views[ i ].getNumChannels();
+        for (int i = 0; i < views.length; i++) numCh += views[i].getNumChannels();
         numChannels = numCh;
     }
 
-//	public void setRMSPainted( boolean onOff )
-//	{
-//		for( int i = 0; i < views.length; i++ ) {
-//			views[ i ].setRMSPainted( onOff );
-//		}
-//	}
-//
-//	public void setHoldPainted( boolean onOff )
-//	{
-//		for( int i = 0; i < views.length; i++ ) {
-//			views[ i ].setHoldPainted( onOff );
-//		}
-//	}
-
-    public int getNumChannels()
-    {
+    public int getNumChannels() {
         return numChannels;
     }
 
-    public boolean meterUpdate( float[] peakRMSPairs, int offset, long time )
-    {
+    public boolean meterUpdate(float[] peakRMSPairs, int offset, long time) {
         int dirty = 0;
 
-        for( int i = 0; i < views.length; i++ ) {
-            if( views[ i ].meterUpdate( peakRMSPairs, offset, time )) dirty++;
-            offset += views[ i ].getNumChannels() << 1;
+        for (int i = 0; i < views.length; i++) {
+            if (views[i].meterUpdate(peakRMSPairs, offset, time)) dirty++;
+            offset += views[i].getNumChannels() << 1;
         }
 
-        return( dirty > 0 );
+        return (dirty > 0);
     }
 
-    public void clearMeter()
-    {
-        for( int i = 0; i < views.length; i++ ) views[ i ].clearMeter();
+    public void clearMeter() {
+        for (int i = 0; i < views.length; i++) views[i].clearMeter();
     }
 
-    public void dispose()
-    {
-        for( int i = 0; i < views.length; i++ ) views[ i ].dispose();
+    public void dispose() {
+        for (int i = 0; i < views.length; i++) views[i].dispose();
     }
 }

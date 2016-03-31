@@ -25,20 +25,12 @@
 
 package de.sciss.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JButton;
 
 /**
  *  @author		Hanns Holger Rutz
@@ -118,141 +110,137 @@ extends JButton
         } else {
             icn = icnDisabled;
         }
-        icn.paintIcon( this, g, 4, 2 );
+        icn.paintIcon(this, g, 4, 2);
     }
 
     private static class ModificationIcon
-    implements Icon
-    {
-        private static final Color[] colr		= new Color[] {
-            new Color( 0x6C, 0x6C, 0x6C, 0xFF ),	// normal
-            new Color( 0x36, 0x36, 0x36, 0xFF ),	// pressed
-            new Color( 0x6C, 0x6C, 0x6C, 0x7F )		// disabled
+            implements Icon {
+
+        private static final Color[] colrLight = new Color[] {
+                new Color(0x6C, 0x6C, 0x6C, 0xFF),    // normal
+                new Color(0x36, 0x36, 0x36, 0xFF),    // pressed
+                new Color(0x6C, 0x6C, 0x6C, 0x7F)     // disabled
+        };
+
+        private static final Color[] colrDark = new Color[] {
+                new Color(0x93, 0x93, 0x93, 0xFF),    // normal
+                new Color(0x49, 0x49, 0x49, 0xFF),    // pressed
+                new Color(0x93, 0x93, 0x93, 0x7F)     // disabled
         };
 
         private final Area	icon;
         private final Color	color;
         private final int	size;
 
-        public ModificationIcon( int shape, int type, int size, Color color )
-        {
+        public ModificationIcon(int shape, int type, int size, Color color) {
             this.color	= color;
             this.size	= size;
 
-            icon = new Area( new Ellipse2D.Float( 0.0f, 0.0f, size, size ));
+            icon = new Area(new Ellipse2D.Float(0.0f, 0.0f, size, size));
 
             final float scale = (float) size / (float) DEFAULT_SIZE;
             GeneralPath	gp;
             Area		a;
 
-            switch( shape ) {
-            case SHAPE_PLUS:
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale )));
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    5.5f * scale, 3.0f * scale, 2.0f * scale, 7.0f * scale )));
-                break;
+            switch (shape) {
+                case SHAPE_PLUS:
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale)));
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            5.5f * scale, 3.0f * scale, 2.0f * scale, 7.0f * scale)));
+                    break;
 
-            case SHAPE_MINUS:
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale )));
-                break;
+                case SHAPE_MINUS:
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale)));
+                    break;
 
-            case SHAPE_INFO:
-                icon.subtract( new Area( new Ellipse2D.Float(
-                    5.5f * scale, 3.0f * scale, 2.0f * scale, 2.0f * scale )));
-                gp = new GeneralPath();
-                gp.moveTo( 7.5f * scale, 5.5f * scale );
-                gp.lineTo( 4.5f * scale, 6.0f * scale );
-                gp.lineTo( 4.5f * scale, 6.25f * scale );
-                gp.lineTo( 5.5f * scale, 6.5f * scale );
-                gp.lineTo( 5.5f * scale, 9.5f * scale );
-                gp.lineTo( 4.5f * scale, 9.75f * scale );
-                gp.lineTo( 4.5f * scale, 10.0f * scale );
-                gp.lineTo( 8.5f * scale, 10.0f * scale );
-                gp.lineTo( 8.5f * scale, 9.75f * scale );
-                gp.lineTo( 7.5f * scale, 9.5f * scale );
-                gp.closePath();
-                icon.subtract( new Area( gp ));
-                break;
+                case SHAPE_INFO:
+                    icon.subtract(new Area(new Ellipse2D.Float(
+                            5.5f * scale, 3.0f * scale, 2.0f * scale, 2.0f * scale)));
+                    gp = new GeneralPath();
+                    gp.moveTo(7.5f * scale, 5.5f * scale);
+                    gp.lineTo(4.5f * scale, 6.0f * scale);
+                    gp.lineTo(4.5f * scale, 6.25f * scale);
+                    gp.lineTo(5.5f * scale, 6.5f * scale);
+                    gp.lineTo(5.5f * scale, 9.5f * scale);
+                    gp.lineTo(4.5f * scale, 9.75f * scale);
+                    gp.lineTo(4.5f * scale, 10.0f * scale);
+                    gp.lineTo(8.5f * scale, 10.0f * scale);
+                    gp.lineTo(8.5f * scale, 9.75f * scale);
+                    gp.lineTo(7.5f * scale, 9.5f * scale);
+                    gp.closePath();
+                    icon.subtract(new Area(gp));
+                    break;
 
-            case SHAPE_LIST:
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    3.0f * scale, 2.5f * scale, 7.0f * scale, 2.0f * scale )));
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale )));
-                icon.subtract( new Area( new Rectangle2D.Float(
-                    3.0f * scale, 8.5f * scale, 7.0f * scale, 2.0f * scale )));
-                break;
+                case SHAPE_LIST:
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            3.0f * scale, 2.5f * scale, 7.0f * scale, 2.0f * scale)));
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            3.0f * scale, 5.5f * scale, 7.0f * scale, 2.0f * scale)));
+                    icon.subtract(new Area(new Rectangle2D.Float(
+                            3.0f * scale, 8.5f * scale, 7.0f * scale, 2.0f * scale)));
+                    break;
 
-            case SHAPE_REVEAL:
-                a = new Area( new Ellipse2D.Float(
-                    1.5f * scale, 1.5f * scale, 7f * scale, 7f * scale ));
+                case SHAPE_REVEAL:
+                    a = new Area(new Ellipse2D.Float(
+                            1.5f * scale, 1.5f * scale, 7f * scale, 7f * scale));
 
-                a.subtract( new Area( new Ellipse2D.Float(
-                    2.75f * scale, 2.75f * scale, 4.5f * scale, 4.5f * scale )));
-                icon.subtract( a );
+                    a.subtract(new Area(new Ellipse2D.Float(
+                            2.75f * scale, 2.75f * scale, 4.5f * scale, 4.5f * scale)));
+                    icon.subtract(a);
 
-                gp = new GeneralPath();
-                gp.moveTo( 7.5f * scale, 6.25f * scale );
-                gp.lineTo( 10.75f * scale, 9.5f * scale );
-                gp.lineTo( 9.25f * scale, 11.0f * scale );
-                gp.lineTo( 6.0f * scale, 7.75f * scale );
-                gp.closePath();
-                icon.subtract( new Area( gp ));
-                break;
+                    gp = new GeneralPath();
+                    gp.moveTo(7.5f * scale, 6.25f * scale);
+                    gp.lineTo(10.75f * scale, 9.5f * scale);
+                    gp.lineTo(9.25f * scale, 11.0f * scale);
+                    gp.lineTo(6.0f * scale, 7.75f * scale);
+                    gp.closePath();
+                    icon.subtract(new Area(gp));
+                    break;
 
-            case SHAPE_ABORT:
-                gp = new GeneralPath();
-                gp.moveTo( 2.9f * scale, 4.1f * scale );
-                gp.lineTo( 4.1f * scale, 2.9f * scale );
-                gp.lineTo( 10.1f * scale, 8.9f * scale );
-                gp.lineTo( 8.9f * scale, 10.1f * scale );
-                gp.closePath();
-                icon.subtract( new Area( gp ));
+                case SHAPE_ABORT:
+                    gp = new GeneralPath();
+                    gp.moveTo(2.9f * scale, 4.1f * scale);
+                    gp.lineTo(4.1f * scale, 2.9f * scale);
+                    gp.lineTo(10.1f * scale, 8.9f * scale);
+                    gp.lineTo(8.9f * scale, 10.1f * scale);
+                    gp.closePath();
+                    icon.subtract(new Area(gp));
 
-                gp = new GeneralPath();
-                gp.moveTo( 4.1f * scale, 10.1f * scale );
-                gp.lineTo( 2.9f * scale, 8.9f * scale );
-                gp.lineTo( 8.9f * scale, 2.9f * scale );
-                gp.lineTo( 10.1f * scale, 4.1f * scale );
-                gp.closePath();
-                icon.subtract( new Area( gp ));
-                break;
+                    gp = new GeneralPath();
+                    gp.moveTo(4.1f * scale, 10.1f * scale);
+                    gp.lineTo(2.9f * scale, 8.9f * scale);
+                    gp.lineTo(8.9f * scale, 2.9f * scale);
+                    gp.lineTo(10.1f * scale, 4.1f * scale);
+                    gp.closePath();
+                    icon.subtract(new Area(gp));
+                    break;
 
-            default:	// ignore
-                break;
+                default:    // ignore
+                    break;
             }
         }
 
-        public ModificationIcon( int shape, int type, int size )
-        {
-            this( shape, type, size, colr[ type ]);
+        public ModificationIcon(int shape, int type, int size) {
+            this(shape, type, size, UIManager.getBoolean("dark-skin") ? colrDark[type] : colrLight[type]);
         }
 
-//		public ModificationIcon( int shape, int type )
-//		{
-//			this( shape, type, DEFAULT_SIZE );
-//		}
-
-        public int getIconWidth()
-        {
+        public int getIconWidth() {
             return size;
         }
 
-        public int getIconHeight()
-        {
+        public int getIconHeight() {
             return size;
         }
 
-        public void paintIcon( Component c, Graphics g, int x,  int y )
-        {
+        public void paintIcon(Component c, Graphics g, int x, int y) {
             Graphics2D g2 = (Graphics2D) g;
-            g2.translate( x, y );
-            g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
-            g2.setColor( color );
-            g2.fill( icon );
-            g2.translate( -x, -y );
+            g2.translate(x, y);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.fill(icon);
+            g2.translate(-x, -y);
         }
     }
 }

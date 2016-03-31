@@ -25,25 +25,14 @@
 
 package de.sciss.gui;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.TexturePaint;
+import de.sciss.util.Disposable;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.SwingConstants;
-
-import de.sciss.util.Disposable;
 
 /**
  *	A level (volume) meter GUI component. The component
@@ -53,14 +42,11 @@ import de.sciss.util.Disposable;
  *	To animate the bar, call <code>setPeakAndRMS</code> at a
  *	regular interval, typically around every 30 milliseconds
  *	for a smooth look.
- *
- *  @author		Hanns Holger Rutz
- *  @version	0.70, 14-Mar-10
  */
 public class PeakMeter
-extends JComponent
-implements PeakMeterView, Disposable, SwingConstants
-{
+        extends JComponent
+        implements PeakMeterView, Disposable, SwingConstants {
+
     public static final int		DEFAULT_HOLD_DUR = 2500;
 
     private int					holdDuration	= DEFAULT_HOLD_DUR;	// milliseconds peak hold
@@ -85,10 +71,17 @@ implements PeakMeterView, Disposable, SwingConstants
     private boolean				holdPainted		= true;
     private boolean				rmsPainted		= true;
 
-//	private boolean				logarithmic		= true;			// XXX fixed for now
-//	private float				fallSpeed		= 0.013333333333333f;		// decibels per millisec
-//	private float				holdFallSpeed	= 0.015f;		// decibels per millisec
-//	private float				floorWeight		= 1.0f / 40;	// -1 / minimumDecibels
+    private final static boolean	isMac		= System.getProperty("os.name").contains("Mac OS");
+    private final static boolean	isWindows	= System.getProperty("os.name").contains("Windows");
+    private final static boolean	isLinux		= !(isMac || isWindows);	// Well...
+
+    /** <tt>true</tt> for bug: https://stackoverflow.com/questions/19480076 */
+    public static final boolean animationNeedsSync =
+            isLinux && System.getProperty("java.version").startsWith("1.8.");
+
+    private static void sync() {
+        if (animationNeedsSync) Toolkit.getDefaultToolkit().sync();
+    }
 
     private static final int[]	bgPixels		= { 0xFF000000, 0xFF343434, 0xFF484848, 0xFF5C5C5C, 0xFF5C5C5C,
                                                     0xFF5C5C5C, 0xFF5C5C5C, 0xFF5C5C5C, 0xFF484848, 0xFF343434,
@@ -176,11 +169,12 @@ implements PeakMeterView, Disposable, SwingConstants
 
     public int getNumChannels() { return 1; }
 
-    public boolean meterUpdate( float[] peakRMSPairs, int offset, long time )
-    {
+    public boolean meterUpdate(float[] peakRMSPairs, int offset, long time) {
         final int offset2 = offset + 1;
-        if( offset2 >= peakRMSPairs.length ) return false;
-        return setPeakAndRMS( peakRMSPairs[ offset ], peakRMSPairs[ offset2 ], time );
+        if (offset2 >= peakRMSPairs.length) return false;
+        final boolean result = setPeakAndRMS(peakRMSPairs[offset], peakRMSPairs[offset2], time);
+        sync();
+        return result;
     }
 
     /**
@@ -190,10 +184,9 @@ implements PeakMeterView, Disposable, SwingConstants
      *	@param	onOff	<code>true</code> to have the indicator painted,
      *					<code>false</code> to switch it off
      */
-    public void setHoldPainted( boolean onOff )
-    {
-        if( holdPainted != onOff ) {
-            holdPainted	= onOff;
+    public void setHoldPainted(boolean onOff) {
+        if (holdPainted != onOff) {
+            holdPainted = onOff;
             repaint();
         }
     }
@@ -383,9 +376,8 @@ implements PeakMeterView, Disposable, SwingConstants
         } else return -1f;
     }
 
-    public boolean setPeakAndRMS( float newPeak, float newRMS, long time )
-    {
-        if( !EventQueue.isDispatchThread() ) throw new IllegalMonitorStateException();
+    public boolean setPeakAndRMS(float newPeak, float newRMS, long time) {
+        if (!EventQueue.isDispatchThread()) throw new IllegalMonitorStateException();
 
         final boolean	result;
         final int		len1, rlen1, w1, h1;

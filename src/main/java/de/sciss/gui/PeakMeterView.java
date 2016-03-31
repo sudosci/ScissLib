@@ -28,11 +28,11 @@ package de.sciss.gui;
 import de.sciss.util.Disposable;
 
 public interface PeakMeterView
-extends Disposable
-{
-//	public void setRMSPainted( boolean onOff );
-//	public void setHoldPainted( boolean onOff );
+        extends Disposable {
+
     public int getNumChannels();
+
     public void clearMeter();
-    public boolean meterUpdate( float[] peakRMSPairs, int offset, long time );
+
+    public boolean meterUpdate(float[] peakRMSPairs, int offset, long time);
 }

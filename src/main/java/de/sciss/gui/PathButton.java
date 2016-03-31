@@ -71,17 +71,15 @@ public class PathButton
         DataFlavor.javaFileListFlavor, DataFlavor.stringFlavor
     };
 
-    public PathButton()
-    {
-        this( PathField.TYPE_INPUTFILE );
+    public PathButton() {
+        this(PathField.TYPE_INPUTFILE);
     }
 
-    public PathButton( int type )
-    {
-        super( SHAPE_LIST );
-        this.type   = type;
+    public PathButton(int type) {
+        super(SHAPE_LIST);
+        this.type = type;
 
-        setToolTipText( GUIUtil.getResourceString( "buttonChoosePathTT" ));
+        setToolTipText(GUIUtil.getResourceString("buttonChoosePathTT"));
         setTransferHandler( new PathTransferHandler() );
 
         final MouseInputAdapter mia = new MouseInputAdapter() {
@@ -244,9 +242,24 @@ public class PathButton
         dlg.setVisible(true);
     }
 
-    private void showFolderChooser(Frame win, File p) {
+    private void showFileChooser(Frame win, File p) {
         final JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        switch (type & PathField.TYPE_BASICMASK) {
+            case PathField.TYPE_INPUTFILE:
+                fc.setDialogType(JFileChooser.OPEN_DIALOG);
+                break;
+            case PathField.TYPE_OUTPUTFILE:
+                fc.setDialogType(JFileChooser.SAVE_DIALOG);
+                break;
+            case PathField.TYPE_FOLDER:
+                fc.setDialogType(JFileChooser.OPEN_DIALOG);
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                break;
+            default:
+                assert false : (type & PathField.TYPE_BASICMASK);
+        }
+
         if (p != null) {
             fc.setSelectedFile(p);
         }
@@ -263,6 +276,7 @@ public class PathButton
                 }
             });
         }
+        fc.setDialogTitle(dlgTxt);
         final int result = fc.showDialog(win, null);
 
         final File fRes = fc.getSelectedFile();
@@ -273,11 +287,9 @@ public class PathButton
     }
 
     protected void showFileChooser() {
-
         File		p;
         FileDialog	fDlg;
-        String		fDir, fFile; // , fPath;
-//		int			i;
+        String		fDir, fFile;
         Component	win;
 
         for (win = this; !(win instanceof Frame); ) {
@@ -286,22 +298,28 @@ public class PathButton
         }
 
         p = getPath();
-        switch( type & PathField.TYPE_BASICMASK ) {
-        case PathField.TYPE_INPUTFILE:
-            fDlg = new FileDialog( (Frame) win, dlgTxt, FileDialog.LOAD );
-            break;
-        case PathField.TYPE_OUTPUTFILE:
-            fDlg = new FileDialog( (Frame) win, dlgTxt, FileDialog.SAVE );
-            break;
-        case PathField.TYPE_FOLDER:
-            showFolderChooser((Frame) win, p);
+        final String    lafId       = UIManager.getLookAndFeel().getID();
+        final boolean   isWebLaF    = lafId.equals("submin") || lafId.equals("weblaf");
+
+        // yes, all pretty ugly...
+        if (isWebLaF) {
+            showFileChooser((Frame) win, p);
             return;
-            // fDlg = new FolderDialog( (Frame) win, dlgTxt );
-            // break;
-        default:
-            fDlg = null;
-            assert false : (type & PathField.TYPE_BASICMASK);
-            break;
+        }
+
+        switch (type & PathField.TYPE_BASICMASK) {
+            case PathField.TYPE_INPUTFILE:
+                fDlg = new FileDialog((Frame) win, dlgTxt, FileDialog.LOAD);
+                break;
+            case PathField.TYPE_OUTPUTFILE:
+                fDlg = new FileDialog((Frame) win, dlgTxt, FileDialog.SAVE);
+                break;
+            case PathField.TYPE_FOLDER:
+                showFileChooser((Frame) win, p);
+                return;
+            default:
+                fDlg = null;
+                assert false : (type & PathField.TYPE_BASICMASK);
         }
 
         if (p != null) {
